@@ -12,24 +12,19 @@ html, body { height: 100%; }
 body {
   font-family: "Noto Serif SC", "SourceHanSerifSC", "SimSun", "STSong", serif;
   color: #1a1a1a;
-  background-color: #e8e0d4;
+  background-color: #f2ede4;
   background-image:
-    /* 墨晕染层1: 左上角大墨团,浓墨向外扩散 */
-    radial-gradient(ellipse 700px 500px at 8% 5%, rgba(26,26,26,0.35) 0%, rgba(26,26,26,0.18) 20%, rgba(26,26,26,0.06) 50%, transparent 80%),
-    /* 墨晕染层2: 右下角浓墨 */
-    radial-gradient(ellipse 800px 600px at 92% 95%, rgba(26,26,26,0.30) 0%, rgba(26,26,26,0.12) 30%, rgba(26,26,26,0.03) 60%, transparent 80%),
-    /* 墨晕染层3: 右上角浓墨 */
-    radial-gradient(ellipse 550px 450px at 95% 10%, rgba(26,26,26,0.28) 0%, rgba(26,26,26,0.10) 35%, transparent 75%),
-    /* 墨晕染层4: 左下角淡墨 */
-    radial-gradient(ellipse 600px 450px at 3% 85%, rgba(26,26,26,0.22) 0%, rgba(26,26,26,0.08) 40%, transparent 75%),
-    /* 墨晕染层5: 中央偏右淡墨晕 */
-    radial-gradient(ellipse 900px 600px at 60% 45%, rgba(26,26,26,0.12) 0%, rgba(26,26,26,0.04) 50%, transparent 80%),
-    /* 墨晕染层6: 朱砂点缀 */
-    radial-gradient(ellipse 250px 180px at 75% 25%, rgba(196,58,49,0.12) 0%, rgba(196,58,49,0.04) 50%, transparent 75%),
-    radial-gradient(ellipse 220px 150px at 20% 75%, rgba(196,58,49,0.10) 0%, transparent 70%),
+    /* 底部浓墨沉积 */
+    radial-gradient(ellipse 1200px 400px at 50% 100%, rgba(26,26,26,0.28) 0%, rgba(26,26,26,0.12) 30%, rgba(26,26,26,0.03) 60%, transparent 85%),
+    /* 右侧墨晕扩散 */
+    radial-gradient(ellipse 600px 800px at 100% 50%, rgba(26,26,26,0.20) 0%, rgba(26,26,26,0.08) 35%, rgba(26,26,26,0.02) 65%, transparent 85%),
+    /* 右下角浓墨汇聚 */
+    radial-gradient(ellipse 700px 500px at 95% 90%, rgba(26,26,26,0.32) 0%, rgba(26,26,26,0.14) 25%, rgba(26,26,26,0.03) 55%, transparent 80%),
+    /* 朱砂点缀 */
+    radial-gradient(ellipse 200px 150px at 88% 75%, rgba(196,58,49,0.10) 0%, transparent 70%),
     /* 宣纸底纹 */
-    repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(180,170,155,0.02) 3px, rgba(180,170,155,0.02) 5px),
-    repeating-linear-gradient(90deg, transparent, transparent 4px, rgba(175,165,145,0.015) 4px, rgba(175,165,145,0.015) 6px);
+    repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(180,170,155,0.015) 3px, rgba(180,170,155,0.015) 5px),
+    repeating-linear-gradient(90deg, transparent, transparent 4px, rgba(175,165,145,0.01) 4px, rgba(175,165,145,0.01) 6px);
   background-attachment: fixed;
   min-height: 100vh;
   font-size: 15px;
@@ -51,23 +46,18 @@ body {
 }
 .geo-bg::after {
   content: ""; position: absolute; inset: 0;
-  /* 墨晕散点: 模拟墨溅效果,大小不一 */
+  /* 右下角墨溅点 */
   background-image:
-    radial-gradient(circle 12px at 8% 20%, rgba(26,26,26,0.15) 0%, rgba(26,26,26,0.04) 60%, transparent 100%),
-    radial-gradient(circle 8px at 15% 68%, rgba(26,26,26,0.12) 0%, transparent 80%),
-    radial-gradient(circle 14px at 72% 12%, rgba(26,26,26,0.10) 0%, rgba(26,26,26,0.02) 70%, transparent 100%),
-    radial-gradient(circle 6px at 85% 45%, rgba(26,26,26,0.13) 0%, transparent 80%),
-    radial-gradient(circle 10px at 92% 78%, rgba(26,26,26,0.11) 0%, transparent 80%),
-    radial-gradient(circle 5px at 33% 8%, rgba(196,58,49,0.15) 0%, transparent 70%),
-    radial-gradient(circle 8px at 60% 88%, rgba(26,26,26,0.09) 0%, transparent 80%),
-    radial-gradient(circle 11px at 40% 35%, rgba(26,26,26,0.08) 0%, transparent 80%),
-    radial-gradient(circle 5px at 50% 60%, rgba(196,58,49,0.12) 0%, transparent 70%);
+    radial-gradient(circle 10px at 85% 70%, rgba(26,26,26,0.14) 0%, transparent 80%),
+    radial-gradient(circle 6px at 92% 85%, rgba(26,26,26,0.12) 0%, transparent 80%),
+    radial-gradient(circle 4px at 78% 92%, rgba(26,26,26,0.10) 0%, transparent 80%),
+    radial-gradient(circle 3px at 88% 78%, rgba(196,58,49,0.12) 0%, transparent 70%);
   opacity: 1;
 }
 
 /* ── 颜色变量（水墨六色体系）────────────────── */
 :root {
-  --paper: #e8e0d4;
+  --paper: #f2ede4;
   --card-bg: #faf6f0;
   --card-bg-hover: #fdf9f5;
   --ink: #1a1a1a;
