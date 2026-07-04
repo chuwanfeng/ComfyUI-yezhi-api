@@ -977,9 +977,9 @@ const MyWorksPage = {
 
  const publish = async (img) => {
  try {
- await api(`/api/user/images/${img.id}/publish`, { method: 'POST' });
- img.isPublic = true;
- window.toast.success('已发布到社区');
+ const d = await api(`/api/user/images/${img.id}/publish`, { method: 'POST' });
+ img.isPublic = d.isPublic;
+ window.toast.success(d.message);
  } catch (e) { window.toast.error(e.message); }
  };
 

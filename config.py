@@ -26,7 +26,7 @@ if not _db_url:
 DATABASE_URL = _db_url
 DEBUG = _bool("DEBUG", True)
 HOST = os.getenv("HOST", "0.0.0.0")
-PORT = int(os.getenv("PORT", "5000"))
+PORT = int(os.getenv("PORT", "5090"))
 
 # ── JWT ──────────────────────────────────────
 JWT_EXPIRE_HOURS = int(os.getenv("JWT_EXPIRE_HOURS", "72"))

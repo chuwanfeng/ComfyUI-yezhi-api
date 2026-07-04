@@ -6,7 +6,7 @@ setlocal enabledelayedexpansion
 :: ---- Kill any existing python processes (avoid port conflict) ----
 taskkill /f /im python.exe >nul 2>&1
 timeout /t 2 /nobreak >nul
-echo  [OK]  Port 5000 released
+echo  [OK]  Port 5090 released
 
 :: ---- Check .env ----
 if not exist "%PROJECT_DIR%.env" (
@@ -23,8 +23,8 @@ echo  [OK]  Upload directory ready
 cd /d "%PROJECT_DIR%"
 echo.
 echo  ----------------------------------------------
-echo    Frontend : http://127.0.0.1:5000
-echo    Health   : http://127.0.0.1:5000/api/health
+echo    Frontend : http://127.0.0.1:5090
+echo    Health   : http://127.0.0.1:5090/api/health
 echo  ----------------------------------------------
 echo.
 

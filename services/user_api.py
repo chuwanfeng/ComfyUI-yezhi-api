@@ -125,9 +125,10 @@ def publish_image(image_id: str):
         if not img:
             return jsonify({"error": "作品不存在"}), 404
 
-        img.is_public = True
+        img.is_public = not img.is_public
         db.commit()
-        return jsonify({"message": "已发布到社区", "isPublic": True})
+        msg = "已取消发布" if not img.is_public else "已发布到社区"
+        return jsonify({"message": msg, "isPublic": img.is_public})
     finally:
         db.close()
 
