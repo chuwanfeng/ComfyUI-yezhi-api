@@ -1402,15 +1402,19 @@ const WorkflowsPage = {
  }
  };
 
- const editWorkflow = (wf) => {
+ const editWorkflow = async (wf) => {
  editingWorkflow.value = wf;
  editData.value = {
  name: wf.name,
  description: wf.description || '',
  comfyui_url: wf.comfyui_url || '',
  cover_url: wf.cover_url || '',
- workflow_json: wf.workflow_json || '',
+ workflow_json: '',
  };
+ try {
+ const d = await api('/api/workflows/' + wf.id + '/json');
+ editData.value.workflow_json = JSON.stringify(d.workflow_json || d, null, 2);
+ } catch (e) { window.toast.error('加载工作流内容失败'); }
  };
 
  const saveWorkflow = async () => {
