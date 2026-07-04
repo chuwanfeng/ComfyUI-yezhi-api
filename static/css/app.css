@@ -12,21 +12,21 @@ html, body { height: 100%; }
 body {
   font-family: "Noto Serif SC", "SourceHanSerifSC", "SimSun", "STSong", serif;
   color: #1a1a1a;
-  background-color: #ede6db;
+  background-color: #e8e0d4;
   background-image:
     /* 墨晕染层1: 左上角大墨团,浓墨向外扩散 */
-    radial-gradient(ellipse 700px 500px at 10% 5%, rgba(26,26,26,0.18) 0%, rgba(26,26,26,0.10) 25%, rgba(26,26,26,0.03) 55%, transparent 80%),
+    radial-gradient(ellipse 700px 500px at 8% 5%, rgba(26,26,26,0.35) 0%, rgba(26,26,26,0.18) 20%, rgba(26,26,26,0.06) 50%, transparent 80%),
     /* 墨晕染层2: 右下角浓墨 */
-    radial-gradient(ellipse 800px 600px at 90% 95%, rgba(26,26,26,0.14) 0%, rgba(26,26,26,0.07) 30%, rgba(26,26,26,0.02) 60%, transparent 80%),
+    radial-gradient(ellipse 800px 600px at 92% 95%, rgba(26,26,26,0.30) 0%, rgba(26,26,26,0.12) 30%, rgba(26,26,26,0.03) 60%, transparent 80%),
     /* 墨晕染层3: 右上角浓墨 */
-    radial-gradient(ellipse 550px 450px at 95% 12%, rgba(26,26,26,0.15) 0%, rgba(26,26,26,0.06) 35%, transparent 75%),
+    radial-gradient(ellipse 550px 450px at 95% 10%, rgba(26,26,26,0.28) 0%, rgba(26,26,26,0.10) 35%, transparent 75%),
     /* 墨晕染层4: 左下角淡墨 */
-    radial-gradient(ellipse 600px 450px at 3% 88%, rgba(26,26,26,0.12) 0%, rgba(26,26,26,0.04) 40%, transparent 75%),
+    radial-gradient(ellipse 600px 450px at 3% 85%, rgba(26,26,26,0.22) 0%, rgba(26,26,26,0.08) 40%, transparent 75%),
     /* 墨晕染层5: 中央偏右淡墨晕 */
-    radial-gradient(ellipse 900px 600px at 60% 45%, rgba(26,26,26,0.06) 0%, rgba(26,26,26,0.02) 50%, transparent 80%),
+    radial-gradient(ellipse 900px 600px at 60% 45%, rgba(26,26,26,0.12) 0%, rgba(26,26,26,0.04) 50%, transparent 80%),
     /* 墨晕染层6: 朱砂点缀 */
-    radial-gradient(ellipse 250px 180px at 75% 25%, rgba(196,58,49,0.10) 0%, rgba(196,58,49,0.03) 50%, transparent 75%),
-    radial-gradient(ellipse 220px 150px at 20% 75%, rgba(196,58,49,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 250px 180px at 75% 25%, rgba(196,58,49,0.12) 0%, rgba(196,58,49,0.04) 50%, transparent 75%),
+    radial-gradient(ellipse 220px 150px at 20% 75%, rgba(196,58,49,0.10) 0%, transparent 70%),
     /* 宣纸底纹 */
     repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(180,170,155,0.02) 3px, rgba(180,170,155,0.02) 5px),
     repeating-linear-gradient(90deg, transparent, transparent 4px, rgba(175,165,145,0.015) 4px, rgba(175,165,145,0.015) 6px);
@@ -67,7 +67,7 @@ body {
 
 /* ── 颜色变量（水墨六色体系）────────────────── */
 :root {
-  --paper: #ede6db;
+  --paper: #e8e0d4;
   --card-bg: #faf6f0;
   --card-bg-hover: #fdf9f5;
   --ink: #1a1a1a;
