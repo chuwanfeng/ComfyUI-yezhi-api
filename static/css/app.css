@@ -12,23 +12,24 @@ html, body { height: 100%; }
 body {
   font-family: "Noto Serif SC", "SourceHanSerifSC", "SimSun", "STSong", serif;
   color: #1a1a1a;
-  background-color: #f5f0e8;
+  background-color: #f0ebe2;
   background-image:
-    /* 宣纸纤维纹理 */
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(180, 170, 155, 0.03) 2px,
-      rgba(180, 170, 155, 0.03) 4px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 3px,
-      rgba(175, 165, 145, 0.02) 3px,
-      rgba(175, 165, 145, 0.02) 5px
-    );
+    /* 墨晕染层1: 左上角大墨团,浓墨向外扩散 */
+    radial-gradient(ellipse 600px 400px at 12% 8%, rgba(26,26,26,0.07) 0%, rgba(26,26,26,0.04) 30%, rgba(26,26,26,0.01) 60%, transparent 80%),
+    /* 墨晕染层2: 右下角淡墨 */
+    radial-gradient(ellipse 700px 500px at 88% 92%, rgba(26,26,26,0.05) 0%, rgba(26,26,26,0.025) 35%, transparent 70%),
+    /* 墨晕染层3: 右上角浓墨 */
+    radial-gradient(ellipse 450px 350px at 95% 15%, rgba(26,26,26,0.06) 0%, rgba(26,26,26,0.02) 40%, transparent 75%),
+    /* 墨晕染层4: 左下角淡墨 */
+    radial-gradient(ellipse 500px 380px at 5% 85%, rgba(26,26,26,0.04) 0%, rgba(26,26,26,0.015) 45%, transparent 75%),
+    /* 墨晕染层5: 中央偏右淡墨晕 */
+    radial-gradient(ellipse 800px 500px at 65% 50%, rgba(26,26,26,0.025) 0%, rgba(26,26,26,0.008) 50%, transparent 80%),
+    /* 墨晕染层6: 朱砂点缀 */
+    radial-gradient(ellipse 200px 150px at 78% 22%, rgba(196,58,49,0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 180px 120px at 22% 72%, rgba(196,58,49,0.035) 0%, transparent 70%),
+    /* 宣纸底纹 */
+    repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(180,170,155,0.015) 3px, rgba(180,170,155,0.015) 5px),
+    repeating-linear-gradient(90deg, transparent, transparent 4px, rgba(175,165,145,0.01) 4px, rgba(175,165,145,0.01) 6px);
   background-attachment: fixed;
   min-height: 100vh;
   font-size: 15px;
@@ -43,30 +44,30 @@ body {
 }
 .geo-bg::before {
   content: ""; position: absolute; bottom: 0; left: 0; right: 0;
-  height: 30vh;
-  /* 水墨远山剪影 - 多层渐变叠山 */
+  height: 35vh;
+  /* 底部墨色沉积,模拟墨汁下沉 */
   background:
-    linear-gradient(176deg, transparent 40%, rgba(26,26,26,0.025) 42%, transparent 44%),
-    linear-gradient(178deg, transparent 25%, rgba(26,26,26,0.018) 28%, transparent 32%),
-    linear-gradient(177deg, transparent 50%, rgba(26,26,26,0.015) 53%, transparent 56%);
+    linear-gradient(180deg, transparent 0%, rgba(26,26,26,0.015) 60%, rgba(26,26,26,0.035) 100%);
 }
 .geo-bg::after {
   content: ""; position: absolute; inset: 0;
-  /* 散落墨点 */
+  /* 墨晕散点: 模拟墨溅效果,大小不一 */
   background-image:
-    radial-gradient(circle 3px at 8% 20%, rgba(26,26,26,0.06) 2px, transparent 3px),
-    radial-gradient(circle 2px at 15% 68%, rgba(26,26,26,0.05) 1px, transparent 2px),
-    radial-gradient(circle 4px at 72% 12%, rgba(26,26,26,0.04) 3px, transparent 4px),
-    radial-gradient(circle 2px at 85% 45%, rgba(26,26,26,0.06) 1px, transparent 2px),
-    radial-gradient(circle 3px at 92% 78%, rgba(26,26,26,0.05) 2px, transparent 3px),
-    radial-gradient(circle 2px at 33% 8%, rgba(196,58,49,0.06) 1px, transparent 2px),
-    radial-gradient(circle 2px at 60% 88%, rgba(26,26,26,0.04) 1px, transparent 2px);
-  opacity: 0.8;
+    radial-gradient(circle 8px at 8% 20%, rgba(26,26,26,0.08) 0%, rgba(26,26,26,0.02) 60%, transparent 100%),
+    radial-gradient(circle 5px at 15% 68%, rgba(26,26,26,0.06) 0%, transparent 80%),
+    radial-gradient(circle 10px at 72% 12%, rgba(26,26,26,0.05) 0%, rgba(26,26,26,0.01) 70%, transparent 100%),
+    radial-gradient(circle 4px at 85% 45%, rgba(26,26,26,0.07) 0%, transparent 80%),
+    radial-gradient(circle 6px at 92% 78%, rgba(26,26,26,0.06) 0%, transparent 80%),
+    radial-gradient(circle 3px at 33% 8%, rgba(196,58,49,0.08) 0%, transparent 70%),
+    radial-gradient(circle 5px at 60% 88%, rgba(26,26,26,0.05) 0%, transparent 80%),
+    radial-gradient(circle 7px at 40% 35%, rgba(26,26,26,0.04) 0%, transparent 80%),
+    radial-gradient(circle 3px at 50% 60%, rgba(196,58,49,0.06) 0%, transparent 70%);
+  opacity: 0.9;
 }
 
 /* ── 颜色变量（水墨六色体系）────────────────── */
 :root {
-  --paper: #f5f0e8;
+  --paper: #f0ebe2;
   --card-bg: #faf6f0;
   --card-bg-hover: #fdf9f5;
   --ink: #1a1a1a;
