@@ -919,6 +919,7 @@ const MyWorksPage = {
  <div class="works-btns">
  <button class="btn btn-ghost btn-sm" @click="remake(img)" style="color:var(--cinnabar)">生成同款</button>
  <button v-if="!img.isPublic" class="btn btn-ghost btn-sm" @click="publish(img)">发布</button>
+ <button v-else class="btn btn-ghost btn-sm" @click="publish(img)" style="color:var(--ink-fade)">取消发布</button>
  <button class="btn btn-ghost btn-sm" @click="remove(img)">删除</button>
  </div>
  </div>
