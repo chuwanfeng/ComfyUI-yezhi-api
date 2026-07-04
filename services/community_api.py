@@ -47,6 +47,9 @@ def get_feed():
         total = query.count()
         images = query.offset(offset).limit(limit).all()
 
+        # 获取当前用户ID（可能未登录）
+        current_user_id = get_user_id_from_request(request)
+
         result = []
         for img in images:
             user = db.query(User).filter(User.id == img.user_id).first()
@@ -55,6 +58,17 @@ def get_feed():
                 .filter(CommunityLike.image_id == img.id)
                 .count()
             )
+            liked = False
+            if current_user_id:
+                liked = (
+                    db.query(CommunityLike)
+                    .filter(
+                        CommunityLike.image_id == img.id,
+                        CommunityLike.user_id == current_user_id,
+                    )
+                    .first()
+                    is not None
+                )
             tags = (
                 db.query(CommunityTag)
                 .filter(CommunityTag.image_id == img.id)
@@ -73,6 +87,7 @@ def get_feed():
                 "height": img.height,
                 "modelName": img.model_name,
                 "likeCount": like_count,
+                "liked": liked,
                 "reportCount": img.report_count or 0,
                 "tags": [t.tag for t in tags],
                 "createdAt": img.created_at.isoformat() if img.created_at else None,
