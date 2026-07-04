@@ -1,4 +1,8 @@
-<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM4 7v10h16V7H4z" fill="currentColor"/>
-<path d="M9 9a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM7 15l3-3 2 2 4-4 2 2v4H7v-1z" fill="currentColor"/>
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- 墨色山水简笔 -->
+  <path d="M3 19 Q6 13 9 15 Q12 10 15 13 Q18 8 21 11" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.6"/>
+  <path d="M4 18 Q7 14 10 15 Q13 11 16 13 Q18 9 20 11" stroke="#6b6660" stroke-width="0.7" fill="none" stroke-linecap="round" opacity="0.35"/>
+  <!-- 太阳 -->
+  <circle cx="17" cy="6" r="1.8" fill="none" stroke="#c43a31" stroke-width="0.9" opacity="0.6"/>
+  <circle cx="17" cy="6" r="0.8" fill="#c43a31" opacity="0.3"/>
 </svg>

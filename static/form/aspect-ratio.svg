@@ -1,4 +1,7 @@
-<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M19 7h-3V6h3v1zM19 10h-3v1h3v-1zM19 13h-3v1h3v-1zM19 16h-3v1h3v-1zM2 6h3v1H2V6zM5 9H2v1h3V9zM2 12h3v1H2v-1zM5 15H2v1h3v-1zM2 18h3v1H2v-1zM19 19h-3v1h3v-1zM5 3H2v1h3V3zM19 4h-3v1h3V4z" fill="currentColor"/>
-<path d="M7 4h10v16H7V4zM8 5v14h8V5H8z" fill="currentColor"/>
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- 两个重叠的墨框 -->
+  <rect x="2" y="3" width="12" height="12" rx="1" fill="none" stroke="#1a1a1a" stroke-width="1.3" opacity="0.7"/>
+  <rect x="10" y="9" width="12" height="12" rx="1" fill="none" stroke="#6b6660" stroke-width="1" opacity="0.45"/>
+  <!-- 虚线暗示 -->
+  <path d="M2 8 L2 3" stroke="#c8c0b4" stroke-width="0.5" stroke-dasharray="1 2" opacity="0.4"/>
 </svg>

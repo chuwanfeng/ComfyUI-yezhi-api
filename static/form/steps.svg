@@ -1,1 +1,6 @@
-<svg t="1748421532798" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="128" height="128"><path d="M860.8 516c21.6 0 38.4-17.6 38.4-38.4v-192c0-2.4 0-4.8-0.8-7.2 0-0.8-0.8-2.4-0.8-3.2 0-1.6-0.8-2.4-0.8-4-0.8-1.6-1.6-2.4-1.6-4-0.8-0.8-0.8-1.6-1.6-2.4-2.4-4-6.4-8-10.4-10.4-0.8-0.8-1.6-0.8-3.2-1.6-0.8-0.8-2.4-1.6-4-1.6-0.8-0.8-2.4-0.8-4-0.8-0.8 0-2.4-0.8-3.2-0.8-2.4-0.8-4.8-0.8-7.2-0.8h-192c-21.6 0-38.4 17.6-38.4 38.4s17.6 38.4 38.4 38.4H768L564 536.8l-96-80c-15.2-15.2-39.2-15.2-54.4 0l-160 160c-15.2 15.2-15.2 39.2 0 54.4 7.2 7.2 17.6 11.2 27.2 11.2s20-4 27.2-11.2L440 539.2l96.8 79.2c15.2 15.2 39.2 15.2 54.4 0l231.2-239.2v100c0 20 17.6 36.8 38.4 36.8z" fill="#000000"></path></svg>
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- 三阶墨色台阶 -->
+  <path d="M3 20 L3 14 L8 14 L8 10 L13 10 L13 6" fill="none" stroke="#1a1a1a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" opacity="0.65"/>
+  <path d="M8 14 L15 14 L15 10" fill="none" stroke="#6b6660" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
+  <path d="M13 10 L19 10 L19 6" fill="none" stroke="#c8c0b4" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/>
+</svg>
