@@ -8,12 +8,12 @@
 const SettingsPage = {
  template: `
  <div class="page fade-in">
- <h2 class="section-title"> 设置</h2>
+ <h2 class="section-title">设置</h2>
  <p class="section-sub mb-4">个性化配置与偏好设置</p>
 
  <!-- 用户信息 -->
  <div class="card mb-4">
- <h3 class="form-label mb-3"> 个人信息</h3>
+ <h3 class="form-label mb-3">个人信息</h3>
  <div v-if="!authStore.isLoggedIn" class="text-center p-4 text-muted">
  <div class="mb-3">请先登录</div>
  <button class="btn btn-primary" @click="$router.push('/login')">去登录</button>
@@ -42,7 +42,7 @@ const SettingsPage = {
 
  <!-- 偏好设置 -->
  <div class="card mb-4">
- <h3 class="form-label mb-3"> 生成偏好</h3>
+ <h3 class="form-label mb-3">生成偏好</h3>
  <div class="settings-section">
  <div class="setting-row">
  <div class="setting-label">默认模型</div>
