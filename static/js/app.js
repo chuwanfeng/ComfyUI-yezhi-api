@@ -766,9 +766,16 @@ const CommunityPage = {
  <h2 class="section-title">创意社区</h2>
  <p class="section-sub mb-4">发现 AI 创作灵感，分享你的作品</p>
 
+ <!-- 标签筛选 -->
+ <div class="filter-bar">
+ <span class="filter-tag" :class="{ active: activeFilter === '' }" @click="setFilter('')">全部</span>
+ <span v-for="m in modelTags" :key="m" class="filter-tag" :class="{ active: activeFilter === m }" @click="setFilter(m)">{{ m }}</span>
+ </div>
+
  <div v-if="loading" class="text-center p-6"><div class="spin" style="margin: 0 auto"></div></div>
  <div v-else-if="images.length === 0" class="text-center p-6 text-muted">社区还没有作品，快去生成一些分享吧</div>
- <div v-else class="community-grid">
+ <div v-else>
+ <div class="community-grid">
  <div v-for="img in images" :key="img.id" class="community-item">
  <video v-if="img.mediaType === 'video'" :src="img.imageUrl" style="cursor:pointer;width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 4px 0 0" controls muted preload="metadata" playsinline></video>
  <img v-else :src="img.thumbnailUrl" :alt="img.prompt" @error="e => e.target.src='/static/images/default-logo.svg'" @click="$openLightbox(img.imageUrl || img.thumbnailUrl)" style="cursor:pointer">
@@ -786,9 +793,15 @@ const CommunityPage = {
  <span class="fav-btn">
  <svg class="icon-star" viewBox="0 0 24 24" width="16" height="16"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
  </span>
- <span style="margin-left: auto">{{ img.modelName }}</span>
+ <span style="margin-left: auto" class="model-tag">{{ img.modelName }}</span>
  </div>
  </div>
+ </div>
+ </div>
+ <div v-if="hasMore" class="text-center p-4">
+ <button class="btn btn-secondary" @click="loadMore" :disabled="loadingMore">
+ {{ loadingMore ? '加载中...' : '加载更多' }}
+ </button>
  </div>
  </div>
  </div>`,
@@ -796,19 +809,55 @@ const CommunityPage = {
  const authStore = useAuthStore();
  const images = ref([]);
  const loading = ref(true);
+ const loadingMore = ref(false);
+ const activeFilter = ref('');
+ const modelTags = ref([]);
+ const total = ref(0);
+ const pageSize = 24;
 
  const load = async () => {
+ loading.value = true;
  try {
- const d = await api('/api/community/feed?limit=24');
+ const params = new URLSearchParams({ limit: pageSize, offset: 0 });
+ const d = await api('/api/community/feed?' + params);
  images.value = d.images || [];
+ total.value = d.total || 0;
+ // 提取模型标签
+ const tags = new Set();
+ images.value.forEach(img => { if (img.modelName) tags.add(img.modelName); });
+ modelTags.value = [...tags].sort();
  } catch {
- images.value = [
- { id: 'demo1', userName: 'Yezhi', userAvatar: '/static/images/default-avatar.svg', prompt: 'demo: anime girl, cherry blossoms', thumbnailUrl: '/static/images/dreamifly-demo-1.png', modelName: 'Flux-Dev', likeCount: 12, reportCount: 0 },
- { id: 'demo2', userName: 'Creator', userAvatar: '/static/images/default-avatar.svg', prompt: 'demo: cyberpunk city, neon lights', thumbnailUrl: '/static/images/dreamifly-demo-2.png', modelName: 'SD 3.5', likeCount: 8, reportCount: 0 },
- { id: 'demo3', userName: 'Artist', userAvatar: '/static/images/default-avatar.svg', prompt: 'demo: fantasy castle, floating islands', thumbnailUrl: '/static/images/dreamifly-demo-3.png', modelName: 'HiDream', likeCount: 24, reportCount: 0 },
- ];
+ images.value = [];
  } finally {
  loading.value = false;
+ }
+ };
+
+ const setFilter = (m) => {
+ activeFilter.value = m;
+ // 前端过滤
+ };
+
+ const filteredImages = computed(() => {
+ if (!activeFilter.value) return images.value;
+ return images.value.filter(img => img.modelName === activeFilter.value);
+ });
+
+ const hasMore = computed(() => images.value.length < total.value);
+
+ const loadMore = async () => {
+ if (loadingMore.value) return;
+ loadingMore.value = true;
+ try {
+ const params = new URLSearchParams({ limit: pageSize, offset: images.value.length });
+ const d = await api('/api/community/feed?' + params);
+ const newImages = d.images || [];
+ images.value = [...images.value, ...newImages];
+ // 更新标签
+ newImages.forEach(img => { if (img.modelName && !modelTags.value.includes(img.modelName)) modelTags.value.push(img.modelName); });
+ modelTags.value.sort();
+ } catch {} finally {
+ loadingMore.value = false;
  }
  };
 
@@ -822,7 +871,7 @@ const CommunityPage = {
  };
 
  onMounted(load);
- return { authStore, images, loading, toggleLike };
+ return { authStore, images: filteredImages, loading, loadingMore, activeFilter, modelTags, hasMore, setFilter, loadMore, toggleLike };
  },
 };
 
@@ -840,15 +889,23 @@ const MyWorksPage = {
  <button class="btn btn-primary" @click="$router.push('/login')">去登录</button>
  </div>
  <template v-else>
+ <!-- 标签筛选 -->
+ <div v-if="modelTags.length > 0" class="filter-bar">
+ <span class="filter-tag" :class="{ active: activeFilter === '' }" @click="activeFilter = ''">全部</span>
+ <span v-for="m in modelTags" :key="m" class="filter-tag" :class="{ active: activeFilter === m }" @click="activeFilter = m">{{ m }}</span>
+ </div>
+
  <div v-if="images.length === 0" class="text-center p-6 text-muted">还没有作品，去生成一些吧</div>
- <div v-else class="community-grid">
- <div v-for="img in images" :key="img.id" class="community-item">
- <video v-if="img.mediaType === 'video'" :src="img.thumbnailUrl || img.imageUrl" style="cursor:pointer;width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 8px 0 0" controls muted preload="metadata" playsinline></video>
+ <div v-else>
+ <div class="community-grid">
+ <div v-for="img in filteredImages" :key="img.id" class="community-item">
+ <video v-if="img.mediaType === 'video'" :src="img.thumbnailUrl || img.imageUrl" style="cursor:pointer;width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 4px 0 0" controls muted preload="metadata" playsinline></video>
  <img v-else :src="img.thumbnailUrl || img.imageUrl" :alt="img.prompt" @click="$openLightbox(img.imageUrl)" style="cursor:pointer">
  <div class="works-meta">
  <div class="works-prompt" :title="img.prompt">{{ img.prompt || '无提示词' }}</div>
  <div class="works-info">
- <span>{{ img.modelName }}</span>
+ <span class="model-tag">{{ img.modelName }}</span>
+ <span v-if="img.workflowId" class="model-tag" style="color:var(--ink-fade)">工作流</span>
  <span v-if="img.isPublic" class="status-pill published">已发布</span>
  </div>
  <div class="works-btns">
@@ -859,18 +916,55 @@ const MyWorksPage = {
  </div>
  </div>
  </div>
+ <div v-if="hasMore" class="text-center p-4">
+ <button class="btn btn-secondary" @click="loadMore" :disabled="loadingMore">
+ {{ loadingMore ? '加载中...' : '加载更多' }}
+ </button>
+ </div>
+ </div>
  </template>
  </div>`,
  setup() {
  const authStore = useAuthStore();
- const images = ref([]);
+ const allImages = ref([]);
+ const activeFilter = ref('');
+ const loadingMore = ref(false);
+ const total = ref(0);
+ const pageSize = 50;
+
+ const images = computed(() => allImages.value);
+
+ const modelTags = computed(() => {
+ const tags = new Set();
+ allImages.value.forEach(img => { if (img.modelName) tags.add(img.modelName); });
+ return [...tags].sort();
+ });
+
+ const filteredImages = computed(() => {
+ if (!activeFilter.value) return allImages.value;
+ return allImages.value.filter(img => img.modelName === activeFilter.value);
+ });
+
+ const hasMore = computed(() => allImages.value.length < total.value);
 
  const load = async () => {
  if (!authStore.isLoggedIn) return;
  try {
- const d = await api('/api/user/images?limit=50');
- images.value = d.images || [];
+ const d = await api('/api/user/images?limit=' + pageSize);
+ allImages.value = d.images || [];
+ total.value = d.total || 0;
  } catch {}
+ };
+
+ const loadMore = async () => {
+ if (loadingMore.value) return;
+ loadingMore.value = true;
+ try {
+ const d = await api('/api/user/images?limit=' + pageSize + '&offset=' + allImages.value.length);
+ allImages.value = [...allImages.value, ...(d.images || [])];
+ } catch {} finally {
+ loadingMore.value = false;
+ }
  };
 
  const publish = async (img) => {
@@ -885,13 +979,12 @@ const MyWorksPage = {
  if (!confirm('确定删除？')) return;
  try {
  await api(`/api/user/images/${img.id}`, { method: 'DELETE' });
- images.value = images.value.filter(i => i.id !== img.id);
+ allImages.value = allImages.value.filter(i => i.id !== img.id);
  window.toast.success('已删除');
  } catch (e) { window.toast.error(e.message); }
  };
 
  const remake = (img) => {
- // 将作品参数写入 sessionStorage，跳转生成页
  sessionStorage.setItem('yezhi_remake', JSON.stringify({
  modelName: img.modelName,
  modelId: img.workflowId ? '' : img.modelName,
@@ -914,7 +1007,7 @@ const MyWorksPage = {
  };
 
  onMounted(load);
- return { authStore, images, publish, remove, remake };
+ return { authStore, images, filteredImages, modelTags, activeFilter, hasMore, loadingMore, publish, remove, remake, loadMore };
  },
 };
 

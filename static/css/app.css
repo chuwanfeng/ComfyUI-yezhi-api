@@ -570,6 +570,28 @@ body {
 .fav-btn:hover .icon-star { color: var(--cinnabar); }
 .fav-btn.faved .icon-star { fill: var(--cinnabar); color: var(--cinnabar); }
 
+/* ── 标签筛选栏 ───────────────────────────────── */
+.filter-bar {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;
+}
+.filter-tag {
+  display: inline-block; padding: 4px 14px; font-size: 13px;
+  border: 1px solid var(--ink-border); border-radius: 3px;
+  color: var(--ink-fade); cursor: pointer; transition: all 0.3s;
+  background: transparent; user-select: none;
+}
+.filter-tag:hover {
+  color: var(--ink); border-color: var(--ink);
+}
+.filter-tag.active {
+  color: var(--paper); background: var(--ink); border-color: var(--ink);
+}
+.model-tag {
+  font-size: 11px; color: var(--ink-fade);
+  padding: 1px 6px; border: 1px solid var(--ink-border);
+  border-radius: 2px; white-space: nowrap;
+}
+
 /* ── 登录页 ───────────────────────────────────── */
 .auth-page {
   min-height: 100vh; display: flex; align-items: center; justify-content: center;

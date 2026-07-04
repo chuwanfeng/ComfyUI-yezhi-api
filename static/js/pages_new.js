@@ -223,6 +223,11 @@ const WorkflowsPage = {
  <div class="form-label">ComfyUI 地址 (可选)</div>
  <input v-model="importData.comfyui_url" class="input mb-3" placeholder="http://localhost:8188">
  <div class="form-label">工作流 JSON <span class="text-xs text-muted">(从 ComfyUI 导出)</span></div>
+ <div class="f gap-2 mb-3">
+ <button class="btn btn-secondary text-sm" @click="pickJsonFile">选择 JSON 文件</button>
+ <span v-if="importData.fileName" class="text-xs text-muted" style="line-height:32px">{{ importData.fileName }}</span>
+ </div>
+ <input ref="jsonFileInput" type="file" accept=".json,application/json" style="display:none" @change="onJsonFilePicked">
  <textarea v-model="importData.workflow_json" class="textarea" rows="8" placeholder='{"3": {"class_type": "KSampler", "inputs": {...}}}'></textarea>
  </div>
  <div class="modal-footer">
@@ -297,7 +302,23 @@ const WorkflowsPage = {
  const testResults = ref([]);
  const testError = ref('');
 
- const importData = ref({ name: '', workflow_json: '', comfyui_url: '' });
+ const importData = ref({ name: '', workflow_json: '', comfyui_url: '', fileName: '' });
+ const jsonFileInput = ref(null);
+
+ const pickJsonFile = () => {
+ jsonFileInput.value?.click();
+ };
+
+ const onJsonFilePicked = (e) => {
+ const file = e.target.files[0];
+ if (!file) return;
+ importData.value.fileName = file.name;
+ if (!importData.value.name) importData.value.name = file.name.replace(/\.json$/i, '');
+ const reader = new FileReader();
+ reader.onload = () => { importData.value.workflow_json = reader.result; };
+ reader.readAsText(file);
+ e.target.value = '';
+ };
  const editData = ref({ name: '', description: '', comfyui_url: '', cover_url: '', workflow_json: '' });
 
  const load = async () => {
@@ -323,7 +344,7 @@ const WorkflowsPage = {
  });
  workflows.value.unshift(d.workflow);
  showImport.value = false;
- importData.value = { name: '', workflow_json: '', comfyui_url: '' };
+ importData.value = { name: '', workflow_json: '', comfyui_url: '', fileName: '' };
  window.toast.success('工作流导入成功');
  } catch (e) {
  window.toast.error('导入失败: ' + e.message);
@@ -429,7 +450,8 @@ const WorkflowsPage = {
 
  return {
  authStore, workflows, showCreate, showImport, editingWorkflow, testingWorkflow,
- testPrompt, testing, testResults, testError, importData, editData,
+ testPrompt, testing, testResults, testError, importData, editData, jsonFileInput,
+ pickJsonFile, onJsonFilePicked,
  importWorkflow, editWorkflow, saveWorkflow, closeModal, deleteWorkflow, useWorkflow, runTest,
  };
  },
