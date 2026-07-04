@@ -184,10 +184,9 @@ const WorkflowsPage = {
 
  <!-- 工作流列表 -->
  <div v-if="workflows.length === 0 && authStore.isLoggedIn" class="card text-center p-6 mb-4">
- <div style="font-size:48px;margin-bottom:12px"></div>
  <div class="text-muted mb-3">还没有自定义工作流</div>
  <div class="text-sm text-muted mb-4">从 ComfyUI 导出的 API JSON 可以在这里管理</div>
- <button class="btn btn-secondary" @click="showImport = true"> 导入工作流</button>
+ <button class="btn btn-secondary" @click="showImport = true">导入工作流</button>
  </div>
 
  <div v-if="workflows.length > 0" class="workflow-grid">
@@ -223,12 +222,21 @@ const WorkflowsPage = {
  <div class="form-label">ComfyUI 地址 (可选)</div>
  <input v-model="importData.comfyui_url" class="input mb-3" placeholder="http://localhost:8188">
  <div class="form-label">工作流 JSON <span class="text-xs text-muted">(从 ComfyUI 导出)</span></div>
- <div class="f gap-2 mb-3">
- <button class="btn btn-secondary text-sm" @click="pickJsonFile">选择 JSON 文件</button>
- <span v-if="importData.fileName" class="text-xs text-muted" style="line-height:32px">{{ importData.fileName }}</span>
+ <div class="drop-zone" :class="{ 'drop-active': isDragging }"
+ @dragover.prevent="isDragging = true"
+ @dragleave.prevent="isDragging = false"
+ @drop.prevent="onDrop"
+ @click="pickJsonFile">
+ <div v-if="!importData.fileName" class="drop-zone-hint">
+ <div>拖放 JSON 文件到此处，或点击选择文件</div>
+ </div>
+ <div v-else class="drop-zone-file">
+ <div>{{ importData.fileName }}</div>
+ <button class="btn btn-ghost btn-sm" @click.stop="clearJsonFile">移除</button>
+ </div>
  </div>
  <input ref="jsonFileInput" type="file" accept=".json,application/json" style="display:none" @change="onJsonFilePicked">
- <textarea v-model="importData.workflow_json" class="textarea" rows="8" placeholder='{"3": {"class_type": "KSampler", "inputs": {...}}}'></textarea>
+ <textarea v-if="importData.workflow_json" v-model="importData.workflow_json" class="textarea mt-3" rows="6" placeholder='{"3": {"class_type": "KSampler", "inputs": {...}}}'></textarea>
  </div>
  <div class="modal-footer">
  <button class="btn btn-ghost" @click="showImport = false">取消</button>
@@ -304,6 +312,7 @@ const WorkflowsPage = {
 
  const importData = ref({ name: '', workflow_json: '', comfyui_url: '', fileName: '' });
  const jsonFileInput = ref(null);
+ const isDragging = ref(false);
 
  const pickJsonFile = () => {
  jsonFileInput.value?.click();
@@ -312,12 +321,32 @@ const WorkflowsPage = {
  const onJsonFilePicked = (e) => {
  const file = e.target.files[0];
  if (!file) return;
+ readJsonFile(file);
+ e.target.value = '';
+ };
+
+ const onDrop = (e) => {
+ isDragging.value = false;
+ const file = e.dataTransfer.files[0];
+ if (!file) return;
+ if (!file.name.endsWith('.json') && file.type !== 'application/json') {
+ window.toast.error('请拖放 JSON 文件');
+ return;
+ }
+ readJsonFile(file);
+ };
+
+ const readJsonFile = (file) => {
  importData.value.fileName = file.name;
  if (!importData.value.name) importData.value.name = file.name.replace(/\.json$/i, '');
  const reader = new FileReader();
  reader.onload = () => { importData.value.workflow_json = reader.result; };
  reader.readAsText(file);
- e.target.value = '';
+ };
+
+ const clearJsonFile = () => {
+ importData.value.fileName = '';
+ importData.value.workflow_json = '';
  };
  const editData = ref({ name: '', description: '', comfyui_url: '', cover_url: '', workflow_json: '' });
 
@@ -450,8 +479,8 @@ const WorkflowsPage = {
 
  return {
  authStore, workflows, showCreate, showImport, editingWorkflow, testingWorkflow,
- testPrompt, testing, testResults, testError, importData, editData, jsonFileInput,
- pickJsonFile, onJsonFilePicked,
+ testPrompt, testing, testResults, testError, importData, editData, jsonFileInput, isDragging,
+ pickJsonFile, onJsonFilePicked, onDrop, clearJsonFile,
  importWorkflow, editWorkflow, saveWorkflow, closeModal, deleteWorkflow, useWorkflow, runTest,
  };
  },

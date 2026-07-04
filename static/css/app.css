@@ -536,6 +536,31 @@ body {
   width: 100%; aspect-ratio: 1; object-fit: cover;
   background: var(--paper);
 }
+
+/* ── 视频缩略图懒加载 ─────────────────────────── */
+.video-thumb { position: relative; width: 100%; aspect-ratio: 1; }
+.video-thumb img { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
+.play-overlay {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  pointer-events: none; opacity: 0.8; transition: opacity 0.3s;
+}
+.video-thumb:hover .play-overlay { opacity: 1; }
+
+/* ── 拖放区域 ─────────────────────────────────── */
+.drop-zone {
+  border: 2px dashed var(--ink-border); border-radius: 4px;
+  padding: 24px; text-align: center; cursor: pointer;
+  transition: all 0.3s; background: rgba(26,26,26,0.02);
+}
+.drop-zone:hover { border-color: var(--ink); background: rgba(26,26,26,0.04); }
+.drop-zone.drop-active {
+  border-color: var(--cinnabar); background: rgba(196,58,49,0.06);
+}
+.drop-zone-hint { color: var(--ink-fade); font-size: 14px; }
+.drop-zone-file {
+  display: flex; align-items: center; justify-content: space-between;
+  color: var(--ink); font-size: 14px;
+}
 .community-meta { padding: 14px; }
 .community-meta .user {
   display: flex; align-items: center; gap: 8px; margin-bottom: 8px;

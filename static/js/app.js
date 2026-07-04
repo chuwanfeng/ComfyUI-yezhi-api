@@ -777,7 +777,11 @@ const CommunityPage = {
  <div v-else>
  <div class="community-grid">
  <div v-for="img in images" :key="img.id" class="community-item">
- <video v-if="img.mediaType === 'video'" :src="img.imageUrl" style="cursor:pointer;width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 4px 0 0" controls muted preload="metadata" playsinline></video>
+ <div v-if="img.mediaType === 'video'" class="video-thumb" @click="img._playing = true">
+ <video v-if="img._playing" :src="img.imageUrl" controls autoplay muted playsinline style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 4px 0 0"></video>
+ <img v-else :src="img.thumbnailUrl || img.imageUrl" :alt="img.prompt" @error="e => e.target.src='/static/images/default-logo.svg'" style="cursor:pointer;width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 4px 0 0">
+ <div v-if="!img._playing" class="play-overlay"><svg viewBox="0 0 24 24" width="40" height="40"><circle cx="12" cy="12" r="11" fill="rgba(0,0,0,0.5)"/><path d="M10 8l6 4-6 4z" fill="#fff"/></svg></div>
+ </div>
  <img v-else :src="img.thumbnailUrl" :alt="img.prompt" @error="e => e.target.src='/static/images/default-logo.svg'" @click="$openLightbox(img.imageUrl || img.thumbnailUrl)" style="cursor:pointer">
  <div class="community-meta">
  <div class="user">
@@ -899,7 +903,11 @@ const MyWorksPage = {
  <div v-else>
  <div class="community-grid">
  <div v-for="img in filteredImages" :key="img.id" class="community-item">
- <video v-if="img.mediaType === 'video'" :src="img.thumbnailUrl || img.imageUrl" style="cursor:pointer;width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 4px 0 0" controls muted preload="metadata" playsinline></video>
+ <div v-if="img.mediaType === 'video'" class="video-thumb" @click="img._playing = true">
+ <video v-if="img._playing" :src="img.imageUrl" controls autoplay muted playsinline style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 4px 0 0"></video>
+ <img v-else :src="img.thumbnailUrl || img.imageUrl" :alt="img.prompt" @error="e => e.target.src='/static/images/default-logo.svg'" style="cursor:pointer;width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 4px 0 0">
+ <div v-if="!img._playing" class="play-overlay"><svg viewBox="0 0 24 24" width="40" height="40"><circle cx="12" cy="12" r="11" fill="rgba(0,0,0,0.5)"/><path d="M10 8l6 4-6 4z" fill="#fff"/></svg></div>
+ </div>
  <img v-else :src="img.thumbnailUrl || img.imageUrl" :alt="img.prompt" @click="$openLightbox(img.imageUrl)" style="cursor:pointer">
  <div class="works-meta">
  <div class="works-prompt" :title="img.prompt">{{ img.prompt || '无提示词' }}</div>
