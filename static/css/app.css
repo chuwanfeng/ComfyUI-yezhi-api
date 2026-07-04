@@ -218,7 +218,7 @@ body {
 .card:hover { box-shadow: var(--shadow-ink-lg); }
 .card-soft {
   background: linear-gradient(180deg, var(--card-bg) 0%, var(--paper) 100%);
-  border-radius: 8px; padding: 24px;
+  ; padding: 24px;
   box-shadow: var(--shadow-ink);
   border: 1px solid var(--ink-border-light);
 }
@@ -588,7 +588,7 @@ body {
 }
 .auth-card {
   width: 100%; max-width: 420px;
-  background: var(--card-bg); border-radius: 8px;
+  background: var(--card-bg); ;
   padding: 48px; box-shadow: var(--shadow-ink-lg);
   border: 1px solid var(--ink-border-light);
 }
@@ -793,7 +793,7 @@ body {
   to   { opacity: 1; }
 }
 .modal-card {
-  background: var(--card-bg); border-radius: 8px;
+  background: var(--card-bg); ;
   width: 90%; max-width: 560px; max-height: 90vh; overflow-y: auto;
   box-shadow: 0 20px 60px rgba(26,26,26,0.25);
   border: 1px solid var(--ink-border-light);

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ComfyUI-Yezhi-API - 墨韵 AI 创作平台</title>
 <link rel="stylesheet" href="/static/css/app.css">
-<link rel="icon" type="image/jpeg" href="/static/images/dreamifly-logo.jpg">
+<link rel="icon" type="image/svg+xml" href="/static/images/default-logo.svg">
 <script src="https://unpkg.com/vue@3.5/dist/vue.global.prod.js"></script>
 <script src="https://unpkg.com/vue-router@4.5/dist/vue-router.global.prod.js"></script>
 <script src="https://unpkg.com/vue-demi@0.14.10/lib/index.iife.js"></script>
@@ -23,7 +23,7 @@
     <!-- 左侧导航 (复刻 Dreamifly 风格) -->
     <aside class="sidebar">
       <router-link to="/" class="brand" style="text-decoration:none">
-        <img :src="authStore.user?.avatar || '/static/images/dreamifly-logo.jpg'" alt="logo">
+        <img :src="authStore.user?.avatar || '/static/images/default-logo.svg'" alt="logo">
         <span class="name">{{ authStore.user?.nickname || 'Yezhi' }}</span>
       </router-link>
 

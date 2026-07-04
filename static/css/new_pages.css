@@ -16,7 +16,7 @@
   z-index: 1000;
 }
 .modal-card {
-  background: var(--card-bg); border-radius: 8px;
+  background: var(--card-bg); ;
   width: 90%; max-width: 560px; max-height: 90vh; overflow-y: auto;
   box-shadow: 0 20px 60px rgba(26,26,26,0.25);
   border: 1px solid var(--ink-border-light);

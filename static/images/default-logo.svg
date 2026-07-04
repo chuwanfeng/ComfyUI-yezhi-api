@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <radialGradient id="lg"><stop offset="0%" stop-color="#f5f0e8"/><stop offset="100%" stop-color="#c8c0b4"/></radialGradient>
+  </defs>
+  <circle cx="60" cy="60" r="58" fill="url(#lg)" stroke="#9e9890" stroke-width="1.5"/>
+  <text x="60" y="72" text-anchor="middle" font-family="serif" font-size="40" fill="#4a4540" font-weight="bold" letter-spacing="4">墨</text>
+</svg>

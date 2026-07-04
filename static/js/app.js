@@ -124,7 +124,7 @@ const HomePage = {
  <div class="hero">
  <div class="hero-content fade-in">
  <div class="greet">
- <img src="/static/images/dreamifly-logo.jpg" alt="">
+ <img src="/static/images/default-logo.svg" alt="">
  <div>
  <div class="name">Yezhi</div>
  <div class="sub">墨韵 Yezhi · 免费AI绘画在线生成工具 | 一键生成动漫、插画、艺术图</div>
@@ -167,7 +167,7 @@ const HomePage = {
  <p class="section-sub">支持 12+ 主流模型，覆盖动漫、写实、油画等 10+ 风格</p>
  <div class="model-grid">
  <div v-for="m in models" :key="m.id" class="model-card" @click="goGenerate(m)">
- <img :src="m.cover || '/static/models/' + m.id + '.jpg'" :alt="m.name" @error="e => e.target.src='/static/images/dreamifly-logo.jpg'">
+ <img :src="m.cover || '/static/models/' + m.id + '.jpg'" :alt="m.name" @error="e => e.target.src='/static/images/default-logo.svg'">
  <div class="name">{{ m.name }}</div>
  </div>
  </div>
@@ -264,11 +264,11 @@ const GeneratePage = {
  @dragleave.prevent="dragRef = false"
  @drop.prevent="onRefDrop"
  :class="{ 'drop-highlight': dragRef }">
- <div v-for="(img, i) in referenceImages" :key="i" style="position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:1px solid var(--ink-border)">
+ <div v-for="(img, i) in referenceImages" :key="i" style="position:relative;width:80px;height:80px;border-radius:4px;overflow:hidden;border:1px solid var(--ink-border)">
  <img :src="img" style="width:100%;height:100%;object-fit:cover">
  <button @click="referenceImages.splice(i,1)" class="btn btn-ghost" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;width:20px;height:20px;line-height:1;font-size:12px;padding:0;border-radius:50%">×</button>
  </div>
- <div class="upload-zone" @click="triggerUpload" :class="{ 'drag-over': dragRef }" style="width:80px;height:80px;min-height:auto;border:dashed 2px var(--ink-border);display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:8px;flex-shrink:0">
+ <div class="upload-zone" @click="triggerUpload" :class="{ 'drag-over': dragRef }" style="width:80px;height:80px;min-height:auto;border:dashed 2px var(--ink-border);display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:4px;flex-shrink:0">
  <span style="font-size:24px;color:var(--ink-fade)">{{ dragRef ? '+' : '+' }}</span>
  </div>
  <input ref="fileInput" type="file" accept="image/*" multiple @change="onFileSelected" style="display:none">
@@ -287,12 +287,12 @@ const GeneratePage = {
  @dragleave.prevent="dragAudio = false"
  @drop.prevent="onAudioDrop"
  :class="{ 'drop-highlight': dragAudio }">
- <div v-for="(a, i) in audioFiles" :key="i" style="position:relative;height:36px;display:flex;align-items:center;padding:0 8px;border-radius:8px;background:var(--card-bg);border:1px solid var(--ink-border);font-size:12px;gap:6px">
+ <div v-for="(a, i) in audioFiles" :key="i" style="position:relative;height:36px;display:flex;align-items:center;padding:0 8px;border-radius:4px;background:var(--card-bg);border:1px solid var(--ink-border);font-size:12px;gap:6px">
  
  <span style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ a.name || '音频 '+(i+1) }}</span>
  <button @click="audioFiles.splice(i,1)" class="btn btn-ghost" style="margin-left:4px;width:18px;height:18px;line-height:1;font-size:11px;padding:0;border-radius:50%;background:rgba(0,0,0,.5);color:#fff">×</button>
  </div>
- <div class="upload-zone" @click="triggerAudio" :class="{ 'drag-over': dragAudio }" style="height:36px;min-height:auto;border:dashed 2px var(--ink-border);display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:8px;flex-shrink:0;padding:0 12px">
+ <div class="upload-zone" @click="triggerAudio" :class="{ 'drag-over': dragAudio }" style="height:36px;min-height:auto;border:dashed 2px var(--ink-border);display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:4px;flex-shrink:0;padding:0 12px">
  <span style="font-size:14px;color:var(--ink-fade)">{{ dragAudio ? '松开放入' : '+ 添加音频' }}</span>
  </div>
  <input ref="audioInput" type="file" accept="audio/*" @change="onAudioSelected" style="display:none">
@@ -330,7 +330,7 @@ const GeneratePage = {
  <div class="form-label">选择风格</div>
  <div class="style-grid">
  <div v-for="s in styles" :key="s.id" class="style-card" :class="{ selected: selectedStyle === s.id }" @click="selectStyle(s)">
- <img :src="s.cover" :alt="s.name" @error="e => e.target.src='/static/images/dreamifly-logo.jpg'">
+ <img :src="s.cover" :alt="s.name" @error="e => e.target.src='/static/images/default-logo.svg'">
  <div class="name">{{ s.name }}</div>
  </div>
  </div>
@@ -401,8 +401,8 @@ const GeneratePage = {
  </div>
  <div v-else-if="results.length" class="fc ac gap-3" style="width:100%">
  <template v-for="(r, i) in results" :key="i">
- <video v-if="r.mediaType === 'video'" :src="r.url" controls preload="metadata" style="max-width:100%;border-radius:8px"></video>
- <img v-else :src="r.url" :alt="'Result ' + (i+1)" style="max-width:100%;border-radius:8px;cursor:pointer" @click="zoomImage(r.url)">
+ <video v-if="r.mediaType === 'video'" :src="r.url" controls preload="metadata" style="max-width:100%;border-radius:4px"></video>
+ <img v-else :src="r.url" :alt="'Result ' + (i+1)" style="max-width:100%;border-radius:4px;cursor:pointer" @click="zoomImage(r.url)">
  </template>
  </div>
  <div v-else class="empty">
@@ -770,8 +770,8 @@ const CommunityPage = {
  <div v-else-if="images.length === 0" class="text-center p-6 text-muted">社区还没有作品，快去生成一些分享吧</div>
  <div v-else class="community-grid">
  <div v-for="img in images" :key="img.id" class="community-item">
- <video v-if="img.mediaType === 'video'" :src="img.imageUrl" style="cursor:pointer;width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px 8px 0 0" controls muted preload="metadata" playsinline></video>
- <img v-else :src="img.thumbnailUrl" :alt="img.prompt" @error="e => e.target.src='/static/images/dreamifly-logo.jpg'" @click="$openLightbox(img.imageUrl || img.thumbnailUrl)" style="cursor:pointer">
+ <video v-if="img.mediaType === 'video'" :src="img.imageUrl" style="cursor:pointer;width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 8px 0 0" controls muted preload="metadata" playsinline></video>
+ <img v-else :src="img.thumbnailUrl" :alt="img.prompt" @error="e => e.target.src='/static/images/default-logo.svg'" @click="$openLightbox(img.imageUrl || img.thumbnailUrl)" style="cursor:pointer">
  <div class="community-meta">
  <div class="user">
  <img :src="img.userAvatar || '/static/images/default-avatar.svg'" alt="" @error="e => e.target.src='/static/images/default-avatar.svg'">
@@ -837,7 +837,7 @@ const MyWorksPage = {
  <div v-if="images.length === 0" class="text-center p-6 text-muted">还没有作品，去生成一些吧</div>
  <div v-else class="community-grid">
  <div v-for="img in images" :key="img.id" class="community-item">
- <video v-if="img.mediaType === 'video'" :src="img.thumbnailUrl || img.imageUrl" style="cursor:pointer;width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px 8px 0 0" controls muted preload="metadata" playsinline></video>
+ <video v-if="img.mediaType === 'video'" :src="img.thumbnailUrl || img.imageUrl" style="cursor:pointer;width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 8px 0 0" controls muted preload="metadata" playsinline></video>
  <img v-else :src="img.thumbnailUrl || img.imageUrl" :alt="img.prompt" @click="$openLightbox(img.imageUrl)" style="cursor:pointer">
  <div class="community-meta">
  <div class="prompt" :title="img.prompt">{{ img.prompt || '无提示词' }}</div>
@@ -1124,7 +1124,7 @@ const WorkflowsPage = {
 
  <div v-if="workflows.length > 0" class="workflow-grid">
  <div v-for="wf in workflows" :key="wf.id" class="workflow-card">
- <img :src="wf.cover_url || '/static/images/dreamifly-logo.jpg'" class="wf-cover" @error="e => e.target.src='/static/images/dreamifly-logo.jpg'">
+ <img :src="wf.cover_url || '/static/images/default-logo.svg'" class="wf-cover" @error="e => e.target.src='/static/images/default-logo.svg'">
  <div class="wf-body">
  <div class="wf-name">{{ wf.name }}</div>
  <div class="wf-desc text-sm text-muted">{{ wf.description || '无描述' }}</div>
@@ -1209,7 +1209,7 @@ const WorkflowsPage = {
  <div v-if="testResults.length > 0" class="mt-4">
  <div class="form-label">结果</div>
  <div class="f gap-3" style="flex-wrap:wrap">
- <img v-for="(r, i) in testResults" :key="i" :src="r" style="max-width:200px;border-radius:8px">
+ <img v-for="(r, i) in testResults" :key="i" :src="r" style="max-width:200px;border-radius:4px">
  </div>
  </div>
  <div v-if="testError" class="mt-3 text-sm" style="color:#b91c1c">{{ testError }}</div>
@@ -1440,7 +1440,7 @@ const AuthPage = {
  template: `
  <div class="auth-card">
  <div class="fc ac gap-2 mb-4">
- <img src="/static/images/dreamifly-logo.jpg" style="width:64px;height:64px;border-radius:50%;box-shadow:0 4px 12px rgba(249,115,22,.25)">
+ <img src="/static/images/default-logo.svg" style="width:64px;height:64px;border-radius:50%;box-shadow:0 4px 12px rgba(249,115,22,.25)">
  <div>
  <div class="auth-title">{{ mode === 'login' ? '登录' : '注册' }}</div>
  <div class="auth-sub">ComfyUI-Yezhi-API</div>
@@ -1471,7 +1471,7 @@ const AuthPage = {
  </a>
  </div>
 
- <div v-if="authStore.selfHosted" class="mt-4 text-center text-xs text-muted" style="background:var(--cinnabar-pale);padding:8px;border-radius:8px">
+ <div v-if="authStore.selfHosted" class="mt-4 text-center text-xs text-muted" style="background:var(--cinnabar-pale);padding:8px;border-radius:4px">
  提示: 自用模式下无需登录即可使用
  </div>
  </div>`,

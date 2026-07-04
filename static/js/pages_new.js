@@ -192,7 +192,7 @@ const WorkflowsPage = {
 
  <div v-if="workflows.length > 0" class="workflow-grid">
  <div v-for="wf in workflows" :key="wf.id" class="workflow-card">
- <img :src="wf.cover_url || '/static/images/dreamifly-logo.jpg'" class="wf-cover" @error="e => e.target.src='/static/images/dreamifly-logo.jpg'">
+ <img :src="wf.cover_url || '/static/images/default-logo.svg'" class="wf-cover" @error="e => e.target.src='/static/images/default-logo.svg'">
  <div class="wf-body">
  <div class="wf-name">{{ wf.name }}</div>
  <div class="wf-desc text-sm text-muted">{{ wf.description || '无描述' }}</div>
@@ -277,7 +277,7 @@ const WorkflowsPage = {
  <div v-if="testResults.length > 0" class="mt-4">
  <div class="form-label">结果</div>
  <div class="f gap-3" style="flex-wrap:wrap">
- <img v-for="(r, i) in testResults" :key="i" :src="r" style="max-width:200px;border-radius:8px">
+ <img v-for="(r, i) in testResults" :key="i" :src="r" style="max-width:200px;border-radius:4px">
  </div>
  </div>
  <div v-if="testError" class="mt-3 text-sm" style="color:#b91c1c">{{ testError }}</div>
