@@ -839,16 +839,16 @@ const MyWorksPage = {
  <div v-for="img in images" :key="img.id" class="community-item">
  <video v-if="img.mediaType === 'video'" :src="img.thumbnailUrl || img.imageUrl" style="cursor:pointer;width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 8px 0 0" controls muted preload="metadata" playsinline></video>
  <img v-else :src="img.thumbnailUrl || img.imageUrl" :alt="img.prompt" @click="$openLightbox(img.imageUrl)" style="cursor:pointer">
- <div class="community-meta">
- <div class="prompt" :title="img.prompt">{{ img.prompt || '无提示词' }}</div>
- <div class="actions">
+ <div class="works-meta">
+ <div class="works-prompt" :title="img.prompt">{{ img.prompt || '无提示词' }}</div>
+ <div class="works-info">
  <span>{{ img.modelName }}</span>
- <span v-if="img.isPublic" style="color:var(--cinnabar)">已发布</span>
- <span style="margin-left: auto">
- <button class="btn btn-ghost text-xs" @click="remake(img)" style="color:var(--cinnabar)">生成同款</button>
- <button v-if="!img.isPublic" class="btn btn-ghost text-xs" @click="publish(img)">发布</button>
- <button class="btn btn-ghost text-xs" @click="remove(img)">删除</button>
- </span>
+ <span v-if="img.isPublic" class="status-pill published">已发布</span>
+ </div>
+ <div class="works-btns">
+ <button class="btn btn-ghost btn-sm" @click="remake(img)" style="color:var(--cinnabar)">生成同款</button>
+ <button v-if="!img.isPublic" class="btn btn-ghost btn-sm" @click="publish(img)">发布</button>
+ <button class="btn btn-ghost btn-sm" @click="remove(img)">删除</button>
  </div>
  </div>
  </div>
