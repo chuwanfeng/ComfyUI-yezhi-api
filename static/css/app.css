@@ -440,8 +440,9 @@ body {
 /* ── 首页 Hero（水墨题款布局）───────────────── */
 .hero {
   display: grid; grid-template-columns: 1fr 480px; gap: 64px;
-  align-items: center; padding: 120px 56px 64px; max-width: 1400px; margin: 0 auto;
-  min-height: calc(100vh - 60px);
+  align-items: center; padding: 10vh 56px 8vh; max-width: 1600px; margin: 0 auto;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 .hero-content .greet {
   display: flex; align-items: center; gap: 16px; margin-bottom: 24px;
@@ -508,7 +509,7 @@ body {
 .hero-visual .dot.active { background: var(--cinnabar); }
 
 /* ── 区块标题 ─────────────────────────────────── */
-.section { margin-top: 32px; padding: 48px 48px; max-width: 1600px; margin: 0 auto; }
+.section { padding: 48px 48px; max-width: 1600px; margin: 0 auto; }
 .section-title {
   font-family: "Ma Shan Zheng", "Noto Serif SC", serif;
   font-size: 28px; font-weight: 400; margin-bottom: 8px;
@@ -883,11 +884,11 @@ body {
 /* ── 4K 超宽屏内容居中 ──────────────────────── */
 @media (min-width: 1920px) {
   .page { max-width: 1600px; }
-  .hero { max-width: 1400px; gap: 48px; }
+  .hero { max-width: 1600px; gap: 56px; }
 }
 @media (min-width: 2560px) {
   .page { max-width: 1800px; padding: 48px 64px; }
-  .hero { max-width: 1400px; gap: 48px; }
+  .hero { max-width: 1800px; gap: 56px; }
 }
 
 /* ── 作品页卡片: 三段式布局 ─────────────────── */
