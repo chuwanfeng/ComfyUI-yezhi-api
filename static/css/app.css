@@ -439,8 +439,8 @@ body {
 
 /* ── 首页 Hero（水墨题款布局）───────────────── */
 .hero {
-  display: flex; justify-content: center; align-items: center; gap: 48px;
-  padding: 10vh 56px 8vh; max-width: 1600px; margin: 0 auto;
+  display: flex; align-items: center; gap: 48px;
+  padding: 10vh 48px 8vh; max-width: 1600px; margin: 0 auto;
   min-height: 100vh;
   box-sizing: border-box;
 }
