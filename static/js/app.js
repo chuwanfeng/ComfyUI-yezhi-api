@@ -150,7 +150,7 @@ const HomePage = {
         <div class="hero-stats">
           <div><span class="num">{{ stats.total || 0 }}</span> 次生成</div>
           <div>今日 <span class="num">{{ stats.daily || 0 }}</span></div>
-          <div v-if="authStore.selfHosted" style="color:var(--primary)">自用模式</div>
+          <div v-if="authStore.selfHosted" style="color:var(--cinnabar)">自用模式</div>
         </div>
       </div>
       <div class="hero-visual fade-in">
@@ -264,12 +264,12 @@ const GeneratePage = {
              @dragleave.prevent="dragRef = false"
              @drop.prevent="onRefDrop"
              :class="{ 'drop-highlight': dragRef }">
-          <div v-for="(img, i) in referenceImages" :key="i" style="position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:1px solid var(--border)">
+          <div v-for="(img, i) in referenceImages" :key="i" style="position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:1px solid var(--ink-border)">
             <img :src="img" style="width:100%;height:100%;object-fit:cover">
             <button @click="referenceImages.splice(i,1)" class="btn btn-ghost" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;width:20px;height:20px;line-height:1;font-size:12px;padding:0;border-radius:50%">×</button>
           </div>
-          <div class="upload-zone" @click="triggerUpload" :class="{ 'drag-over': dragRef }" style="width:80px;height:80px;min-height:auto;border:dashed 2px var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:8px;flex-shrink:0">
-            <span style="font-size:24px;color:var(--muted-fg)">{{ dragRef ? '+' : '+' }}</span>
+          <div class="upload-zone" @click="triggerUpload" :class="{ 'drag-over': dragRef }" style="width:80px;height:80px;min-height:auto;border:dashed 2px var(--ink-border);display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:8px;flex-shrink:0">
+            <span style="font-size:24px;color:var(--ink-fade)">{{ dragRef ? '+' : '+' }}</span>
           </div>
           <input ref="fileInput" type="file" accept="image/*" multiple @change="onFileSelected" style="display:none">
         </div>
@@ -287,13 +287,13 @@ const GeneratePage = {
              @dragleave.prevent="dragAudio = false"
              @drop.prevent="onAudioDrop"
              :class="{ 'drop-highlight': dragAudio }">
-          <div v-for="(a, i) in audioFiles" :key="i" style="position:relative;height:36px;display:flex;align-items:center;padding:0 8px;border-radius:8px;background:var(--card-bg);border:1px solid var(--border);font-size:12px;gap:6px">
+          <div v-for="(a, i) in audioFiles" :key="i" style="position:relative;height:36px;display:flex;align-items:center;padding:0 8px;border-radius:8px;background:var(--card-bg);border:1px solid var(--ink-border);font-size:12px;gap:6px">
             
             <span style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ a.name || '音频 '+(i+1) }}</span>
             <button @click="audioFiles.splice(i,1)" class="btn btn-ghost" style="margin-left:4px;width:18px;height:18px;line-height:1;font-size:11px;padding:0;border-radius:50%;background:rgba(0,0,0,.5);color:#fff">×</button>
           </div>
-          <div class="upload-zone" @click="triggerAudio" :class="{ 'drag-over': dragAudio }" style="height:36px;min-height:auto;border:dashed 2px var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:8px;flex-shrink:0;padding:0 12px">
-            <span style="font-size:14px;color:var(--muted-fg)">{{ dragAudio ? '松开放入' : '+ 添加音频' }}</span>
+          <div class="upload-zone" @click="triggerAudio" :class="{ 'drag-over': dragAudio }" style="height:36px;min-height:auto;border:dashed 2px var(--ink-border);display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:8px;flex-shrink:0;padding:0 12px">
+            <span style="font-size:14px;color:var(--ink-fade)">{{ dragAudio ? '松开放入' : '+ 添加音频' }}</span>
           </div>
           <input ref="audioInput" type="file" accept="audio/*" @change="onAudioSelected" style="display:none">
         </div>
@@ -309,7 +309,7 @@ const GeneratePage = {
             <span v-if="selectedModel.isText2Image" class="tag" style="font-size:10px;padding:2px 6px">文生图</span>
             <span v-if="selectedModel.isImageEdit" class="tag" style="font-size:10px;padding:2px 6px;background:#d1fae5;color:#047857">图像编辑</span>
           </div>
-          <span style="color: var(--muted-fg)">▾</span>
+          <span style="color: var(--ink-fade)">▾</span>
         </div>
         <div v-if="modelDropdownOpen" class="card mt-2" style="padding: 8px; max-height: 240px; overflow-y: auto">
           <div v-for="m in models" :key="m.id" class="model-selector mb-1" style="padding:6px" @click.stop="selectModel(m)">
@@ -317,7 +317,7 @@ const GeneratePage = {
             <div class="name">{{ m.name }}</div>
             <span class="text-xs text-muted">{{ m.description }}</span>
           </div>
-          <div v-if="workflows.length" style="padding:6px 0; border-top:1px solid var(--border); margin:4px 0; font-size:11px; color:var(--muted-fg)">自定义工作流</div>
+          <div v-if="workflows.length" style="padding:6px 0; border-top:1px solid var(--ink-border); margin:4px 0; font-size:11px; color:var(--ink-fade)">自定义工作流</div>
           <div v-for="w in workflows" :key="'wf_'+w.id" class="model-selector mb-1" style="padding:6px" @click.stop="selectModel(w)">
             <img :src="w.cover_url || '/static/common/workflow.svg'" class="thumb" @error="e => e.target.style.display='none'">
             <div class="name">{{ w.name }}</div>
@@ -843,9 +843,9 @@ const MyWorksPage = {
             <div class="prompt" :title="img.prompt">{{ img.prompt || '无提示词' }}</div>
             <div class="actions">
               <span>{{ img.modelName }}</span>
-              <span v-if="img.isPublic" style="color:var(--primary)">🌐 已发布</span>
+              <span v-if="img.isPublic" style="color:var(--cinnabar)">🌐 已发布</span>
               <span style="margin-left: auto">
-                <button class="btn btn-ghost text-xs" @click="remake(img)" style="color:var(--primary)"> 生成同款</button>
+                <button class="btn btn-ghost text-xs" @click="remake(img)" style="color:var(--cinnabar)"> 生成同款</button>
                 <button v-if="!img.isPublic" class="btn btn-ghost text-xs" @click="publish(img)">发布</button>
                 <button class="btn btn-ghost text-xs" @click="remove(img)">删除</button>
               </span>
@@ -1466,12 +1466,12 @@ const AuthPage = {
 
     <div class="text-sm text-center text-muted">
       {{ mode === 'login' ? '还没有账号？' : '已有账号？' }}
-      <a href="#" @click.prevent="mode = mode === 'login' ? 'register' : 'login'" style="color:var(--primary);text-decoration:none;font-weight:600">
+      <a href="#" @click.prevent="mode = mode === 'login' ? 'register' : 'login'" style="color:var(--cinnabar);text-decoration:none;font-weight:600">
         {{ mode === 'login' ? '马上注册' : '去登录' }}
       </a>
     </div>
 
-    <div v-if="authStore.selfHosted" class="mt-4 text-center text-xs text-muted" style="background:var(--primary-lighter);padding:8px;border-radius:8px">
+    <div v-if="authStore.selfHosted" class="mt-4 text-center text-xs text-muted" style="background:var(--cinnabar-pale);padding:8px;border-radius:8px">
        提示: 自用模式下无需登录即可使用
     </div>
   </div>`,
