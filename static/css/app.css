@@ -555,12 +555,20 @@ body {
 }
 .community-meta .actions {
   display: flex; gap: 12px; font-size: 12px; color: var(--ink-fade);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.02em; align-items: center;
 }
 .community-meta .actions span {
   cursor: pointer; transition: color 0.3s;
+  display: inline-flex; align-items: center; gap: 4px;
 }
 .community-meta .actions span:hover { color: var(--cinnabar); }
+.like-btn.liked { color: var(--cinnabar); }
+.like-btn.liked .icon-heart { color: var(--cinnabar); }
+.like-btn .icon-heart { color: var(--ink-fade); transition: color 0.3s; }
+.like-btn:hover .icon-heart { color: var(--cinnabar); }
+.fav-btn .icon-star { color: var(--ink-fade); transition: all 0.3s; }
+.fav-btn:hover .icon-star { color: var(--cinnabar); }
+.fav-btn.faved .icon-star { fill: var(--cinnabar); color: var(--cinnabar); }
 
 /* ── 登录页 ───────────────────────────────────── */
 .auth-page {

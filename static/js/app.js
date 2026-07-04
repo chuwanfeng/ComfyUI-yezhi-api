@@ -779,8 +779,13 @@ const CommunityPage = {
  </div>
  <div class="prompt" :title="img.prompt">{{ img.prompt || '无提示词' }}</div>
  <div class="actions">
- <span @click="toggleLike(img)" class="like-btn"> {{ img.likeCount || 0 }}</span>
- <span>{{ img.reportCount || 0 }} 次</span>
+ <span @click="toggleLike(img)" class="like-btn">
+ <svg class="icon-heart" viewBox="0 0 24 24" width="16" height="16"><path d="M12 21s-7-4.5-9.5-9C1 9 2.5 5 6 5c2 0 3.5 1 4.5 2.5C11.5 6 13 5 15 5c3.5 0 5 4 3.5 7-2.5 4.5-9.5 9-9.5 9z" fill="currentColor"/></svg>
+ {{ img.likeCount || 0 }}
+ </span>
+ <span class="fav-btn">
+ <svg class="icon-star" viewBox="0 0 24 24" width="16" height="16"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+ </span>
  <span style="margin-left: auto">{{ img.modelName }}</span>
  </div>
  </div>
