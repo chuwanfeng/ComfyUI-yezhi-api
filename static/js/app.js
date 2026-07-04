@@ -1195,7 +1195,7 @@ const WorkflowsPage = {
  <h2 class="section-title" style="margin-bottom:0"> 我的工作流</h2>
  <p class="section-sub" style="margin-top:4px">自定义 ComfyUI 工作流，支持从 ComfyUI 导入</p>
  </div>
- <button class="btn btn-primary" @click="showCreate = true">+ 新建工作流</button>
+ <div style="display:flex;gap:8px"><button class="btn btn-secondary" @click="showImport = true">导入工作流</button><button class="btn btn-primary" @click="showCreate = true">+ 新建工作流</button></div>
  </div>
 
  <!-- 登录提示 -->
