@@ -142,7 +142,7 @@ const HomePage = {
  <span class="tag">中文支持</span>
  </div>
  <p class="hero-desc">
- 由全国30台家用电脑的闲置4090显卡，<b>免费无限制</b>提供分布式算力支持。
+支持nsfw图片、视频生成，<b>免费无限制</b>。
  </p>
  <div class="hero-actions">
  <button class="btn btn-primary" @click="$router.push('/generate')">开始创作</button>
@@ -179,9 +179,9 @@ const HomePage = {
  const stats = ref({});
  const currentDemo = ref(0);
  const demos = [
- { img: '/static/images/dreamifly-demo-1.png', title: '动漫' },
- { img: '/static/images/dreamifly-demo-2.png', title: '插画' },
- { img: '/static/images/dreamifly-demo-3.png', title: '艺术' },
+ { img: '/static/images/demo-1.png', title: '动漫' },
+ { img: '/static/images/demo-2.png', title: '插画' },
+ { img: '/static/images/demo-3.png', title: '艺术' },
  ];
 
  onMounted(async () => {
@@ -770,7 +770,7 @@ const CommunityPage = {
  <div v-else-if="images.length === 0" class="text-center p-6 text-muted">社区还没有作品，快去生成一些分享吧</div>
  <div v-else class="community-grid">
  <div v-for="img in images" :key="img.id" class="community-item">
- <video v-if="img.mediaType === 'video'" :src="img.imageUrl" style="cursor:pointer;width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 8px 0 0" controls muted preload="metadata" playsinline></video>
+ <video v-if="img.mediaType === 'video'" :src="img.imageUrl" style="cursor:pointer;width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 4px 0 0" controls muted preload="metadata" playsinline></video>
  <img v-else :src="img.thumbnailUrl" :alt="img.prompt" @error="e => e.target.src='/static/images/default-logo.svg'" @click="$openLightbox(img.imageUrl || img.thumbnailUrl)" style="cursor:pointer">
  <div class="community-meta">
  <div class="user">

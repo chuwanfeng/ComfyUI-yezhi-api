@@ -1,8 +1,0 @@
-<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-  <!-- 墨竹简笔 -->
-  <path d="M12 20 L12 4" stroke="#1a1a1a" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
-  <path d="M12 6 Q15 6 16 4" stroke="#6b6660" stroke-width="0.6" fill="none" stroke-linecap="round" opacity="0.4"/>
-  <path d="M12 10 Q9 10 8 7" stroke="#6b6660" stroke-width="0.6" fill="none" stroke-linecap="round" opacity="0.35"/>
-  <path d="M12 14 Q15 13 16 11" stroke="#6b6660" stroke-width="0.6" fill="none" stroke-linecap="round" opacity="0.35"/>
-  <path d="M12 17 Q10 16 9 14" stroke="#c8c0b4" stroke-width="0.5" fill="none" stroke-linecap="round" opacity="0.25"/>
-</svg>
