@@ -320,8 +320,8 @@ body {
 /* ── 模型网格（竖轴卡片，3:4）────────────────── */
 .model-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 20px;
 }
 .model-card {
   position: relative; border-radius: 4px; overflow: hidden;
@@ -439,8 +439,8 @@ body {
 
 /* ── 首页 Hero（水墨题款布局）───────────────── */
 .hero {
-  display: grid; grid-template-columns: 1fr 420px; gap: 32px;
-  align-items: center; padding: 10vh 56px 8vh; max-width: 1600px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 400px; gap: 24px;
+  align-items: center; padding: 10vh 56px 8vh; max-width: 1200px; margin: 0 auto;
   min-height: 100vh;
   box-sizing: border-box;
 }
@@ -491,7 +491,7 @@ body {
 }
 .hero-stats .num { color: var(--cinnabar); font-weight: 700; font-size: 18px; }
 .hero-visual {
-  position: relative; width: 420px; height: 420px;
+  position: relative; width: 400px; height: 400px;
   border-radius: 50%; overflow: hidden;
   box-shadow: var(--shadow-ink-lg), 0 0 0 6px var(--card-bg), 0 0 0 7px var(--ink-border-light);
   margin: 0 auto;
@@ -528,8 +528,8 @@ body {
 /* ── 社区网格 ─────────────────────────────────── */
 .community-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
 }
 .community-item {
   background: var(--card-bg); border-radius: 4px; overflow: hidden;
@@ -890,20 +890,20 @@ body {
 
 /* ── 社区/作品网格: 4K 适配 ─────────────────── */
 @media (min-width: 2560px) {
-  .community-grid { grid-template-columns: repeat(5, 1fr) !important; }
-  .model-grid { grid-template-columns: repeat(5, 1fr) !important; }
+  .community-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important; }
+  .model-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important; }
 }
 
 /* ── 4K 超宽屏内容居中 ──────────────────────── */
 @media (min-width: 1920px) {
   .page { max-width: 1600px; }
-  .hero { max-width: 1600px; gap: 40px; }
-  .hero-visual { width: 460px; height: 460px; }
+  .hero { max-width: 1200px; gap: 24px; }
+  .hero-visual { width: 440px; height: 440px; }
 }
 @media (min-width: 2560px) {
   .page { max-width: 1800px; padding: 48px 64px; }
-  .hero { max-width: 1800px; gap: 48px; }
-  .hero-visual { width: 500px; height: 500px; }
+  .hero { max-width: 1400px; gap: 32px; }
+  .hero-visual { width: 480px; height: 480px; }
 }
 
 /* ── 作品页卡片: 三段式布局 ─────────────────── */
