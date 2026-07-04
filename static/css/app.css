@@ -440,10 +440,11 @@ body {
 /* ── 首页 Hero（水墨题款布局）───────────────── */
 .hero {
   display: grid; grid-template-columns: 1fr 400px; gap: 24px;
-  align-items: center; padding: 10vh 56px 8vh; max-width: 1200px; margin: 0 auto;
+  align-items: center; padding: 10vh 56px 8vh; max-width: 1600px; margin: 0 auto;
   min-height: 100vh;
   box-sizing: border-box;
 }
+.hero-content { max-width: 560px; }
 .hero-content .greet {
   display: flex; align-items: center; gap: 16px; margin-bottom: 24px;
 }
@@ -528,8 +529,8 @@ body {
 /* ── 社区网格 ─────────────────────────────────── */
 .community-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
 }
 .community-item {
   background: var(--card-bg); border-radius: 4px; overflow: hidden;
@@ -888,22 +889,18 @@ body {
 }
 .works-actions .btn { white-space: nowrap; }
 
-/* ── 社区/作品网格: 4K 适配 ─────────────────── */
-@media (min-width: 2560px) {
-  .community-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important; }
-  .model-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important; }
-}
-
 /* ── 4K 超宽屏内容居中 ──────────────────────── */
 @media (min-width: 1920px) {
   .page { max-width: 1600px; }
-  .hero { max-width: 1200px; gap: 24px; }
+  .hero { max-width: 1600px; gap: 32px; }
   .hero-visual { width: 440px; height: 440px; }
 }
 @media (min-width: 2560px) {
   .page { max-width: 1800px; padding: 48px 64px; }
-  .hero { max-width: 1400px; gap: 32px; }
+  .hero { max-width: 1800px; gap: 40px; }
   .hero-visual { width: 480px; height: 480px; }
+  .community-grid { grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)) !important; }
+  .model-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important; }
 }
 
 /* ── 作品页卡片: 三段式布局 ─────────────────── */
