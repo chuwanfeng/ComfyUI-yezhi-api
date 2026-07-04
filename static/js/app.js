@@ -1,14 +1,14 @@
 /**
- * ComfyUI-Yezhi-API — Vue 3 SPA
+ * ComfyUI-Yezhi-API �?Vue 3 SPA
  * 视觉风格复刻 Dreamifly
  */
 const { createApp, ref, computed, reactive, onMounted, watch, nextTick } = Vue;
 const { createRouter, createWebHashHistory } = VueRouter;
 const { createPinia, defineStore } = Pinia;
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════�?
 // 全局 Toast
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════�?
 const toasts = ref([]);
 let toastId = 0;
 function showToast(message, type = 'info', duration = 3000) {
@@ -22,19 +22,19 @@ window.toast = {
   info: (m) => showToast(m, 'info'),
 };
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════�?
 // 全局 图片灯箱（全站共享）
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════�?
 const lightboxSrc = ref(null);
 const openLightbox = (url) => { lightboxSrc.value = url; };
 const closeLightbox = () => { lightboxSrc.value = null; };
-// 挂到 window 上供子组件调用
+// 挂到 window 上供子组件调�?
 window.openLightbox = openLightbox;
 window.closeLightbox = closeLightbox;
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════�?
 // API 工具
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════�?
 async function api(path, opts = {}) {
   const headers = opts.headers || {};
   if (useAuthStore().token) headers.Authorization = `Bearer ${useAuthStore().token}`;
@@ -51,9 +51,9 @@ async function api(path, opts = {}) {
   return r.json();
 }
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════�?
 // Pinia Store
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════�?
 const useAuthStore = defineStore('auth', {
   state: () => ({
     token: localStorage.getItem('yezhi_token') || '',
@@ -94,9 +94,9 @@ const useAuthStore = defineStore('auth', {
   },
 });
 
-// ═══════════════════════════════════════════════
-// 共享: 模型数据 — 仅保留厂商 API 模型
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════�?
+// 共享: 模型数据 �?仅保留厂�?API 模型
+// ══════════════════════════════════════════════�?
 const FALLBACK_MODELS = [
   { id: 'Qwen-Image', name: 'Qwen-Image', description: '通义千问图像', cover: '/static/models/Qwen-Image.jpg', recommended: true, isText2Image: true, isImageEdit: true, isVideo: false, normalSteps: 30, maxSteps: 50 },
   { id: 'nano-banana', name: 'Nano Banana 2', description: 'Google Gemini Flash', cover: '/static/models/nano-banana-2.jpg', recommended: true, isText2Image: true, isImageEdit: true, isVideo: false, normalSteps: 20, maxSteps: 40 },
@@ -105,7 +105,7 @@ const FALLBACK_MODELS = [
 const STYLES = [
   { id: 'realistic', name: '真实', cover: '/static/styles/realistic.png' },
   { id: 'anime', name: '动漫', cover: '/static/styles/anima.png' },
-  { id: 'cartoon', name: '卡通', cover: '/static/styles/cartoon.png' },
+  { id: 'cartoon', name: '卡�?, cover: '/static/styles/cartoon.png' },
   { id: 'oil-painting', name: '油画', cover: '/static/styles/oil-painting.png' },
   { id: 'line-Art', name: '线稿', cover: '/static/styles/line-Art.png' },
   { id: 'pixel', name: '像素', cover: '/static/styles/pixel.png' },
@@ -115,9 +115,9 @@ const STYLES = [
   { id: 'risograph', name: '丝印', cover: '/static/styles/risograph.png' },
 ];
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════�?
 // 页面: 首页 (Hero 复刻 Dreamifly 风格)
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════�?
 const HomePage = {
   template: `
   <div>
@@ -132,23 +132,23 @@ const HomePage = {
         </div>
         <h1 class="hero-title">
           通过AI释放你的<br>
-          <span class="accent">无限想象力</span>，只需一键！
+          <span class="accent">无限想象�?/span>，只需一键！
         </h1>
         <div class="hero-tags">
-          <span class="tag">快速生成</span>
+          <span class="tag">快速生�?/span>
           <span class="tag">多种模型</span>
           <span class="tag">无需登录</span>
           <span class="tag">高度定制</span>
           <span class="tag">支持中文</span>
         </div>
         <p class="hero-desc">
-          由全国30台家用电脑的闲置4090显卡，<b>免费无限制</b>提供分布式算力支持。
+          由全�?0台家用电脑的闲置4090显卡�?b>免费无限�?/b>提供分布式算力支持�?
         </p>
         <div class="hero-actions">
-          <button class="btn btn-primary" @click="$router.push('/generate')">开始创作</button>
+          <button class="btn btn-primary" @click="$router.push('/generate')">开始创�?/button>
         </div>
         <div class="hero-stats">
-          <div>🖼️ <span class="num">{{ stats.total || 0 }}</span> 次生成</div>
+          <div>🖼�?<span class="num">{{ stats.total || 0 }}</span> 次生�?/div>
           <div>📅 今日 <span class="num">{{ stats.daily || 0 }}</span></div>
           <div v-if="authStore.selfHosted" style="color:var(--primary)">🔓 自用模式</div>
         </div>
@@ -206,22 +206,22 @@ const HomePage = {
   },
 };
 
-// ═══════════════════════════════════════════════
-// 页面: 生成页 (复刻原项目双栏 + 风格网格)
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════�?
+// 页面: 生成�?(复刻原项目双�?+ 风格网格)
+// ══════════════════════════════════════════════�?
 const GeneratePage = {
   template: `
   <div class="page fade-in">
     <!-- 提示词区 -->
     <div class="card mb-4">
       <div class="form-label">
-        <img src="/static/form/prompt.svg" alt="">提示词
+        <img src="/static/ink-icons/prompt.svg" alt="">提示�?
       </div>
-      <textarea v-model="prompt" class="textarea" placeholder="请输入英文提示词以获得最佳效果..." rows="3"></textarea>
+      <textarea v-model="prompt" class="textarea" placeholder="请输入英文提示词以获得最佳效�?.." rows="3"></textarea>
 
       <div v-if="showNegative" class="mt-3">
         <div class="form-label">
-          <img src="/static/form/negative.svg" alt="">负面提示词
+          <img src="/static/ink-icons/negative.svg" alt="">负面提示�?
           <span class="text-xs text-muted">(用逗号分隔)</span>
         </div>
         <input v-model="negativePrompt" class="input" placeholder="不希望出现的元素">
@@ -229,21 +229,21 @@ const GeneratePage = {
 
       <div class="toolbar">
         <button class="tool-btn" @click="randomPrompt">
-          <img src="/static/form/prompt.svg" alt="">随机提示词
+          <img src="/static/ink-icons/prompt.svg" alt="">随机提示�?
         </button>
         <button class="tool-btn" @click="showStylePicker = !showStylePicker">
-          <img src="/static/form/image.svg" alt="">风格
+          <img src="/static/ink-icons/image.svg" alt="">风格
         </button>
         <button class="tool-btn" @click="cycleRatio">
-          <img src="/static/form/aspect-ratio.svg" alt="">{{ ratio }}
+          <img src="/static/ink-icons/aspect-ratio.svg" alt="">{{ ratio }}
         </button>
         <button class="tool-btn" @click="optimizePrompt" :disabled="optimizing || !prompt">
-          <img src="/static/form/prompt.svg" alt="">{{ optimizing ? '优化中...' : '优化提示词' }}
+          <img src="/static/ink-icons/generate.svg" alt="">{{ optimizing ? '优化�?..' : '优化提示�? }}
         </button>
         <div style="margin-left: auto">
           <button class="btn btn-generate" @click="generate" :disabled="generating || !prompt">
-            <span style="font-size: 18px">✦</span>
-            {{ generating ? '生成中...' : '生成图片' }}
+            <span style="font-size: 18px">�?/span>
+            {{ generating ? '生成�?..' : '生成图片' }}
           </button>
         </div>
       </div>
@@ -251,12 +251,12 @@ const GeneratePage = {
 
     <!-- 配置 + 预览 -->
     <div class="f gap-4" style="align-items: flex-start">
-      <!-- 左: 配置 -->
+      <!-- �? 配置 -->
       <div class="card" style="width: 480px; flex-shrink: 0">
         <!-- 上传参考图（多图） -->
         <div class="form-label">
-          <img src="/static/form/upload.svg" alt="">上传参考图片
-          <span class="text-xs text-muted">(可选, 用于图生图/图像编辑)</span>
+          <img src="/static/ink-icons/upload.svg" alt="">上传参考图�?
+          <span class="text-xs text-muted">(可�? 用于图生�?图像编辑)</span>
         </div>
         <div class="f gap-2" style="flex-wrap:wrap;align-items:flex-start"
              @dragenter.prevent="dragRef = true"
@@ -266,7 +266,7 @@ const GeneratePage = {
              :class="{ 'drop-highlight': dragRef }">
           <div v-for="(img, i) in referenceImages" :key="i" style="position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:1px solid var(--border)">
             <img :src="img" style="width:100%;height:100%;object-fit:cover">
-            <button @click="referenceImages.splice(i,1)" class="btn btn-ghost" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;width:20px;height:20px;line-height:1;font-size:12px;padding:0;border-radius:50%">✕</button>
+            <button @click="referenceImages.splice(i,1)" class="btn btn-ghost" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;width:20px;height:20px;line-height:1;font-size:12px;padding:0;border-radius:50%">�?/button>
           </div>
           <div class="upload-zone" @click="triggerUpload" :class="{ 'drag-over': dragRef }" style="width:80px;height:80px;min-height:auto;border:dashed 2px var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:8px;flex-shrink:0">
             <span style="font-size:24px;color:var(--muted-fg)">{{ dragRef ? '📥' : '+' }}</span>
@@ -279,7 +279,7 @@ const GeneratePage = {
 
         <!-- 音频拖放 -->
         <div class="form-label mt-3">
-          <img src="/static/form/prompt.svg" alt="">音频参考
+          <img src="/static/ink-icons/generate.svg" alt="">音频参�?
         </div>
         <div class="f gap-2" style="flex-wrap:wrap;align-items:flex-start"
              @dragenter.prevent="dragAudio = true"
@@ -290,7 +290,7 @@ const GeneratePage = {
           <div v-for="(a, i) in audioFiles" :key="i" style="position:relative;height:36px;display:flex;align-items:center;padding:0 8px;border-radius:8px;background:var(--card-bg);border:1px solid var(--border);font-size:12px;gap:6px">
             <span>🎵</span>
             <span style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ a.name || '音频 '+(i+1) }}</span>
-            <button @click="audioFiles.splice(i,1)" class="btn btn-ghost" style="margin-left:4px;width:18px;height:18px;line-height:1;font-size:11px;padding:0;border-radius:50%;background:rgba(0,0,0,.5);color:#fff">✕</button>
+            <button @click="audioFiles.splice(i,1)" class="btn btn-ghost" style="margin-left:4px;width:18px;height:18px;line-height:1;font-size:11px;padding:0;border-radius:50%;background:rgba(0,0,0,.5);color:#fff">�?/button>
           </div>
           <div class="upload-zone" @click="triggerAudio" :class="{ 'drag-over': dragAudio }" style="height:36px;min-height:auto;border:dashed 2px var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:8px;flex-shrink:0;padding:0 12px">
             <span style="font-size:14px;color:var(--muted-fg)">{{ dragAudio ? '📥 松开放入' : '+ 添加音频' }}</span>
@@ -300,16 +300,16 @@ const GeneratePage = {
 
         <!-- 模型选择 -->
         <div class="form-label mt-4">
-          <img src="/static/form/models.svg" alt="">模型
+          <img src="/static/ink-icons/models.svg" alt="">模型
         </div>
         <div class="model-selector" @click="modelDropdownOpen = !modelDropdownOpen">
           <img :src="selectedModel.cover || '/static/models/' + selectedModel.id + '.jpg'" class="thumb" @error="e => e.target.style.display='none'">
           <div class="name">{{ selectedModel.name }}</div>
           <div class="tags">
-            <span v-if="selectedModel.isText2Image" class="tag" style="font-size:10px;padding:2px 6px">文生图</span>
+            <span v-if="selectedModel.isText2Image" class="tag" style="font-size:10px;padding:2px 6px">文生�?/span>
             <span v-if="selectedModel.isImageEdit" class="tag" style="font-size:10px;padding:2px 6px;background:#d1fae5;color:#047857">图像编辑</span>
           </div>
-          <span style="color: var(--muted-fg)">▾</span>
+          <span style="color: var(--muted-fg)">�?/span>
         </div>
         <div v-if="modelDropdownOpen" class="card mt-2" style="padding: 8px; max-height: 240px; overflow-y: auto">
           <div v-for="m in models" :key="m.id" class="model-selector mb-1" style="padding:6px" @click.stop="selectModel(m)">
@@ -319,13 +319,13 @@ const GeneratePage = {
           </div>
           <div v-if="workflows.length" style="padding:6px 0; border-top:1px solid var(--border); margin:4px 0; font-size:11px; color:var(--muted-fg)">📐 自定义工作流</div>
           <div v-for="w in workflows" :key="'wf_'+w.id" class="model-selector mb-1" style="padding:6px" @click.stop="selectModel(w)">
-            <img :src="w.cover_url || '/static/common/workflow.svg'" class="thumb" @error="e => e.target.style.display='none'">
+            <img :src="w.cover_url || '/static/ink-icons/edit.svg'" class="thumb" @error="e => e.target.style.display='none'">
             <div class="name">{{ w.name }}</div>
             <span class="text-xs text-muted">{{ w.description || '自定义工作流' }}</span>
           </div>
         </div>
 
-        <!-- 风格选择器 -->
+        <!-- 风格选择�?-->
         <div v-if="showStylePicker" class="mt-3">
           <div class="form-label">选择风格</div>
           <div class="style-grid">
@@ -361,7 +361,7 @@ const GeneratePage = {
               <input v-model.number="batchSize" type="number" min="1" max="4" class="input">
             </div>
             <div>
-              <div class="text-xs text-muted mb-1">时长(秒)</div>
+              <div class="text-xs text-muted mb-1">时长(�?</div>
               <input v-model.number="duration" type="number" min="1" max="60" class="input" placeholder="自动">
             </div>
             <div>
@@ -373,18 +373,18 @@ const GeneratePage = {
               <input v-model.number="audioStartTime" type="number" min="0" class="input" placeholder="0">
             </div>
             <div v-if="selectedModel && selectedModel.type === 'workflow'">
-              <div class="text-xs text-muted mb-1">音频长度(秒)</div>
+              <div class="text-xs text-muted mb-1">音频长度(�?</div>
               <input v-model.number="audioDuration" type="number" min="1" class="input" placeholder="全段">
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 右: 预览大图 -->
+      <!-- �? 预览大图 -->
       <div class="preview-card flex-1">
         <div class="preview-header">
           <h3>
-            <img src="/static/common/preview.svg" alt="" style="width:18px;height:18px;vertical-align:middle;margin-right:6px">
+            <img src="/static/ink-icons/preview.svg" alt="" style="width:18px;height:18px;vertical-align:middle;margin-right:6px">
             预览
           </h3>
           <button v-if="results.length" class="btn btn-secondary" @click="downloadAll">下载图片</button>
@@ -393,7 +393,7 @@ const GeneratePage = {
         <div class="preview-image">
           <div v-if="generating" class="text-center">
             <div class="spin" style="margin: 0 auto 12px"></div>
-            <div class="text-sm text-muted">生成中... 请耐心等待</div>
+            <div class="text-sm text-muted">生成�?.. 请耐心等待</div>
             <div class="progress mt-3" style="width: 200px; margin: 12px auto 0">
               <div class="progress-bar" :style="{ width: progress + '%' }"></div>
             </div>
@@ -406,14 +406,14 @@ const GeneratePage = {
             </template>
           </div>
           <div v-else class="empty">
-            <img src="/static/common/preview.svg" alt="">
-            <div class="mt-2 text-sm">点击「生成图片」开始创作</div>
+            <img src="/static/ink-icons/preview.svg" alt="">
+            <div class="mt-2 text-sm">点击「生成图片」开始创�?/div>
             <div class="text-xs text-muted mt-1">图片生成可能耗时较长，请耐心等待</div>
           </div>
         </div>
 
-        <div v-if="results.length" class="status-line success">✅ 生成完成 ({{ elapsed }}s) · {{ results.length }} 个{{ lastMediaType === 'video' ? '视频' : '图片' }}</div>
-        <div v-if="error" class="status-line error">❌ {{ error }}</div>
+        <div v-if="results.length" class="status-line success">�?生成完成 ({{ elapsed }}s) · {{ results.length }} 个{{ lastMediaType === 'video' ? '视频' : '图片' }}</div>
+        <div v-if="error" class="status-line error">�?{{ error }}</div>
       </div>
     </div>
 
@@ -422,11 +422,11 @@ const GeneratePage = {
       <div class="modal" style="max-width:640px">
         <div class="modal-header">
           <h3>📁 选择参考图</h3>
-          <button class="btn btn-ghost" @click="showWorksPicker=false">✕</button>
+          <button class="btn btn-ghost" @click="showWorksPicker=false">�?/button>
         </div>
         <div class="modal-body">
           <div v-if="worksPickerLoading" class="text-center p-4"><div class="spin"></div></div>
-          <div v-else-if="myWorks.length === 0" class="text-center p-4 text-muted">还没有作品</div>
+          <div v-else-if="myWorks.length === 0" class="text-center p-4 text-muted">还没有作�?/div>
           <div v-else class="works-picker-grid">
             <div v-for="img in myWorks" :key="img.id" class="works-picker-item" @click="pickReference(img)">
               <img :src="img.imageUrl" :alt="img.prompt" @error="e => e.target.style.display='none'">
@@ -455,11 +455,11 @@ const GeneratePage = {
     const customH = ref(null);
     const steps = ref(28);
     const batchSize = ref(1);
-    const duration = ref(null);  // 视频时长（秒）
+    const duration = ref(null);  // 视频时长（秒�?
     const fps = ref(null);        // 视频帧率
     const lastMediaType = ref('image');
     const audioStartTime = ref(0);
-    const audioDuration = ref(null);  // 最近一次生成类型
+    const audioDuration = ref(null);  // 最近一次生成类�?
     const dragRef = ref(false);
     const referenceImages = ref([]);
     const fileInput = ref(null);
@@ -491,7 +491,7 @@ const GeneratePage = {
           selectedModel.value = d.models[0];
         }
       } catch {}
-      // 加载用户工作流
+      // 加载用户工作�?
       try {
         const wd = await api('/api/workflows/my');
         workflows.value = (wd.workflows || []).map(w => ({ ...w, type: 'workflow' }));
@@ -502,7 +502,7 @@ const GeneratePage = {
         if (m) selectedModel.value = m;
         sessionStorage.removeItem('yezhi_preferred_model');
       }
-      // 「生成同款」参数恢复
+      // 「生成同款」参数恢�?
       const remakeData = sessionStorage.getItem('yezhi_remake');
       if (remakeData) {
         try {
@@ -528,7 +528,7 @@ const GeneratePage = {
           if (rm.audioFiles && rm.audioFiles.length) {
             audioFiles.value = rm.audioFiles;
           }
-          // 展开高级选项（有自定义参数时）
+          // 展开高级选项（有自定义参数时�?
           if (rm.width || rm.height || rm.duration || rm.fps || rm.audioStartTime || rm.audioDuration) showAdvanced.value = true;
           // 尝试匹配模型或工作流
           if (rm.workflowId) {
@@ -660,7 +660,7 @@ const GeneratePage = {
           throw new Error(d.error || '生成失败');
         }
 
-        statusText.value = '排队中...';
+        statusText.value = '排队�?..';
         const reader = r.body.getReader();
         const decoder = new TextDecoder();
         let buffer = '';
@@ -678,10 +678,10 @@ const GeneratePage = {
             try {
               const evt = JSON.parse(line.slice(6));
               if (evt.type === 'queued') {
-                statusText.value = '队列中...';
+                statusText.value = '队列�?..';
                 progress.value = 20;
               } else if (evt.type === 'progress') {
-                statusText.value = evt.message || '生成中...';
+                statusText.value = evt.message || '生成�?..';
                 progress.value = Math.min(80, 20 + (evt.percent || 0) * 0.6);
               } else if (evt.type === 'image' || evt.type === 'video') {
                 results.value.push({ url: evt.url, id: evt.id, mediaType: evt.media_type || 'image' });
@@ -757,17 +757,17 @@ const GeneratePage = {
   },
 };
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════�?
 // 页面: 社区
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════�?
 const CommunityPage = {
   template: `
   <div class="page fade-in">
     <h2 class="section-title">🌐 创意社区</h2>
-    <p class="section-sub mb-4">发现 AI 创作灵感，分享你的作品</p>
+    <p class="section-sub mb-4">发现 AI 创作灵感，分享你的作�?/p>
 
     <div v-if="loading" class="text-center p-6"><div class="spin" style="margin: 0 auto"></div></div>
-    <div v-else-if="images.length === 0" class="text-center p-6 text-muted">社区还没有作品，快去生成一些分享吧 ✨</div>
+    <div v-else-if="images.length === 0" class="text-center p-6 text-muted">社区还没有作品，快去生成一些分享吧 �?/div>
     <div v-else class="community-grid">
       <div v-for="img in images" :key="img.id" class="community-item">
         <video v-if="img.mediaType === 'video'" :src="img.imageUrl" style="cursor:pointer;width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px 8px 0 0" controls muted preload="metadata" playsinline></video>
@@ -820,18 +820,18 @@ const CommunityPage = {
   },
 };
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════�?
 // 页面: 我的作品
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════�?
 const MyWorksPage = {
   template: `
   <div class="page fade-in">
     <h2 class="section-title">📂 我的作品</h2>
-    <p class="section-sub mb-4">管理你生成的所有图片</p>
+    <p class="section-sub mb-4">管理你生成的所有图�?/p>
 
     <div v-if="!authStore.isLoggedIn" class="card text-center p-6">
       <div class="text-muted mb-3">请先登录</div>
-      <button class="btn btn-primary" @click="$router.push('/login')">去登录</button>
+      <button class="btn btn-primary" @click="$router.push('/login')">去登�?/button>
     </div>
     <template v-else>
       <div v-if="images.length === 0" class="text-center p-6 text-muted">还没有作品，去生成一些吧 🎨</div>
@@ -843,7 +843,7 @@ const MyWorksPage = {
             <div class="prompt" :title="img.prompt">{{ img.prompt || '无提示词' }}</div>
             <div class="actions">
               <span>{{ img.modelName }}</span>
-              <span v-if="img.isPublic" style="color:var(--primary)">🌐 已发布</span>
+              <span v-if="img.isPublic" style="color:var(--primary)">🌐 已发�?/span>
               <span style="margin-left: auto">
                 <button class="btn btn-ghost text-xs" @click="remake(img)" style="color:var(--primary)">🎨 生成同款</button>
                 <button v-if="!img.isPublic" class="btn btn-ghost text-xs" @click="publish(img)">发布</button>
@@ -876,16 +876,16 @@ const MyWorksPage = {
     };
 
     const remove = async (img) => {
-      if (!confirm('确定删除？')) return;
+      if (!confirm('确定删除�?)) return;
       try {
         await api(`/api/user/images/${img.id}`, { method: 'DELETE' });
         images.value = images.value.filter(i => i.id !== img.id);
-        window.toast.success('已删除');
+        window.toast.success('已删�?);
       } catch (e) { window.toast.error(e.message); }
     };
 
     const remake = (img) => {
-      // 将作品参数写入 sessionStorage，跳转生成页
+      // 将作品参数写�?sessionStorage，跳转生成页
       sessionStorage.setItem('yezhi_remake', JSON.stringify({
         modelName: img.modelName,
         modelId: img.workflowId ? '' : img.modelName,
@@ -913,24 +913,24 @@ const MyWorksPage = {
 };
 
 /**
- * 新增页面: 设置页 + 工作流管理页
+ * 新增页面: 设置�?+ 工作流管理页
  */
 
-// ═════════════════════════════════════════════
+// ════════════════════════════════════════════�?
 // 页面: 设置
-// ═════════════════════════════════════════════
+// ════════════════════════════════════════════�?
 const SettingsPage = {
   template: `
   <div class="page fade-in">
     <h2 class="section-title">⚙️ 设置</h2>
-    <p class="section-sub mb-4">个性化配置与偏好设置</p>
+    <p class="section-sub mb-4">个性化配置与偏好设�?/p>
 
     <!-- 用户信息 -->
     <div class="card mb-4">
       <h3 class="form-label mb-3">👤 个人信息</h3>
       <div v-if="!authStore.isLoggedIn" class="text-center p-4 text-muted">
         <div class="mb-3">请先登录</div>
-        <button class="btn btn-primary" @click="$router.push('/login')">去登录</button>
+        <button class="btn btn-primary" @click="$router.push('/login')">去登�?/button>
       </div>
       <div v-else class="settings-section">
         <div class="setting-row">
@@ -939,7 +939,7 @@ const SettingsPage = {
         </div>
         <div class="setting-row">
           <div class="setting-label">签名</div>
-          <input v-model="profile.signature" class="input" placeholder="个性签名" @blur="saveProfile">
+          <input v-model="profile.signature" class="input" placeholder="个性签�? @blur="saveProfile">
         </div>
         <div class="setting-row">
           <div class="setting-label">头像</div>
@@ -979,7 +979,7 @@ const SettingsPage = {
           </select>
         </div>
         <div class="setting-row">
-          <div class="setting-label">自动优化提示词</div>
+          <div class="setting-label">自动优化提示�?/div>
           <label class="toggle">
             <input type="checkbox" v-model="prefs.autoOptimize">
             <span class="toggle-slider"></span>
@@ -991,7 +991,7 @@ const SettingsPage = {
     <!-- 积分信息 -->
     <div class="card mb-4">
       <h3 class="form-label mb-3">💰 积分信息</h3>
-      <div v-if="!authStore.isLoggedIn" class="text-sm text-muted text-center p-3">登录后查看积分信息</div>
+      <div v-if="!authStore.isLoggedIn" class="text-sm text-muted text-center p-3">登录后查看积分信�?/div>
       <div v-else-if="points !== null" class="f gap-4 ac">
         <div class="stat-box">
           <div class="stat-num">{{ points.balance || 0 }}</div>
@@ -999,18 +999,18 @@ const SettingsPage = {
         </div>
         <div class="stat-box">
           <div class="stat-num">{{ points.totalSpent || 0 }}</div>
-          <div class="stat-label">已消耗</div>
+          <div class="stat-label">已消�?/div>
         </div>
         <div class="stat-box">
           <div class="stat-num">{{ points.packageCount || 0 }}</div>
-          <div class="stat-label">积分包</div>
+          <div class="stat-label">积分�?/div>
         </div>
       </div>
-      <div v-else class="text-sm text-muted text-center p-3">加载中...</div>
+      <div v-else class="text-sm text-muted text-center p-3">加载�?..</div>
     </div>
 
     <!-- 保存提示 -->
-    <div v-if="saved" class="status-line success" style="margin-top:16px">✅ 设置已自动保存</div>
+    <div v-if="saved" class="status-line success" style="margin-top:16px">�?设置已自动保�?/div>
   </div>`,
   setup() {
     const authStore = useAuthStore();
@@ -1043,7 +1043,7 @@ const SettingsPage = {
       try {
         const d = await api('/api/upload/avatar', { method: 'POST', body: fd, headers: {} });
         profile.value.avatar = d.url;
-        window.toast.success('头像已更新');
+        window.toast.success('头像已更�?);
       } catch (e) { window.toast.error(e.message); }
     };
 
@@ -1076,25 +1076,25 @@ const SettingsPage = {
   },
 };
 
-// ═════════════════════════════════════════════
-// 页面: 工作流管理
-// ═════════════════════════════════════════════
+// ════════════════════════════════════════════�?
+// 页面: 工作流管�?
+// ════════════════════════════════════════════�?
 
 const WorkflowsPage = {
   template: `
   <div class="page fade-in">
     <div class="jb ac mb-4">
       <div>
-        <h2 class="section-title" style="margin-bottom:0">🔧 我的工作流</h2>
-        <p class="section-sub" style="margin-top:4px">自定义 ComfyUI 工作流，支持从 ComfyUI 导入</p>
+        <h2 class="section-title" style="margin-bottom:0">🔧 我的工作�?/h2>
+        <p class="section-sub" style="margin-top:4px">自定�?ComfyUI 工作流，支持�?ComfyUI 导入</p>
       </div>
-      <button class="btn btn-primary" @click="showCreate = true">+ 新建工作流</button>
+      <button class="btn btn-primary" @click="showCreate = true">+ 新建工作�?/button>
     </div>
 
     <!-- 登录提示 -->
     <div v-if="!authStore.isLoggedIn" class="card text-center p-6 mb-4">
-      <div class="text-muted mb-3">登录后可创建和管理自定义工作流</div>
-      <button class="btn btn-primary" @click="$router.push('/login')">去登录</button>
+      <div class="text-muted mb-3">登录后可创建和管理自定义工作�?/div>
+      <button class="btn btn-primary" @click="$router.push('/login')">去登�?/button>
     </div>
 
     <!-- 拖拽上传区域 -->
@@ -1106,19 +1106,19 @@ const WorkflowsPage = {
          @dragleave.prevent="dragOver = false"
          @drop.prevent="onDrop">
       <div class="drop-icon">📂</div>
-      <div class="drop-text">{{ dragOver ? '松手导入工作流' : '拖拽 ComfyUI JSON 文件到此处' }}</div>
-      <div class="text-xs text-muted mt-2">或</div>
+      <div class="drop-text">{{ dragOver ? '松手导入工作�? : '拖拽 ComfyUI JSON 文件到此�? }}</div>
+      <div class="text-xs text-muted mt-2">�?/div>
       <label class="btn btn-secondary mt-2" style="cursor:pointer">
         选择文件
         <input type="file" accept=".json" @change="onFileSelect" style="display:none" ref="fileInput">
       </label>
     </div>
 
-    <!-- 工作流列表 -->
+    <!-- 工作流列�?-->
     <div v-if="workflows.length === 0 && authStore.isLoggedIn" class="card text-center p-6 mb-4">
       <div style="font-size:48px;margin-bottom:12px">🔧</div>
-      <div class="text-muted mb-3">还没有自定义工作流</div>
-      <div class="text-sm text-muted mb-4">拖拽 ComfyUI API JSON 文件到上方区域即可快速导入</div>
+      <div class="text-muted mb-3">还没有自定义工作�?/div>
+      <div class="text-sm text-muted mb-4">拖拽 ComfyUI API JSON 文件到上方区域即可快速导�?/div>
       <button class="btn btn-secondary" @click="showImport = true">📥 手动粘贴导入</button>
     </div>
 
@@ -1127,10 +1127,10 @@ const WorkflowsPage = {
         <img :src="wf.cover_url || '/static/images/dreamifly-logo.jpg'" class="wf-cover" @error="e => e.target.src='/static/images/dreamifly-logo.jpg'">
         <div class="wf-body">
           <div class="wf-name">{{ wf.name }}</div>
-          <div class="wf-desc text-sm text-muted">{{ wf.description || '无描述' }}</div>
+          <div class="wf-desc text-sm text-muted">{{ wf.description || '无描�? }}</div>
           <div class="wf-meta text-xs text-muted mt-2">
-            <span>{{ wf.is_builtin ? '🏠 内置' : '👤 自定义' }}</span>
-            <span>使用 {{ wf.use_count || 0 }} 次</span>
+            <span>{{ wf.is_builtin ? '🏠 内置' : '👤 自定�? }}</span>
+            <span>使用 {{ wf.use_count || 0 }} �?/span>
             <span v-if="wf.is_public">🌐 公开</span>
           </div>
         </div>
@@ -1146,15 +1146,15 @@ const WorkflowsPage = {
     <div v-if="showImport" class="modal-overlay" @click.self="showImport = false">
       <div class="modal-card">
         <div class="modal-header">
-          <h3>📥 导入工作流</h3>
-          <button class="btn btn-ghost" @click="showImport = false">✕</button>
+          <h3>📥 导入工作�?/h3>
+          <button class="btn btn-ghost" @click="showImport = false">�?/button>
         </div>
         <div class="modal-body">
-          <div class="form-label">工作流名称</div>
+          <div class="form-label">工作流名�?/div>
           <input v-model="importData.name" class="input mb-3" placeholder="给你的工作流起个名字">
-          <div class="form-label">ComfyUI 地址 (可选)</div>
+          <div class="form-label">ComfyUI 地址 (可�?</div>
           <input v-model="importData.comfyui_url" class="input mb-3" placeholder="http://localhost:8188">
-          <div class="form-label">工作流 JSON <span class="text-xs text-muted">(从 ComfyUI 导出)</span></div>
+          <div class="form-label">工作�?JSON <span class="text-xs text-muted">(�?ComfyUI 导出)</span></div>
           <textarea v-model="importData.workflow_json" class="textarea" rows="8" placeholder='{"3": {"class_type": "KSampler", "inputs": {...}}}'></textarea>
         </div>
         <div class="modal-footer">
@@ -1168,21 +1168,21 @@ const WorkflowsPage = {
     <div v-if="showCreate || editingWorkflow" class="modal-overlay" @click.self="closeModal">
       <div class="modal-card">
         <div class="modal-header">
-          <h3>{{ editingWorkflow ? '编辑工作流' : '新建工作流' }}</h3>
-          <button class="btn btn-ghost" @click="closeModal">✕</button>
+          <h3>{{ editingWorkflow ? '编辑工作�? : '新建工作�? }}</h3>
+          <button class="btn btn-ghost" @click="closeModal">�?/button>
         </div>
         <div class="modal-body">
-          <div class="form-label">工作流名称 *</div>
-          <input v-model="editData.name" class="input mb-3" placeholder="工作流名称">
+          <div class="form-label">工作流名�?*</div>
+          <input v-model="editData.name" class="input mb-3" placeholder="工作流名�?>
           <div class="form-label">描述</div>
-          <input v-model="editData.description" class="input mb-3" placeholder="简短描述">
+          <input v-model="editData.description" class="input mb-3" placeholder="简短描�?>
           <div class="form-label">ComfyUI 地址</div>
           <input v-model="editData.comfyui_url" class="input mb-3" placeholder="留空使用全局配置">
-          <div class="form-label">封面图 URL</div>
+          <div class="form-label">封面�?URL</div>
           <input v-model="editData.cover_url" class="input mb-3" placeholder="封面图片地址">
-          <div class="form-label">工作流 JSON *</div>
+          <div class="form-label">工作�?JSON *</div>
           <textarea v-model="editData.workflow_json" class="textarea" rows="8" placeholder='{"3": {"class_type": "KSampler", ...}}'></textarea>
-          <div class="text-xs text-muted mt-2">💡 可从 ComfyUI 的"导出 API"按钮获取 JSON</div>
+          <div class="text-xs text-muted mt-2">💡 可从 ComfyUI �?导出 API"按钮获取 JSON</div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-ghost" @click="closeModal">取消</button>
@@ -1193,18 +1193,18 @@ const WorkflowsPage = {
       </div>
     </div>
 
-    <!-- 工作流详情/测试 -->
+    <!-- 工作流详�?测试 -->
     <div v-if="testingWorkflow" class="modal-overlay" @click.self="testingWorkflow = null">
       <div class="modal-card" style="max-width:700px">
         <div class="modal-header">
-          <h3>测试工作流: {{ testingWorkflow.name }}</h3>
-          <button class="btn btn-ghost" @click="testingWorkflow = null">✕</button>
+          <h3>测试工作�? {{ testingWorkflow.name }}</h3>
+          <button class="btn btn-ghost" @click="testingWorkflow = null">�?/button>
         </div>
         <div class="modal-body">
-          <div class="form-label">提示词</div>
-          <textarea v-model="testPrompt" class="textarea" rows="3" placeholder="输入测试提示词"></textarea>
+          <div class="form-label">提示�?/div>
+          <textarea v-model="testPrompt" class="textarea" rows="3" placeholder="输入测试提示�?></textarea>
           <button class="btn btn-primary mt-3" @click="runTest" :disabled="testing || !testPrompt">
-            {{ testing ? '测试中...' : '▶ 测试运行' }}
+            {{ testing ? '测试�?..' : '�?测试运行' }}
           </button>
           <div v-if="testResults.length > 0" class="mt-4">
             <div class="form-label">结果</div>
@@ -1234,7 +1234,7 @@ const WorkflowsPage = {
     const importData = ref({ name: '', workflow_json: '', comfyui_url: '' });
     const editData = ref({ name: '', description: '', comfyui_url: '', cover_url: '', workflow_json: '' });
 
-    // 读取文件并导入
+    // 读取文件并导�?
     const readAndImportFile = (file) => {
       if (!file || !file.name.endsWith('.json')) {
         window.toast.error('请选择 .json 文件');
@@ -1254,7 +1254,7 @@ const WorkflowsPage = {
             }
           });
           workflows.value.unshift(d.workflow);
-          window.toast.success('工作流 ' + baseName + ' 导入成功');
+          window.toast.success('工作�?' + baseName + ' 导入成功');
         } catch (e) {
           window.toast.error('导入失败: ' + e.message);
         }
@@ -1305,7 +1305,7 @@ const WorkflowsPage = {
         workflows.value.unshift(d.workflow);
         showImport.value = false;
         importData.value = { name: '', workflow_json: '', comfyui_url: '' };
-        window.toast.success('工作流导入成功');
+        window.toast.success('工作流导入成�?);
       } catch (e) {
         window.toast.error('导入失败: ' + e.message);
       }
@@ -1325,7 +1325,7 @@ const WorkflowsPage = {
         const d = await api('/api/workflows/' + wf.id + '/json');
         editData.value.workflow_json = JSON.stringify(d.workflow_json, null, 2);
       } catch (e) {
-        window.toast.error('加载工作流内容失败');
+        window.toast.error('加载工作流内容失�?);
       }
     };
 
@@ -1363,11 +1363,11 @@ const WorkflowsPage = {
     };
 
     const deleteWorkflow = async (wf) => {
-      if (!confirm('确定删除工作流 "' + wf.name + '"？')) return;
+      if (!confirm('确定删除工作�?"' + wf.name + '"�?)) return;
       try {
         await api('/api/workflows/' + wf.id, { method: 'DELETE' });
         workflows.value = workflows.value.filter(w => w.id !== wf.id);
-        window.toast.success('已删除');
+        window.toast.success('已删�?);
       } catch (e) { window.toast.error(e.message); }
     };
 
@@ -1433,9 +1433,9 @@ const WorkflowsPage = {
 
 
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════�?
 // 页面: 登录
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════�?
 const AuthPage = {
   template: `
   <div class="auth-card">
@@ -1451,23 +1451,23 @@ const AuthPage = {
     <input v-model="email" type="email" class="input mb-3" placeholder="your@email.com">
 
     <div class="form-label">密码</div>
-    <input v-model="password" type="password" class="input mb-4" placeholder="至少 6 位">
+    <input v-model="password" type="password" class="input mb-4" placeholder="至少 6 �?>
 
     <div v-if="mode === 'register'" class="mb-3">
-      <div class="form-label">昵称 (可选)</div>
+      <div class="form-label">昵称 (可�?</div>
       <input v-model="nickname" class="input" placeholder="你的昵称">
     </div>
 
     <button class="btn btn-primary w-full mb-3" @click="submit" :disabled="loading" style="padding: 12px">
-      {{ loading ? '处理中...' : (mode === 'login' ? '登录' : '创建账号') }}
+      {{ loading ? '处理�?..' : (mode === 'login' ? '登录' : '创建账号') }}
     </button>
 
     <div v-if="error" class="text-sm" style="color:#b91c1c;text-align:center;margin-bottom:12px">{{ error }}</div>
 
     <div class="text-sm text-center text-muted">
-      {{ mode === 'login' ? '还没有账号？' : '已有账号？' }}
+      {{ mode === 'login' ? '还没有账号？' : '已有账号�? }}
       <a href="#" @click.prevent="mode = mode === 'login' ? 'register' : 'login'" style="color:var(--primary);text-decoration:none;font-weight:600">
-        {{ mode === 'login' ? '马上注册' : '去登录' }}
+        {{ mode === 'login' ? '马上注册' : '去登�? }}
       </a>
     </div>
 
@@ -1506,9 +1506,9 @@ const AuthPage = {
   },
 };
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════�?
 // Router & App
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════�?
 const routes = [
   { path: '/', component: HomePage },
   { path: '/generate', component: GeneratePage },
@@ -1531,7 +1531,7 @@ const app = createApp({
     };
     const logout = () => {
       authStore.logout();
-      window.toast.success('已退出登录');
+      window.toast.success('已退出登�?);
     };
     onMounted(() => authStore.init());
     return { authStore, isActive, logout, lightboxSrc, openLightbox, closeLightbox };

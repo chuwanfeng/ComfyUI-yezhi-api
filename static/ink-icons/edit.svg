@@ -1,0 +1,10 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- 毛笔笔杆 -->
+  <path d="M18 2 L8 15 L8 18 Q8 19 9 19 L11 19 L20 8 Z" fill="#1a1a1a" opacity="0.08" stroke="#1a1a1a" stroke-width="1.2" stroke-linejoin="round"/>
+  <!-- 笔杆加粗 -->
+  <path d="M17.5 2.5 L8.5 14.5" stroke="#1a1a1a" stroke-width="1.6" stroke-linecap="round" opacity="0.7"/>
+  <!-- 笔尖 -->
+  <path d="M8 15 L6 19 L10 19 Z" fill="#1a1a1a" opacity="0.6"/>
+  <!-- 淡墨笔触 -->
+  <path d="M18 3 L8.5 15" stroke="#6b6660" stroke-width="0.8" stroke-linecap="round" opacity="0.35"/>
+</svg>

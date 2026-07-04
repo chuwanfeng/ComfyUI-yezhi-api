@@ -1,0 +1,9 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- 墨笔"三"字 -->
+  <path d="M6 7 L18 7" stroke="#1a1a1a" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>
+  <path d="M5 12 L19 12" stroke="#1a1a1a" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>
+  <path d="M7 17 L17 17" stroke="#1a1a1a" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>
+  <!-- 笔锋余韵 -->
+  <path d="M18 7 L21 7.5" stroke="#6b6660" stroke-width="0.5" stroke-linecap="round" opacity="0.25"/>
+  <path d="M17 17 L20 17.5" stroke="#6b6660" stroke-width="0.5" stroke-linecap="round" opacity="0.25"/>
+</svg>

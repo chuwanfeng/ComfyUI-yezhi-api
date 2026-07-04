@@ -1,0 +1,8 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- 墨色山水简笔 -->
+  <path d="M3 19 Q6 13 9 15 Q12 10 15 13 Q18 8 21 11" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.6"/>
+  <path d="M4 18 Q7 14 10 15 Q13 11 16 13 Q18 9 20 11" stroke="#6b6660" stroke-width="0.7" fill="none" stroke-linecap="round" opacity="0.35"/>
+  <!-- 太阳 -->
+  <circle cx="17" cy="6" r="1.8" fill="none" stroke="#c43a31" stroke-width="0.9" opacity="0.6"/>
+  <circle cx="17" cy="6" r="0.8" fill="#c43a31" opacity="0.3"/>
+</svg>

@@ -1,0 +1,8 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- 水墨古铜钱（外圆内方） -->
+  <circle cx="12" cy="12" r="8" fill="none" stroke="#1a1a1a" stroke-width="1.3" opacity="0.65"/>
+  <rect x="8" y="8" width="8" height="8" fill="none" stroke="#1a1a1a" stroke-width="1.1" opacity="0.6"/>
+  <circle cx="12" cy="12" r="2.5" fill="#c9a96e" opacity="0.5"/>
+  <!-- 淡墨铜锈圈 -->
+  <circle cx="12" cy="12" r="6" fill="none" stroke="#c8c0b4" stroke-width="0.5" stroke-dasharray="3 4" opacity="0.35"/>
+</svg>

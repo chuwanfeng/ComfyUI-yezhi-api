@@ -1,0 +1,11 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- 远山轮廓 - 浓墨 -->
+  <path d="M2 18 Q6 8 9 12 Q12 6 15 10 Q18 4 22 8" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.75"/>
+  <!-- 远山轮廓 - 淡墨叠加 -->
+  <path d="M3 17 Q7 9 10 12 Q13 7 16 11 Q18 5 21 8" stroke="#6b6660" stroke-width="0.8" fill="none" stroke-linecap="round" opacity="0.45"/>
+  <!-- 飞鸟 -->
+  <path d="M7 6 Q8 5 9 6" stroke="#1a1a1a" stroke-width="0.8" fill="none" stroke-linecap="round" opacity="0.6"/>
+  <path d="M8 5 Q9 4 10 5" stroke="#6b6660" stroke-width="0.6" fill="none" stroke-linecap="round" opacity="0.4"/>
+  <!-- 水面 -->
+  <path d="M1 20 Q6 19.5 12 20 Q18 19.5 23 20" stroke="#1a1a1a" stroke-width="0.6" fill="none" stroke-linecap="round" opacity="0.35"/>
+</svg>

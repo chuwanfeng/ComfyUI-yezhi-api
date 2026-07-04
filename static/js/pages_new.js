@@ -1,22 +1,20 @@
 /**
- * 新增页面: 设置页 + 工作流管理页
+ * 新增页面: 设置�?+ 工作流管理页
  */
 
-// ═════════════════════════════════════════════
-// 页面: 设置
-// ═════════════════════════════════════════════
-const SettingsPage = {
+// ════════════════════════════════════════════�?// 页面: 设置
+// ════════════════════════════════════════════�?const SettingsPage = {
   template: `
   <div class="page fade-in">
     <h2 class="section-title">⚙️ 设置</h2>
-    <p class="section-sub mb-4">个性化配置与偏好设置</p>
+    <p class="section-sub mb-4">个性化配置与偏好设�?/p>
 
     <!-- 用户信息 -->
     <div class="card mb-4">
       <h3 class="form-label mb-3">👤 个人信息</h3>
       <div v-if="!authStore.isLoggedIn" class="text-center p-4 text-muted">
         <div class="mb-3">请先登录</div>
-        <button class="btn btn-primary" @click="$router.push('/login')">去登录</button>
+        <button class="btn btn-primary" @click="$router.push('/login')">去登�?/button>
       </div>
       <div v-else class="settings-section">
         <div class="setting-row">
@@ -25,7 +23,7 @@ const SettingsPage = {
         </div>
         <div class="setting-row">
           <div class="setting-label">签名</div>
-          <input v-model="profile.signature" class="input" placeholder="个性签名" @blur="saveProfile">
+          <input v-model="profile.signature" class="input" placeholder="个性签�? @blur="saveProfile">
         </div>
         <div class="setting-row">
           <div class="setting-label">头像</div>
@@ -65,7 +63,7 @@ const SettingsPage = {
           </select>
         </div>
         <div class="setting-row">
-          <div class="setting-label">自动优化提示词</div>
+          <div class="setting-label">自动优化提示�?/div>
           <label class="toggle">
             <input type="checkbox" v-model="prefs.autoOptimize">
             <span class="toggle-slider"></span>
@@ -77,7 +75,7 @@ const SettingsPage = {
     <!-- 积分信息 -->
     <div class="card mb-4">
       <h3 class="form-label mb-3">💰 积分信息</h3>
-      <div v-if="!authStore.isLoggedIn" class="text-sm text-muted text-center p-3">登录后查看积分信息</div>
+      <div v-if="!authStore.isLoggedIn" class="text-sm text-muted text-center p-3">登录后查看积分信�?/div>
       <div v-else-if="points !== null" class="f gap-4 ac">
         <div class="stat-box">
           <div class="stat-num">{{ points.balance || 0 }}</div>
@@ -85,18 +83,18 @@ const SettingsPage = {
         </div>
         <div class="stat-box">
           <div class="stat-num">{{ points.totalSpent || 0 }}</div>
-          <div class="stat-label">已消耗</div>
+          <div class="stat-label">已消�?/div>
         </div>
         <div class="stat-box">
           <div class="stat-num">{{ points.packageCount || 0 }}</div>
-          <div class="stat-label">积分包</div>
+          <div class="stat-label">积分�?/div>
         </div>
       </div>
-      <div v-else class="text-sm text-muted text-center p-3">加载中...</div>
+      <div v-else class="text-sm text-muted text-center p-3">加载�?..</div>
     </div>
 
     <!-- 保存提示 -->
-    <div v-if="saved" class="status-line success" style="margin-top:16px">✅ 设置已自动保存</div>
+    <div v-if="saved" class="status-line success" style="margin-top:16px">�?设置已自动保�?/div>
   </div>`,
   setup() {
     const authStore = useAuthStore();
@@ -129,7 +127,7 @@ const SettingsPage = {
       try {
         const d = await api('/api/upload/avatar', { method: 'POST', body: fd, headers: {} });
         profile.value.avatar = d.url;
-        window.toast.success('头像已更新');
+        window.toast.success('头像已更�?);
       } catch (e) { window.toast.error(e.message); }
     };
 
@@ -162,32 +160,29 @@ const SettingsPage = {
   },
 };
 
-// ═════════════════════════════════════════════
-// 页面: 工作流管理
-// ═════════════════════════════════════════════
-const WorkflowsPage = {
+// ════════════════════════════════════════════�?// 页面: 工作流管�?// ════════════════════════════════════════════�?const WorkflowsPage = {
   template: `
   <div class="page fade-in">
     <div class="jb ac mb-4">
       <div>
-        <h2 class="section-title" style="margin-bottom:0">🔧 我的工作流</h2>
-        <p class="section-sub" style="margin-top:4px">自定义 ComfyUI 工作流，支持从 ComfyUI 导入</p>
+        <h2 class="section-title" style="margin-bottom:0">🔧 我的工作�?/h2>
+        <p class="section-sub" style="margin-top:4px">自定�?ComfyUI 工作流，支持�?ComfyUI 导入</p>
       </div>
-      <button class="btn btn-primary" @click="showCreate = true">+ 新建工作流</button>
+      <button class="btn btn-primary" @click="showCreate = true">+ 新建工作�?/button>
     </div>
 
     <!-- 登录提示 -->
     <div v-if="!authStore.isLoggedIn" class="card text-center p-6 mb-4">
-      <div class="text-muted mb-3">登录后可创建和管理自定义工作流</div>
-      <button class="btn btn-primary" @click="$router.push('/login')">去登录</button>
+      <div class="text-muted mb-3">登录后可创建和管理自定义工作�?/div>
+      <button class="btn btn-primary" @click="$router.push('/login')">去登�?/button>
     </div>
 
-    <!-- 工作流列表 -->
+    <!-- 工作流列�?-->
     <div v-if="workflows.length === 0 && authStore.isLoggedIn" class="card text-center p-6 mb-4">
       <div style="font-size:48px;margin-bottom:12px">🔧</div>
-      <div class="text-muted mb-3">还没有自定义工作流</div>
-      <div class="text-sm text-muted mb-4">从 ComfyUI 导出的 API JSON 可以在这里管理</div>
-      <button class="btn btn-secondary" @click="showImport = true">📥 导入工作流</button>
+      <div class="text-muted mb-3">还没有自定义工作�?/div>
+      <div class="text-sm text-muted mb-4">�?ComfyUI 导出�?API JSON 可以在这里管�?/div>
+      <button class="btn btn-secondary" @click="showImport = true">📥 导入工作�?/button>
     </div>
 
     <div v-if="workflows.length > 0" class="workflow-grid">
@@ -195,10 +190,10 @@ const WorkflowsPage = {
         <img :src="wf.cover_url || '/static/images/dreamifly-logo.jpg'" class="wf-cover" @error="e => e.target.src='/static/images/dreamifly-logo.jpg'">
         <div class="wf-body">
           <div class="wf-name">{{ wf.name }}</div>
-          <div class="wf-desc text-sm text-muted">{{ wf.description || '无描述' }}</div>
+          <div class="wf-desc text-sm text-muted">{{ wf.description || '无描�? }}</div>
           <div class="wf-meta text-xs text-muted mt-2">
-            <span>{{ wf.is_builtin ? '🏠 内置' : '👤 自定义' }}</span>
-            <span>使用 {{ wf.use_count || 0 }} 次</span>
+            <span>{{ wf.is_builtin ? '🏠 内置' : '👤 自定�? }}</span>
+            <span>使用 {{ wf.use_count || 0 }} �?/span>
             <span v-if="wf.is_public">🌐 公开</span>
           </div>
         </div>
@@ -214,15 +209,15 @@ const WorkflowsPage = {
     <div v-if="showImport" class="modal-overlay" @click.self="showImport = false">
       <div class="modal-card">
         <div class="modal-header">
-          <h3>📥 导入工作流</h3>
-          <button class="btn btn-ghost" @click="showImport = false">✕</button>
+          <h3>📥 导入工作�?/h3>
+          <button class="btn btn-ghost" @click="showImport = false">�?/button>
         </div>
         <div class="modal-body">
-          <div class="form-label">工作流名称</div>
+          <div class="form-label">工作流名�?/div>
           <input v-model="importData.name" class="input mb-3" placeholder="给你的工作流起个名字">
-          <div class="form-label">ComfyUI 地址 (可选)</div>
+          <div class="form-label">ComfyUI 地址 (可�?</div>
           <input v-model="importData.comfyui_url" class="input mb-3" placeholder="http://localhost:8188">
-          <div class="form-label">工作流 JSON <span class="text-xs text-muted">(从 ComfyUI 导出)</span></div>
+          <div class="form-label">工作�?JSON <span class="text-xs text-muted">(�?ComfyUI 导出)</span></div>
           <textarea v-model="importData.workflow_json" class="textarea" rows="8" placeholder='{"3": {"class_type": "KSampler", "inputs": {...}}}'></textarea>
         </div>
         <div class="modal-footer">
@@ -236,21 +231,21 @@ const WorkflowsPage = {
     <div v-if="showCreate || editingWorkflow" class="modal-overlay" @click.self="closeModal">
       <div class="modal-card">
         <div class="modal-header">
-          <h3>{{ editingWorkflow ? '编辑工作流' : '新建工作流' }}</h3>
-          <button class="btn btn-ghost" @click="closeModal">✕</button>
+          <h3>{{ editingWorkflow ? '编辑工作�? : '新建工作�? }}</h3>
+          <button class="btn btn-ghost" @click="closeModal">�?/button>
         </div>
         <div class="modal-body">
-          <div class="form-label">工作流名称 *</div>
-          <input v-model="editData.name" class="input mb-3" placeholder="工作流名称">
+          <div class="form-label">工作流名�?*</div>
+          <input v-model="editData.name" class="input mb-3" placeholder="工作流名�?>
           <div class="form-label">描述</div>
-          <input v-model="editData.description" class="input mb-3" placeholder="简短描述">
+          <input v-model="editData.description" class="input mb-3" placeholder="简短描�?>
           <div class="form-label">ComfyUI 地址</div>
           <input v-model="editData.comfyui_url" class="input mb-3" placeholder="留空使用全局配置">
-          <div class="form-label">封面图 URL</div>
+          <div class="form-label">封面�?URL</div>
           <input v-model="editData.cover_url" class="input mb-3" placeholder="封面图片地址">
-          <div class="form-label">工作流 JSON *</div>
+          <div class="form-label">工作�?JSON *</div>
           <textarea v-model="editData.workflow_json" class="textarea" rows="8" placeholder='{"3": {"class_type": "KSampler", ...}}'></textarea>
-          <div class="text-xs text-muted mt-2">💡 可从 ComfyUI 的"导出 API"按钮获取 JSON</div>
+          <div class="text-xs text-muted mt-2">💡 可从 ComfyUI �?导出 API"按钮获取 JSON</div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-ghost" @click="closeModal">取消</button>
@@ -261,18 +256,18 @@ const WorkflowsPage = {
       </div>
     </div>
 
-    <!-- 工作流详情/测试 -->
+    <!-- 工作流详�?测试 -->
     <div v-if="testingWorkflow" class="modal-overlay" @click.self="testingWorkflow = null">
       <div class="modal-card" style="max-width:700px">
         <div class="modal-header">
-          <h3>测试工作流: {{ testingWorkflow.name }}</h3>
-          <button class="btn btn-ghost" @click="testingWorkflow = null">✕</button>
+          <h3>测试工作�? {{ testingWorkflow.name }}</h3>
+          <button class="btn btn-ghost" @click="testingWorkflow = null">�?/button>
         </div>
         <div class="modal-body">
-          <div class="form-label">提示词</div>
-          <textarea v-model="testPrompt" class="textarea" rows="3" placeholder="输入测试提示词"></textarea>
+          <div class="form-label">提示�?/div>
+          <textarea v-model="testPrompt" class="textarea" rows="3" placeholder="输入测试提示�?></textarea>
           <button class="btn btn-primary mt-3" @click="runTest" :disabled="testing || !testPrompt">
-            {{ testing ? '测试中...' : '▶ 测试运行' }}
+            {{ testing ? '测试�?..' : '�?测试运行' }}
           </button>
           <div v-if="testResults.length > 0" class="mt-4">
             <div class="form-label">结果</div>
@@ -324,7 +319,7 @@ const WorkflowsPage = {
         workflows.value.unshift(d.workflow);
         showImport.value = false;
         importData.value = { name: '', workflow_json: '', comfyui_url: '' };
-        window.toast.success('工作流导入成功');
+        window.toast.success('工作流导入成�?);
       } catch (e) {
         window.toast.error('导入失败: ' + e.message);
       }
@@ -369,11 +364,11 @@ const WorkflowsPage = {
     };
 
     const deleteWorkflow = async (wf) => {
-      if (!confirm('确定删除工作流 "' + wf.name + '"？')) return;
+      if (!confirm('确定删除工作�?"' + wf.name + '"�?)) return;
       try {
         await api('/api/workflows/' + wf.id, { method: 'DELETE' });
         workflows.value = workflows.value.filter(w => w.id !== wf.id);
-        window.toast.success('已删除');
+        window.toast.success('已删�?);
       } catch (e) { window.toast.error(e.message); }
     };
 

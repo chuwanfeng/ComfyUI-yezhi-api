@@ -1,0 +1,9 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- 墨点+笔锋弧线（灵感迸发） -->
+  <circle cx="12" cy="10" r="2" fill="#1a1a1a" opacity="0.7"/>
+  <path d="M7 14 Q12 6 17 14" stroke="#1a1a1a" stroke-width="1.3" fill="none" stroke-linecap="round" opacity="0.65"/>
+  <path d="M9 14 Q12 8 15 14" stroke="#6b6660" stroke-width="0.8" fill="none" stroke-linecap="round" opacity="0.4"/>
+  <!-- 飞白 -->
+  <circle cx="18" cy="8" r="0.7" fill="#1a1a1a" opacity="0.3"/>
+  <circle cx="5" cy="12" r="0.5" fill="#6b6660" opacity="0.25"/>
+</svg>

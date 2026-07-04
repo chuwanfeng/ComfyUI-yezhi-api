@@ -1,0 +1,9 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- 水墨对话气泡 -->
+  <rect x="3" y="3" width="18" height="14" rx="3" fill="none" stroke="#1a1a1a" stroke-width="1.1" opacity="0.55"/>
+  <path d="M8 17 L10 20 L12 17" fill="none" stroke="#1a1a1a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+  <!-- 消息点 -->
+  <circle cx="8" cy="9" r="1.2" fill="#6b6660" opacity="0.4"/>
+  <circle cx="12" cy="9" r="1.2" fill="#6b6660" opacity="0.4"/>
+  <circle cx="16" cy="9" r="1.2" fill="#6b6660" opacity="0.4"/>
+</svg>
