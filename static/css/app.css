@@ -59,13 +59,13 @@ body {
   position: fixed; inset: 0; pointer-events: none; z-index: 0;
 }
 .geo-bg::before {
-  content: ""; position: absolute; inset: 0;
-  /* 水墨远山剪影 */
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320' preserveAspectRatio='none'><path d='M0 320 L0 280 Q120 200 240 260 Q360 180 480 220 Q600 140 720 180 Q840 120 960 160 Q1080 100 1200 150 Q1320 110 1440 130 L1440 320Z' fill='%231a1a1a' opacity='0.03'/><path d='M0 320 L0 290 Q100 230 200 270 Q320 210 440 240 Q560 170 680 200 Q800 150 920 180 Q1040 130 1160 160 Q1280 120 1440 140 L1440 320Z' fill='%231a1a1a' opacity='0.02'/></svg>");
-  background-position: bottom;
-  background-repeat: no-repeat;
-  background-size: 100% auto;
-  opacity: 0.5;
+  content: ""; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 30vh;
+  /* 水墨远山剪影 - 多层渐变叠山 */
+  background:
+    linear-gradient(176deg, transparent 40%, rgba(26,26,26,0.025) 42%, transparent 44%),
+    linear-gradient(178deg, transparent 25%, rgba(26,26,26,0.018) 28%, transparent 32%),
+    linear-gradient(177deg, transparent 50%, rgba(26,26,26,0.015) 53%, transparent 56%);
 }
 .geo-bg::after {
   content: ""; position: absolute; inset: 0;
