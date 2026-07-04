@@ -440,7 +440,7 @@ body {
 /* ── 首页 Hero（水墨题款布局）───────────────── */
 .hero {
   display: flex; align-items: center; gap: 48px;
-  padding: 10vh 48px 8vh; max-width: 1600px; margin: 0 auto;
+  padding: 16vh 48px 10vh; max-width: 1600px; margin: 0 auto;
   min-height: 100vh;
   box-sizing: border-box;
 }
@@ -492,7 +492,7 @@ body {
 }
 .hero-stats .num { color: var(--cinnabar); font-weight: 700; font-size: 18px; }
 .hero-visual {
-  position: relative; width: 400px; height: 400px; flex: 0 0 400px;
+  position: relative; width: 480px; height: 480px; flex: 0 0 480px;
   border-radius: 50%; overflow: hidden;
   box-shadow: var(--shadow-ink-lg), 0 0 0 6px var(--card-bg), 0 0 0 7px var(--ink-border-light);
 }
@@ -893,13 +893,13 @@ body {
 @media (min-width: 1920px) {
   .page { max-width: 1600px; }
   .hero { gap: 56px; }
-  .hero-visual { width: 440px; height: 440px; flex: 0 0 440px; }
+  .hero-visual { width: 520px; height: 520px; flex: 0 0 520px; }
   .hero-content { flex: 0 0 560px; }
 }
 @media (min-width: 2560px) {
   .page { max-width: 1800px; padding: 48px 64px; }
   .hero { gap: 64px; }
-  .hero-visual { width: 480px; height: 480px; flex: 0 0 480px; }
+  .hero-visual { width: 560px; height: 560px; flex: 0 0 560px; }
   .hero-content { flex: 0 0 620px; }
   .community-grid { grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)) !important; }
   .model-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important; }
