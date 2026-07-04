@@ -1,0 +1,454 @@
+{
+  "20": {
+    "_meta": {
+      "title": "保存视频"
+    },
+    "class_type": "SaveVideo",
+    "inputs": {
+      "codec": "auto",
+      "filename_prefix": "LTX-2.3-MV/20260702_191837",
+      "format": "auto",
+      "video": [
+        "94",
+        0
+      ]
+    }
+  },
+  "29": {
+    "_meta": {
+      "title": "加载图像"
+    },
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "20260625_202005_00001_.png"
+    }
+  },
+  "94": {
+    "_meta": {
+      "title": "创建视频"
+    },
+    "class_type": "CreateVideo",
+    "inputs": {
+      "audio": [
+        "95",
+        0
+      ],
+      "bit_depth": 8,
+      "fps": [
+        "84:88",
+        0
+      ],
+      "images": [
+        "84:38",
+        0
+      ]
+    }
+  },
+  "95": {
+    "_meta": {
+      "title": "Load Audio (Upload)🎥🅥🅗🅢"
+    },
+    "class_type": "VHS_LoadAudioUpload",
+    "inputs": {
+      "audio": "叉子摇 - DJ大富豪.mp3",
+      "duration": 20,
+      "start_time": 20
+    }
+  },
+  "84:10": {
+    "_meta": {
+      "title": "🅛🅣🅧 IC-LoRA Loader Model Only"
+    },
+    "class_type": "LTXICLoRALoaderModelOnly",
+    "inputs": {
+      "lora_name": "LTX-2.3/LTX-2.3-Licon-MSR-V1.safetensors",
+      "model": [
+        "84:96",
+        0
+      ],
+      "strength_model": 1
+    }
+  },
+  "84:13": {
+    "_meta": {
+      "title": "K采样器选择"
+    },
+    "class_type": "KSamplerSelect",
+    "inputs": {
+      "sampler_name": "euler"
+    }
+  },
+  "84:15": {
+    "_meta": {
+      "title": "随机噪波"
+    },
+    "class_type": "RandomNoise",
+    "inputs": {
+      "noise_seed": 310420790178182
+    }
+  },
+  "84:16": {
+    "_meta": {
+      "title": "自定义采样器（高级）"
+    },
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "guider": [
+        "84:37",
+        0
+      ],
+      "latent_image": [
+        "84:23",
+        0
+      ],
+      "noise": [
+        "84:15",
+        0
+      ],
+      "sampler": [
+        "84:13",
+        0
+      ],
+      "sigmas": [
+        "84:27",
+        0
+      ]
+    }
+  },
+  "84:17": {
+    "_meta": {
+      "title": "LTXV裁剪指导"
+    },
+    "class_type": "LTXVCropGuides",
+    "inputs": {
+      "latent": [
+        "84:24",
+        0
+      ],
+      "negative": [
+        "84:9",
+        1
+      ],
+      "positive": [
+        "84:9",
+        0
+      ]
+    }
+  },
+  "84:21": {
+    "_meta": {
+      "title": "LTXV音频VAE加载器"
+    },
+    "class_type": "LTXVAudioVAELoader",
+    "inputs": {
+      "ckpt_name": "LTX-2.3/ltx-2.3-22b-distilled-1.1.safetensors"
+    }
+  },
+  "84:23": {
+    "_meta": {
+      "title": "LTXVConcatAVLatent"
+    },
+    "class_type": "LTXVConcatAVLatent",
+    "inputs": {
+      "audio_latent": [
+        "84:93",
+        0
+      ],
+      "video_latent": [
+        "84:9",
+        2
+      ]
+    }
+  },
+  "84:24": {
+    "_meta": {
+      "title": "LTXV分离音视频潜空间"
+    },
+    "class_type": "LTXVSeparateAVLatent",
+    "inputs": {
+      "av_latent": [
+        "84:16",
+        0
+      ]
+    }
+  },
+  "84:26": {
+    "_meta": {
+      "title": "LTXV音频文本编码器加载器"
+    },
+    "class_type": "LTXAVTextEncoderLoader",
+    "inputs": {
+      "ckpt_name": "LTX-2.3/ltx-2.3-22b-distilled-1.1.safetensors",
+      "device": "default",
+      "text_encoder": "gemma_3_12B_it_fp8_e4m3fn.safetensors"
+    }
+  },
+  "84:27": {
+    "_meta": {
+      "title": "自定义Sigmas"
+    },
+    "class_type": "ManualSigmas",
+    "inputs": {
+      "sigmas": "1.0, 0.99375, 0.9875, 0.98125, 0.975, 0.909375, 0.725, 0.421875, 0.0"
+    }
+  },
+  "84:3": {
+    "_meta": {
+      "title": "🅛🅣🅧 Low VRAM Checkpoint Loader"
+    },
+    "class_type": "LowVRAMCheckpointLoader",
+    "inputs": {
+      "ckpt_name": "LTX-2.3/ltx-2.3-22b-distilled-1.1.safetensors"
+    }
+  },
+  "84:37": {
+    "_meta": {
+      "title": "CFG引导器"
+    },
+    "class_type": "CFGGuider",
+    "inputs": {
+      "cfg": 1,
+      "model": [
+        "84:10",
+        0
+      ],
+      "negative": [
+        "84:9",
+        1
+      ],
+      "positive": [
+        "84:9",
+        0
+      ]
+    }
+  },
+  "84:38": {
+    "_meta": {
+      "title": "VAE解码"
+    },
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "84:17",
+        2
+      ],
+      "vae": [
+        "84:3",
+        2
+      ]
+    }
+  },
+  "84:43": {
+    "_meta": {
+      "title": "INT Constant"
+    },
+    "class_type": "INTConstant",
+    "inputs": {
+      "value": 704
+    }
+  },
+  "84:44": {
+    "_meta": {
+      "title": "INT Constant"
+    },
+    "class_type": "INTConstant",
+    "inputs": {
+      "value": 704
+    }
+  },
+  "84:50": {
+    "_meta": {
+      "title": "INT Constant"
+    },
+    "class_type": "INTConstant",
+    "inputs": {
+      "value": 481
+    }
+  },
+  "84:6": {
+    "_meta": {
+      "title": "CLIP文本编码"
+    },
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "84:26",
+        0
+      ],
+      "text": "worst quality, blurry, jittery, distorted, inconsistent appearance，"
+    }
+  },
+  "84:7": {
+    "_meta": {
+      "title": "LTXV条件"
+    },
+    "class_type": "LTXVConditioning",
+    "inputs": {
+      "frame_rate": [
+        "84:88",
+        0
+      ],
+      "negative": [
+        "84:6",
+        0
+      ],
+      "positive": [
+        "84:89",
+        0
+      ]
+    }
+  },
+  "84:8": {
+    "_meta": {
+      "title": "空Latent视频（LTXV）"
+    },
+    "class_type": "EmptyLTXVLatentVideo",
+    "inputs": {
+      "batch_size": 1,
+      "height": [
+        "84:44",
+        0
+      ],
+      "length": [
+        "84:50",
+        0
+      ],
+      "width": [
+        "84:43",
+        0
+      ]
+    }
+  },
+  "84:86": {
+    "_meta": {
+      "title": "INT Constant"
+    },
+    "class_type": "INTConstant",
+    "inputs": {
+      "value": 24
+    }
+  },
+  "84:88": {
+    "_meta": {
+      "title": "Integer to Float"
+    },
+    "class_type": "JWIntegerToFloat",
+    "inputs": {
+      "value": [
+        "84:86",
+        0
+      ]
+    }
+  },
+  "84:89": {
+    "_meta": {
+      "title": "CLIP文本编码"
+    },
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "84:26",
+        0
+      ],
+      "text": "随着音乐，镜头跟随，\n\n\n犬只激烈抽插，女人眼神诱惑，屁股挺动，胸部抖动，巨乳弹跳，全身律动。\n\n\n"
+    }
+  },
+  "84:9": {
+    "_meta": {
+      "title": "🅛🅣🅧 Add Video IC-LoRA Guide"
+    },
+    "class_type": "LTXAddVideoICLoRAGuide",
+    "inputs": {
+      "crop": "center",
+      "frame_idx": 0,
+      "image": [
+        "29",
+        0
+      ],
+      "latent": [
+        "84:8",
+        0
+      ],
+      "latent_downscale_factor": 1,
+      "negative": [
+        "84:7",
+        1
+      ],
+      "positive": [
+        "84:7",
+        0
+      ],
+      "strength": 1,
+      "tile_overlap": 64,
+      "tile_size": 256,
+      "use_tiled_encode": false,
+      "vae": [
+        "84:3",
+        2
+      ]
+    }
+  },
+  "84:91": {
+    "_meta": {
+      "title": "纯块遮罩"
+    },
+    "class_type": "SolidMask",
+    "inputs": {
+      "height": [
+        "84:44",
+        0
+      ],
+      "value": 0,
+      "width": [
+        "84:43",
+        0
+      ]
+    }
+  },
+  "84:92": {
+    "_meta": {
+      "title": "LTXV音频VAE编码"
+    },
+    "class_type": "LTXVAudioVAEEncode",
+    "inputs": {
+      "audio": [
+        "95",
+        0
+      ],
+      "audio_vae": [
+        "84:21",
+        0
+      ]
+    }
+  },
+  "84:93": {
+    "_meta": {
+      "title": "设置Latent噪波遮罩"
+    },
+    "class_type": "SetLatentNoiseMask",
+    "inputs": {
+      "mask": [
+        "84:91",
+        0
+      ],
+      "samples": [
+        "84:92",
+        0
+      ]
+    }
+  },
+  "84:96": {
+    "_meta": {
+      "title": "🅛🅣🅧 IC-LoRA Loader Model Only"
+    },
+    "class_type": "LTXICLoRALoaderModelOnly",
+    "inputs": {
+      "lora_name": "LTX-2.3/sulphur_lora_rank_768.safetensors",
+      "model": [
+        "84:3",
+        0
+      ],
+      "strength_model": 0.8
+    }
+  }
+}

@@ -1,0 +1,29 @@
+# Web 框架
+flask>=3.1
+flask-cors>=5.0
+
+# 数据库
+sqlalchemy>=2.0
+psycopg2-binary>=2.9
+alembic>=1.14
+
+# 认证
+pyjwt>=2.9
+bcrypt>=4.2
+passlib>=1.7
+
+# HTTP / SSE
+requests>=2.32
+httpx>=0.28
+
+# 工具
+python-dotenv>=1.0
+pydantic>=2.10
+python-multipart>=0.0.20
+Pillow>=11.0
+
+# 支付
+alipay-sdk-python>=3.7
+
+# 异步 (ComfyUI 轮询)
+aiohttp>=3.11

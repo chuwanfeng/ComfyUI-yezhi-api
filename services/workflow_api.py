@@ -1,0 +1,347 @@
+"""
+工作流管理 API
+Workflow JSON 存储在文件系统（WORKFLOWS_DIR），数据库只存元数据
+"""
+import json
+import os
+from flask import Blueprint, request, jsonify, send_from_directory, g
+from services.db import get_db_session
+from models.workflow import Workflow, WorkflowTemplate
+from models.user import User
+from utils.auth import require_auth, optional_auth, get_user_id_from_request
+import config
+
+workflow_bp = Blueprint("workflows", __name__, url_prefix="/api/workflows")
+
+# 工作流 JSON 存储目录
+WORKFLOWS_DIR = os.path.join(os.path.dirname(__file__), "..", "workflows")
+os.makedirs(WORKFLOWS_DIR, exist_ok=True)
+
+
+def _get_workflow_path(json_path: str) -> str:
+    """获取 workflow JSON 文件的完整路径"""
+    return os.path.join(WORKFLOWS_DIR, json_path)
+
+
+def _save_workflow_json(workflow_id: str, workflow_json: dict) -> str:
+    """保存 workflow JSON 到文件，返回相对路径"""
+    filename = f"{workflow_id}.json"
+    filepath = os.path.join(WORKFLOWS_DIR, filename)
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(workflow_json, f, ensure_ascii=False, indent=2)
+    return filename
+
+
+def _load_workflow_json(json_path: str) -> dict:
+    """从文件加载 workflow JSON"""
+    filepath = _get_workflow_path(json_path)
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Workflow file not found: {json_path}")
+    with open(filepath, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _delete_workflow_json(json_path: str):
+    """删除 workflow JSON 文件"""
+    filepath = _get_workflow_path(json_path)
+    if os.path.exists(filepath):
+        os.remove(filepath)
+
+
+def _workflow_to_dict(wf: Workflow, include_json: bool = False) -> dict:
+    """Workflow 转为 API 响应字典"""
+    result = {
+        "id": wf.id,
+        "user_id": wf.user_id,
+        "name": wf.name,
+        "description": wf.description,
+        "cover_url": wf.cover_url,
+        "json_path": wf.json_path,
+        "comfyui_url": wf.comfyui_url,
+        "param_mapping": json.loads(wf.param_mapping) if wf.param_mapping else {},
+        "is_public": wf.is_public,
+        "is_builtin": wf.is_builtin,
+        "use_count": wf.use_count or 0,
+        "created_at": wf.created_at.isoformat() if wf.created_at else None,
+        "updated_at": wf.updated_at.isoformat() if wf.updated_at else None,
+    }
+    if include_json:
+        try:
+            result["workflow_json"] = _load_workflow_json(wf.json_path)
+        except FileNotFoundError:
+            result["workflow_json"] = {}
+    return result
+
+
+# ── 公开列表（含当前用户私有）─────────────────────────
+@workflow_bp.route("", methods=["GET"])
+def list_workflows():
+    """获取工作流列表（内置 + 公开 + 当前用户私有）"""
+    db = get_db_session()
+    try:
+        user_id = get_user_id_from_request(request)
+
+        if user_id:
+            # 登录用户：看公开 + 内置 + 自己的
+            query = db.query(Workflow).filter(
+                (Workflow.is_public == True) |
+                (Workflow.is_builtin == True) |
+                (Workflow.user_id == user_id)
+            )
+        else:
+            # 未登录：只看公开 + 内置
+            query = db.query(Workflow).filter(
+                (Workflow.is_public == True) | (Workflow.is_builtin == True)
+            )
+
+        # 过滤内置
+        builtin_only = request.args.get("builtin") == "1"
+        if builtin_only:
+            query = query.filter(Workflow.is_builtin == True)
+
+        workflows = query.order_by(Workflow.use_count.desc(), Workflow.created_at.desc()).limit(100).all()
+        return jsonify({"workflows": [_workflow_to_dict(w) for w in workflows]})
+    finally:
+        db.close()
+
+
+# ── 我的工作流（需登录）───────────────────────
+@workflow_bp.route("/my", methods=["GET"])
+@require_auth
+def list_my_workflows():
+    """获取当前用户的所有工作流"""
+    db = get_db_session()
+    try:
+        workflows = db.query(Workflow).filter(
+            Workflow.user_id == g.current_user.id
+        ).order_by(Workflow.updated_at.desc()).all()
+        return jsonify({"workflows": [_workflow_to_dict(w) for w in workflows]})
+    finally:
+        db.close()
+
+
+# ── 详情 ───────────────────────────────
+@workflow_bp.route("/<workflow_id>", methods=["GET"])
+def get_workflow(workflow_id: str):
+    """获取工作流详情（含 workflow_json）"""
+    db = get_db_session()
+    try:
+        wf = db.query(Workflow).filter(Workflow.id == workflow_id).first()
+        if not wf:
+            return jsonify({"error": "工作流不存在"}), 404
+
+        # 非内置/非公开需验证所有权
+        if not wf.is_public and not wf.is_builtin:
+            auth = request.headers.get("Authorization", "")
+            if not auth.startswith("Bearer "):
+                return jsonify({"error": "无权访问"}), 403
+            try:
+                from utils.auth import decode_token
+                payload = decode_token(auth[7:])
+                if payload.get("sub") != wf.user_id:
+                    return jsonify({"error": "无权访问"}), 403
+            except:
+                return jsonify({"error": "无权访问"}), 403
+
+        return jsonify(_workflow_to_dict(wf, include_json=True))
+    finally:
+        db.close()
+
+
+# ── 创建 ───────────────────────────────
+@workflow_bp.route("", methods=["POST"])
+@require_auth
+def create_workflow():
+    """创建新工作流"""
+    data = request.get_json() or {}
+    name = (data.get("name") or "").strip()
+    workflow_json = data.get("workflow_json")
+
+    if not name or not workflow_json:
+        return jsonify({"error": "名称和 workflow_json 不能为空"}), 400
+
+    # 验证 JSON
+    if isinstance(workflow_json, str):
+        try:
+            workflow_json = json.loads(workflow_json)
+        except json.JSONDecodeError:
+            return jsonify({"error": "workflow_json 格式错误"}), 400
+
+    db = get_db_session()
+    try:
+        import uuid
+        wf_id = uuid.uuid4().hex[:16]
+        json_path = _save_workflow_json(wf_id, workflow_json)
+
+        wf = Workflow(
+            id=wf_id,
+            user_id=g.current_user.id,
+            name=name,
+            description=data.get("description", ""),
+            cover_url=data.get("cover_url", ""),
+            json_path=json_path,
+            comfyui_url=data.get("comfyui_url", ""),
+            param_mapping=data.get("param_mapping"),
+            is_public=data.get("is_public", False),
+        )
+        db.add(wf)
+        db.commit()
+        return jsonify({"workflow": _workflow_to_dict(wf, include_json=True), "message": "创建成功"}), 201
+    except Exception as e:
+        db.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        db.close()
+
+
+# ── 导入（从 ComfyUI 导出 JSON）───────────────
+@workflow_bp.route("/import", methods=["POST"])
+@require_auth
+def import_workflow():
+    """从 ComfyUI 导出的 JSON 导入工作流"""
+    data = request.get_json() or {}
+    name = (data.get("name") or "").strip() or "导入的工作流"
+    workflow_json = data.get("workflow_json")
+
+    if not workflow_json:
+        return jsonify({"error": "workflow_json 不能为空"}), 400
+
+    if isinstance(workflow_json, str):
+        try:
+            workflow_json = json.loads(workflow_json)
+        except json.JSONDecodeError:
+            return jsonify({"error": "workflow_json 格式错误"}), 400
+
+    db = get_db_session()
+    try:
+        import uuid
+        wf_id = uuid.uuid4().hex[:16]
+        json_path = _save_workflow_json(wf_id, workflow_json)
+
+        wf = Workflow(
+            id=wf_id,
+            user_id=g.current_user.id,
+            name=name,
+            description=data.get("description", ""),
+            cover_url=data.get("cover_url", ""),
+            json_path=json_path,
+            comfyui_url=data.get("comfyui_url", ""),
+        )
+        db.add(wf)
+        db.commit()
+        return jsonify({"workflow": _workflow_to_dict(wf, include_json=True), "message": "导入成功"}), 201
+    except Exception as e:
+        db.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        db.close()
+
+
+# ── 更新 ───────────────────────────────
+@workflow_bp.route("/<workflow_id>", methods=["PUT"])
+@require_auth
+def update_workflow(workflow_id: str):
+    """更新工作流（仅所有者）"""
+    db = get_db_session()
+    try:
+        wf = db.query(Workflow).filter(Workflow.id == workflow_id).first()
+        if not wf:
+            return jsonify({"error": "工作流不存在"}), 404
+        if wf.user_id != g.current_user.id:
+            return jsonify({"error": "无权修改"}), 403
+
+        data = request.get_json() or {}
+
+        if "name" in data and data["name"]:
+            wf.name = data["name"].strip()
+        if "description" in data:
+            wf.description = data["description"]
+        if "cover_url" in data:
+            wf.cover_url = data["cover_url"]
+        if "comfyui_url" in data:
+            wf.comfyui_url = data["comfyui_url"]
+        if "param_mapping" in data:
+            wf.param_mapping = data["param_mapping"]
+        if "is_public" in data:
+            wf.is_public = data["is_public"]
+
+        # 更新 workflow JSON 文件（仅当有实际内容时）
+        if "workflow_json" in data and data["workflow_json"]:
+            wf_json = data["workflow_json"]
+            if isinstance(wf_json, str):
+                try:
+                    wf_json = json.loads(wf_json)
+                except json.JSONDecodeError:
+                    return jsonify({"error": "workflow_json 格式错误"}), 400
+            _save_workflow_json(wf.id, wf_json)
+
+        db.commit()
+        return jsonify({"workflow": _workflow_to_dict(wf, include_json=True), "message": "保存成功"})
+    except Exception as e:
+        db.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        db.close()
+
+
+# ── 删除 ───────────────────────────────
+@workflow_bp.route("/<workflow_id>", methods=["DELETE"])
+@require_auth
+def delete_workflow(workflow_id: str):
+    """删除工作流（仅所有者）"""
+    db = get_db_session()
+    try:
+        wf = db.query(Workflow).filter(Workflow.id == workflow_id).first()
+        if not wf:
+            return jsonify({"error": "工作流不存在"}), 404
+        if wf.user_id != g.current_user.id:
+            return jsonify({"error": "无权删除"}), 403
+
+        # 删除 JSON 文件
+        _delete_workflow_json(wf.json_path)
+
+        db.delete(wf)
+        db.commit()
+        return jsonify({"message": "已删除"})
+    except Exception as e:
+        db.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        db.close()
+
+
+# ── 工作流 JSON 内容（供前端编辑用）──────
+@workflow_bp.route("/<workflow_id>/json", methods=["GET"])
+def get_workflow_json(workflow_id: str):
+    """仅获取工作流的 JSON 内容"""
+    db = get_db_session()
+    try:
+        wf = db.query(Workflow).filter(Workflow.id == workflow_id).first()
+        if not wf:
+            return jsonify({"error": "工作流不存在"}), 404
+        try:
+            return jsonify({"workflow_json": _load_workflow_json(wf.json_path)})
+        except FileNotFoundError:
+            return jsonify({"error": "工作流文件丢失"}), 404
+    finally:
+        db.close()
+
+
+# ── 下载 JSON 文件 ──────────────────────
+@workflow_bp.route("/<workflow_id>/download", methods=["GET"])
+def download_workflow(workflow_id: str):
+    """下载工作流 JSON 文件（供 ComfyUI 导入）"""
+    db = get_db_session()
+    try:
+        wf = db.query(Workflow).filter(Workflow.id == workflow_id).first()
+        if not wf:
+            return jsonify({"error": "工作流不存在"}), 404
+
+        try:
+            wf_json = _load_workflow_json(wf.json_path)
+        except FileNotFoundError:
+            return jsonify({"error": "工作流文件丢失"}), 404
+
+        return jsonify(wf_json)
+    finally:
+        db.close()

@@ -1,0 +1,154 @@
+{
+  "7": {
+    "_meta": {
+      "title": "Optional Input Image"
+    },
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "00522021debd4b03bcbcc05d15eb5db3.png"
+    }
+  },
+  "8": {
+    "_meta": {
+      "title": "Optional Input Image"
+    },
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "20260529_011136_00001_.png"
+    }
+  },
+  "10": {
+    "_meta": {
+      "title": "保存图像"
+    },
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "qwen-image-edit/20260703_150737",
+      "images": [
+        "11:5",
+        0
+      ]
+    }
+  },
+  "15": {
+    "_meta": {
+      "title": "Optional Input Image"
+    },
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "20260529_011136_00001_.png"
+    }
+  },
+  "11:1": {
+    "_meta": {
+      "title": "Checkpoint加载器（简易）"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "inputs": {
+      "ckpt_name": "Qwen-image/Qwen-Rapid-AIO-NSFW-v19.safetensors"
+    }
+  },
+  "11:2": {
+    "_meta": {
+      "title": "K采样器"
+    },
+    "class_type": "KSampler",
+    "inputs": {
+      "cfg": 1,
+      "denoise": 1,
+      "latent_image": [
+        "11:9",
+        0
+      ],
+      "model": [
+        "11:1",
+        0
+      ],
+      "negative": [
+        "11:4",
+        0
+      ],
+      "positive": [
+        "11:3",
+        0
+      ],
+      "sampler_name": "sa_solver",
+      "scheduler": "beta",
+      "seed": 254890240391275,
+      "steps": 4
+    }
+  },
+  "11:3": {
+    "_meta": {
+      "title": "TextEncodeQwenImageEditPlus Input Prompt"
+    },
+    "class_type": "TextEncodeQwenImageEditPlus",
+    "inputs": {
+      "clip": [
+        "11:1",
+        1
+      ],
+      "image1": [
+        "7",
+        0
+      ],
+      "image2": [
+        "8",
+        0
+      ],
+      "image3": [
+        "15",
+        0
+      ],
+      "prompt": "图1女人跪着，口深深含住一个中国男人阴茎，男方按住女人的头压向自己的腹部，女人嘴角淌出精液\n\n\n\n\n\n",
+      "vae": [
+        "11:1",
+        2
+      ]
+    }
+  },
+  "11:4": {
+    "_meta": {
+      "title": "TextEncodeQwenImageEditPlus Negative (leave blank)"
+    },
+    "class_type": "TextEncodeQwenImageEditPlus",
+    "inputs": {
+      "clip": [
+        "11:1",
+        1
+      ],
+      "prompt": "",
+      "vae": [
+        "11:1",
+        2
+      ]
+    }
+  },
+  "11:5": {
+    "_meta": {
+      "title": "VAE解码"
+    },
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "11:2",
+        0
+      ],
+      "vae": [
+        "11:1",
+        2
+      ]
+    }
+  },
+  "11:9": {
+    "_meta": {
+      "title": "Final Image Size"
+    },
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "batch_size": 1,
+      "height": 1024,
+      "width": 1024
+    }
+  }
+}

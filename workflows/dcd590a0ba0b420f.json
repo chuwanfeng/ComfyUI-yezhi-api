@@ -1,0 +1,427 @@
+{
+  "635": {
+    "inputs": {
+      "image": "20260620_185205_00001_.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "加载图像"
+    }
+  },
+  "637": {
+    "inputs": {
+      "frame_rate": 24,
+      "loop_count": 0,
+      "filename_prefix": "LTX-2.3-IV/20260702_192914",
+      "format": "video/h264-mp4",
+      "pix_fmt": "yuv420p",
+      "crf": 19,
+      "save_metadata": false,
+      "trim_to_audio": false,
+      "pingpong": false,
+      "save_output": true,
+      "images": [
+        "638:471",
+        0
+      ],
+      "audio": [
+        "638:550",
+        0
+      ]
+    },
+    "class_type": "VHS_VideoCombine",
+    "_meta": {
+      "title": "Video Combine 🎥🅥🅗🅢"
+    }
+  },
+  "640": {
+    "inputs": {
+      "options": "Intermediate and Utility",
+      "filenames": [
+        "637",
+        0
+      ]
+    },
+    "class_type": "VHS_PruneOutputs",
+    "_meta": {
+      "title": "Prune Outputs 🎥🅥🅗🅢"
+    }
+  },
+  "638:561": {
+    "inputs": {
+      "add_noise": true,
+      "noise_seed": 156306166421735,
+      "cfg": 1,
+      "model": [
+        "638:588",
+        0
+      ],
+      "positive": [
+        "638:164",
+        0
+      ],
+      "negative": [
+        "638:164",
+        1
+      ],
+      "sampler": [
+        "638:154",
+        0
+      ],
+      "sigmas": [
+        "638:358",
+        0
+      ],
+      "latent_image": [
+        "638:548",
+        0
+      ]
+    },
+    "class_type": "SamplerCustom",
+    "_meta": {
+      "title": "自定义采样器"
+    }
+  },
+  "638:548": {
+    "inputs": {
+      "video_latent": [
+        "638:639",
+        0
+      ],
+      "audio_latent": [
+        "638:547",
+        0
+      ]
+    },
+    "class_type": "LTXVConcatAVLatent",
+    "_meta": {
+      "title": "LTXVConcatAVLatent"
+    }
+  },
+  "638:358": {
+    "inputs": {
+      "start_step": 0,
+      "end_step": -1,
+      "sigmas": [
+        "638:514",
+        0
+      ]
+    },
+    "class_type": "VisualizeSigmasKJ",
+    "_meta": {
+      "title": "VisualizeSigmasKJ"
+    }
+  },
+  "638:514": {
+    "inputs": {
+      "scheduler": "linear_quadratic",
+      "steps": 8,
+      "denoise": 1,
+      "model": [
+        "638:542",
+        0
+      ]
+    },
+    "class_type": "BasicScheduler",
+    "_meta": {
+      "title": "基本调度器"
+    }
+  },
+  "638:588": {
+    "inputs": {
+      "preview_rate": 8,
+      "model": [
+        "638:610",
+        0
+      ]
+    },
+    "class_type": "LTX2SamplingPreviewOverride",
+    "_meta": {
+      "title": "LTX2 Sampling Preview Override"
+    }
+  },
+  "638:549": {
+    "inputs": {
+      "av_latent": [
+        "638:561",
+        0
+      ]
+    },
+    "class_type": "LTXVSeparateAVLatent",
+    "_meta": {
+      "title": "LTXV分离音视频潜空间"
+    }
+  },
+  "638:471": {
+    "inputs": {
+      "samples": [
+        "638:549",
+        0
+      ],
+      "vae": [
+        "638:553",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE解码"
+    }
+  },
+  "638:550": {
+    "inputs": {
+      "samples": [
+        "638:549",
+        1
+      ],
+      "audio_vae": [
+        "638:470",
+        0
+      ]
+    },
+    "class_type": "LTXVAudioVAEDecode",
+    "_meta": {
+      "title": "LTXV音频VAE解码"
+    }
+  },
+  "638:470": {
+    "inputs": {
+      "vae_name": "LTX-2.3/LTX23_audio_vae_bf16.safetensors",
+      "device": "main_device",
+      "weight_dtype": "bf16"
+    },
+    "class_type": "VAELoaderKJ",
+    "_meta": {
+      "title": "VAELoader KJ"
+    }
+  },
+  "638:639": {
+    "inputs": {
+      "num_images": "1",
+      "num_images.strength_1": 1,
+      "num_images.index_1": 0,
+      "vae": [
+        "638:553",
+        0
+      ],
+      "latent": [
+        "638:577",
+        0
+      ],
+      "num_images.image_1": [
+        "638:586",
+        0
+      ]
+    },
+    "class_type": "LTXVImgToVideoInplaceKJ",
+    "_meta": {
+      "title": "LTXVImgToVideoInplaceKJ"
+    }
+  },
+  "638:586": {
+    "inputs": {
+      "img_compression": 18,
+      "image": [
+        "638:621",
+        0
+      ]
+    },
+    "class_type": "LTXVPreprocess",
+    "_meta": {
+      "title": "LTXV预处理"
+    }
+  },
+  "638:164": {
+    "inputs": {
+      "frame_rate": 24,
+      "positive": [
+        "638:610",
+        1
+      ],
+      "negative": [
+        "638:641",
+        0
+      ]
+    },
+    "class_type": "LTXVConditioning",
+    "_meta": {
+      "title": "LTXV条件"
+    }
+  },
+  "638:577": {
+    "inputs": {
+      "width": [
+        "638:621",
+        3
+      ],
+      "height": [
+        "638:621",
+        4
+      ],
+      "length": [
+        "638:623",
+        0
+      ],
+      "batch_size": 1
+    },
+    "class_type": "EmptyLTXVLatentVideo",
+    "_meta": {
+      "title": "空Latent视频（LTXV）"
+    }
+  },
+  "638:553": {
+    "inputs": {
+      "vae_name": "LTX-2.3/LTX23_video_vae_bf16.safetensors",
+      "device": "main_device",
+      "weight_dtype": "bf16"
+    },
+    "class_type": "VAELoaderKJ",
+    "_meta": {
+      "title": "VAELoader KJ"
+    }
+  },
+  "638:547": {
+    "inputs": {
+      "frames_number": [
+        "638:623",
+        0
+      ],
+      "frame_rate": 24,
+      "batch_size": 1,
+      "audio_vae": [
+        "638:470",
+        0
+      ]
+    },
+    "class_type": "LTXVEmptyLatentAudio",
+    "_meta": {
+      "title": "LTXV 空音频潜空间"
+    }
+  },
+  "638:416": {
+    "inputs": {
+      "clip_name1": "gemma_3_12B_it_fp8_e4m3fn.safetensors",
+      "clip_name2": "LTX-2.3/ltx-2.3_text_projection_bf16.safetensors",
+      "type": "ltxv",
+      "device": "default"
+    },
+    "class_type": "DualCLIPLoader",
+    "_meta": {
+      "title": "双CLIP加载器"
+    }
+  },
+  "638:641": {
+    "inputs": {
+      "text": "pc game, console game, video game, cartoon, childish, ugly\n\nslow motion, slow movement, static, frozen, sluggish, low speed, slowmo",
+      "clip": [
+        "638:416",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP文本编码"
+    }
+  },
+  "638:621": {
+    "inputs": {
+      "aspect_ratio": "original",
+      "proportional_width": 1,
+      "proportional_height": 1,
+      "fit": "letterbox",
+      "method": "lanczos",
+      "round_to_multiple": "32",
+      "scale_to_side": "longest",
+      "scale_to_length": 640,
+      "background_color": "#000000",
+      "image": [
+        "635",
+        0
+      ]
+    },
+    "class_type": "LayerUtility: ImageScaleByAspectRatio V2",
+    "_meta": {
+      "title": "LayerUtility: ImageScaleByAspectRatio V2"
+    }
+  },
+  "638:623": {
+    "inputs": {
+      "value": 481
+    },
+    "class_type": "JWInteger",
+    "_meta": {
+      "title": "Integer"
+    }
+  },
+  "638:414": {
+    "inputs": {
+      "unet_name": "LTX-2.3/DasiwaLTX23_goldenLaceV3.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "UNet加载器"
+    }
+  },
+  "638:542": {
+    "inputs": {
+      "sage_attention": "auto",
+      "allow_compile": false,
+      "model": [
+        "638:643",
+        0
+      ]
+    },
+    "class_type": "PathchSageAttentionKJ",
+    "_meta": {
+      "title": "Patch Sage Attention KJ"
+    }
+  },
+  "638:154": {
+    "inputs": {
+      "sampler_name": "euler"
+    },
+    "class_type": "KSamplerSelect",
+    "_meta": {
+      "title": "K采样器选择"
+    }
+  },
+  "638:610": {
+    "inputs": {
+      "global_prompt": "**Cinematic Style & Quality:**\nHyper-realistic 8K photorealism, shot on IMAX 70mm film stock with a distinct Kodak Portra 400 grain texture. Lighting is warm, golden-hour sunlight streaming through a large glass window, casting dramatic, high-contrast shadows across the woman's skin and the rich, dark red wooden bed frame. The atmosphere is humid and heavy, filled with the scent of jasmine and heavy musk. Depth of field is shallow (f/1.4), focusing sharply on skin textures, sweat beads, and subtle muscle movements, blurring the bamboo garden outside into a soft, verdant bokeh.",
+      "smart_prompt": "**Motion Timeline (0-20s):**\n\n*   **0-5 seconds:** Close-up on the woman’s face, eyes fluttering shut as a large, dark-skinned man presses his face against hers. She wraps her hands around his neck, pulling him closer. The camera tilts up slightly as they sink into a deep, wet tongue kiss; their lips part, tongues twisting and tasting.\n*   **5-10 seconds:** The camera pulls back to a medium shot as the man lifts her effortlessly. Her legs dangle, her large, heavy breasts swaying with the motion, nipples hardening in the cool air. He carries her backward, her bare feet tapping against the floor, until he gently lowers her onto the plush, white silk bedspread. Her body sags into the mattress, hips rolling naturally.\n*   **10-18 seconds:** A smooth rack focus to her lower body. The man kneels behind her, his thick, dark, hair-covered penis glistening with pre-cum. With a fluid thrust, he pushes her hips back, entering her wet, stretched vagina. The initial penetration is deep and slow, followed by a rapid, powerful rhythm. She arches her back, her inner thighs trembling violently as he slams into her, the sound of wet skin slapping against wet skin filling the room. Her head throws back, mouth open in a silent scream, then transitioning into ragged, desperate Chinese whispers.\n*   **18-20 seconds:** The climax hits. She clamps her legs around his waist, her toes curling, body convulsing. As the final, violent thrusts penetrate her cervix, she lets out a long, high-pitched moan, her entire frame shuddering with release before collapsing softly onto the sheets.\n\n**Audio & Lip-Sync:**\nThe scene is dominated by the sound of heavy, rhythmic breathing and wet, slapping flesh. The audio must feature high-fidelity lip-sync for all Chinese sounds.\n*   **0-5s:** Soft, wet, rhythmic tongue-clicking sounds.\n*   **10-18s:** Deep, guttural thrusting sounds, followed by a rising crescendo of Chinese moans: `\"Ah... yeah... oh god, so big... yes...\"`\n*   **18-20s:** A long, piercing scream of pleasure: `\"Ahhh... ohh... yes, yes, yes...\"`",
+      "normalize_by_tokens": false,
+      "epsilon": 0.001,
+      "model": [
+        "638:542",
+        0
+      ],
+      "clip": [
+        "638:416",
+        0
+      ],
+      "latent": [
+        "638:577",
+        0
+      ]
+    },
+    "class_type": "PromptRelaySmartEncode",
+    "_meta": {
+      "title": "Prompt Relay Encode (Smart)"
+    }
+  },
+  "638:643": {
+    "inputs": {
+      "lora_name": "LTX-2.3/ltx-2.3-22b-distilled-lora-1.1_fro90_ceil72_condsafe.safetensors",
+      "strength_model": 0.5,
+      "model": [
+        "638:414",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoRA加载器（仅模型）"
+    }
+  }
+}

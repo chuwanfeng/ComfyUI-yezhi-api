@@ -1,0 +1,3 @@
+# 运行: alembic init migrations (首次)
+# 然后: alembic revision --autogenerate -m "initial"
+# 然后: alembic upgrade head

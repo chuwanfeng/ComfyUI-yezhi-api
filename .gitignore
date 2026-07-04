@@ -1,0 +1,12 @@
+﻿__pycache__/
+*.pyc
+.env
+uploads/*
+!uploads/.gitkeep
+generations/*
+!generations/.gitkeep
+yezhi.db
+*.bak
+*.bak2
+*.new_wf
+node_modules/

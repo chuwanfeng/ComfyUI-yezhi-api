@@ -1,0 +1,153 @@
+"""
+社区 API — 动态流 / 点赞 / 举报 / 标签
+"""
+from datetime import datetime, timezone
+from flask import Blueprint, request, jsonify
+from services.db import get_db_session
+from models.user import User
+from models.generation import UserGeneratedImage
+from models.community import CommunityLike, CommunityTag, ImageReport
+from utils.auth import get_user_id_from_request
+
+community_bp = Blueprint("community", __name__, url_prefix="/api/community")
+
+
+def _now():
+    return datetime.now(timezone.utc)
+
+
+# ── 社区动态 ─────────────────────────────────
+@community_bp.route("/feed", methods=["GET"])
+def get_feed():
+    """获取社区动态（瀑布流）"""
+    db = get_db_session()
+    try:
+        limit = request.args.get("limit", 20, type=int)
+        offset = request.args.get("offset", 0, type=int)
+        tag = request.args.get("tag")
+
+        query = (
+            db.query(UserGeneratedImage)
+            .filter(
+                UserGeneratedImage.is_public == True,
+                UserGeneratedImage.is_nsfw == False,
+            )
+            .order_by(UserGeneratedImage.created_at.desc())
+        )
+
+        if tag:
+            # 通过标签表过滤
+            image_ids = (
+                db.query(CommunityTag.image_id)
+                .filter(CommunityTag.tag == tag)
+                .subquery()
+            )
+            query = query.filter(UserGeneratedImage.id.in_(image_ids))
+
+        total = query.count()
+        images = query.offset(offset).limit(limit).all()
+
+        result = []
+        for img in images:
+            user = db.query(User).filter(User.id == img.user_id).first()
+            like_count = (
+                db.query(CommunityLike)
+                .filter(CommunityLike.image_id == img.id)
+                .count()
+            )
+            tags = (
+                db.query(CommunityTag)
+                .filter(CommunityTag.image_id == img.id)
+                .all()
+            )
+
+            result.append({
+                "id": img.id,
+                "userId": img.user_id,
+                "userName": user.nickname or user.name if user else "匿名",
+                "userAvatar": user.avatar if user else "/static/images/default-avatar.svg",
+                "prompt": img.prompt,
+                "imageUrl": img.image_url,
+                "thumbnailUrl": img.thumbnail_url or img.image_url,
+                "width": img.width,
+                "height": img.height,
+                "modelName": img.model_name,
+                "likeCount": like_count,
+                "reportCount": img.report_count or 0,
+                "tags": [t.tag for t in tags],
+                "createdAt": img.created_at.isoformat() if img.created_at else None,
+                "mediaType": img.media_type or "image",
+                "audioStartTime": img.audio_start_time,
+                "audioDuration": img.audio_duration,
+                "durationSeconds": img.duration_seconds,
+                "fps": img.fps,
+            })
+
+        return jsonify({"images": result, "total": total})
+    finally:
+        db.close()
+
+
+# ── 点赞 / 取消点赞 ──────────────────────────
+@community_bp.route("/likes/<image_id>", methods=["POST"])
+def toggle_like(image_id: str):
+    user_id = get_user_id_from_request(request)
+    if not user_id:
+        return jsonify({"error": "未登录"}), 401
+
+    db = get_db_session()
+    try:
+        existing = (
+            db.query(CommunityLike)
+            .filter(
+                CommunityLike.image_id == image_id,
+                CommunityLike.user_id == user_id,
+            )
+            .first()
+        )
+
+        if existing:
+            db.delete(existing)
+            db.commit()
+            return jsonify({"liked": False})
+        else:
+            like = CommunityLike(image_id=image_id, user_id=user_id)
+            db.add(like)
+            db.commit()
+            return jsonify({"liked": True})
+    finally:
+        db.close()
+
+
+# ── 举报 ────────────────────────────────────
+@community_bp.route("/report", methods=["POST"])
+def report_image():
+    user_id = get_user_id_from_request(request)
+    if not user_id:
+        return jsonify({"error": "未登录"}), 401
+
+    data = request.get_json() or {}
+    image_id = data.get("image_id")
+    reason = data.get("reason", "")
+
+    if not image_id:
+        return jsonify({"error": "image_id 不能为空"}), 400
+
+    db = get_db_session()
+    try:
+        report = ImageReport(
+            image_id=image_id,
+            reporter_id=user_id,
+            reason=reason,
+        )
+        db.add(report)
+
+        # 更新举报计数
+        img = db.query(UserGeneratedImage).filter(UserGeneratedImage.id == image_id).first()
+        if img:
+            img.report_count = (img.report_count or 0) + 1
+        db.commit()
+
+        return jsonify({"message": "举报已提交"})
+    finally:
+        db.close()

@@ -1,0 +1,77 @@
+{% raw %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ComfyUI-Yezhi-API - AI 创作平台</title>
+<link rel="stylesheet" href="/static/css/app.css">
+<link rel="icon" type="image/jpeg" href="/static/images/dreamifly-logo.jpg">
+<script src="https://unpkg.com/vue@3.5/dist/vue.global.prod.js"></script>
+<script src="https://unpkg.com/vue-router@4.5/dist/vue-router.global.prod.js"></script>
+<script src="https://unpkg.com/vue-demi@0.14.10/lib/index.iife.js"></script>
+<script src="https://unpkg.com/pinia@2.3/dist/pinia.iife.prod.js"></script>
+</head>
+<body>
+<div class="geo-bg"></div>
+<div id="app">
+  <div v-if="!authStore.ready" class="fc ac jc" style="height:100vh"><div class="spin"></div></div>
+
+  <div v-else-if="$route.path === '/login'" class="auth-page fade-in"><router-view></router-view></div>
+
+  <div v-else class="app-layout">
+    <!-- 左侧导航 (复刻 Dreamifly 风格) -->
+    <aside class="sidebar">
+      <router-link to="/" class="brand" style="text-decoration:none">
+        <img :src="authStore.user?.avatar || '/static/images/dreamifly-logo.jpg'" alt="logo">
+        <span class="name">{{ authStore.user?.nickname || 'Yezhi' }}</span>
+      </router-link>
+
+      <router-link to="/generate" class="nav-btn" :class="{ active: isActive('/generate') }">
+        <img src="/static/common/generate.svg" alt=""><span class="label">快速生成</span>
+      </router-link>
+      <router-link to="/community" class="nav-btn" :class="{ active: isActive('/community') }">
+        <img src="/static/common/comunity.svg" alt=""><span class="label">社区</span>
+      </router-link>
+      <router-link to="/works" class="nav-btn" :class="{ active: isActive('/works') }">
+        <img src="/static/common/edit.svg" alt=""><span class="label">我的作品</span>
+      </router-link>
+      <router-link to="/workflows" class="nav-btn" :class="{ active: isActive('/workflows') }">
+        <img src="/static/common/edit.svg" alt=""><span class="label">我的工作流</span>
+      </router-link>
+      <router-link to="/settings" class="nav-btn" :class="{ active: isActive('/settings') }">
+        <img src="/static/common/faq.svg" alt=""><span class="label">设置</span>
+      </router-link>
+
+      <div class="sidebar-bottom">
+        <div v-if="authStore.isLoggedIn" class="icon-btn" title="退出" @click="logout">
+          <span style="font-size: 16px">⏻</span>
+        </div>
+        <div v-else class="icon-btn" title="登录" @click="$router.push('/login')">
+          <span style="font-size: 16px">🔑</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 右侧主视图 -->
+    <main class="main-content">
+      <router-view></router-view>
+    </main>
+  </div>
+
+  <!-- Toast 容器 -->
+  <div class="toast-stack">
+    <div v-for="t in toasts" :key="t.id" class="toast" :class="t.type">{{ t.message }}</div>
+  </div>
+
+  <!-- 全局灯箱 -->
+  <div v-if="lightboxSrc" class="lightbox-overlay" @click="closeLightbox">
+    <span class="lightbox-close" @click="closeLightbox">✕</span>
+    <img :src="lightboxSrc" class="lightbox-image" @click.stop>
+  </div>
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>
+{% endraw %}
