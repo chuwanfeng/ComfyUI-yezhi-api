@@ -25,12 +25,13 @@ window.toast = {
 // ═══════════════════════════════════════════════
 // 全局 图片灯箱（全站共享）
 // ═══════════════════════════════════════════════
-const lightboxSrc = ref(null);
-const openLightbox = (url) => { lightboxSrc.value = url; };
-const closeLightbox = () => { lightboxSrc.value = null; };
+const lightboxData = ref(null);
+const openLightbox = (data) => { lightboxData.value = typeof data === 'string' ? { url: data } : data; };
+const closeLightbox = () => { lightboxData.value = null; };
 // 挂到 window 上供子组件调用
 window.openLightbox = openLightbox;
 window.closeLightbox = closeLightbox;
+window.lightboxData = lightboxData;
 
 // ═══════════════════════════════════════════════
 // API 工具
@@ -212,45 +213,8 @@ const HomePage = {
 const GeneratePage = {
  template: `
  <div class="page fade-in">
- <!-- 提示词区 -->
- <div class="card mb-4">
- <div class="form-label">
- <img src="/static/form/prompt.svg" alt="">提示词
- </div>
- <textarea v-model="prompt" class="textarea" placeholder="请输入英文提示词以获得最佳效果..." rows="3"></textarea>
-
- <div v-if="showNegative" class="mt-3">
- <div class="form-label">
- <img src="/static/form/negative.svg" alt="">负面提示词
- <span class="text-xs text-muted">(用逗号分隔)</span>
- </div>
- <input v-model="negativePrompt" class="input" placeholder="不希望出现的元素">
- </div>
-
- <div class="toolbar">
- <button class="tool-btn" @click="randomPrompt">
- <img src="/static/form/prompt.svg" alt="">随机提示词
- </button>
- <button class="tool-btn" @click="showStylePicker = !showStylePicker">
- <img src="/static/form/image.svg" alt="">风格
- </button>
- <button class="tool-btn" @click="cycleRatio">
- <img src="/static/form/aspect-ratio.svg" alt="">{{ ratio }}
- </button>
- <button class="tool-btn" @click="optimizePrompt" :disabled="optimizing || !prompt">
- <img src="/static/form/prompt.svg" alt="">{{ optimizing ? '优化中...' : '优化提示词' }}
- </button>
- <div style="margin-left: auto">
- <button class="btn btn-generate" @click="generate" :disabled="generating || !prompt">
- 
- {{ generating ? '生成中...' : '生成图片' }}
- </button>
- </div>
- </div>
- </div>
-
  <!-- 配置 + 预览 -->
- <div class="f gap-4" style="align-items: flex-start">
+ <div class="f gap-4" style="align-items: stretch">
  <!-- 左: 配置 -->
  <div class="card" style="width: 480px; flex-shrink: 0">
  <!-- 上传参考图（多图） -->
@@ -264,12 +228,12 @@ const GeneratePage = {
  @dragleave.prevent="dragRef = false"
  @drop.prevent="onRefDrop"
  :class="{ 'drop-highlight': dragRef }">
- <div v-for="(img, i) in referenceImages" :key="i" style="position:relative;width:80px;height:80px;border-radius:4px;overflow:hidden;border:1px solid var(--ink-border)">
+ <div v-for="(img, i) in referenceImages" :key="i" style="position:relative;width:60px;height:60px;border-radius:4px;overflow:hidden;border:1px solid var(--ink-border);cursor:pointer" @click="$openLightbox({ url: img })">
  <img :src="img" style="width:100%;height:100%;object-fit:cover">
- <button @click="referenceImages.splice(i,1)" class="btn btn-ghost" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;width:20px;height:20px;line-height:1;font-size:12px;padding:0;border-radius:50%">×</button>
+ <button @click.stop="referenceImages.splice(i,1)" class="btn btn-ghost" style="position:absolute;top:1px;right:1px;background:rgba(0,0,0,.6);color:#fff;width:18px;height:18px;line-height:1;font-size:11px;padding:0;border-radius:50%">×</button>
  </div>
- <div class="upload-zone" @click="triggerUpload" :class="{ 'drag-over': dragRef }" style="width:80px;height:80px;min-height:auto;border:dashed 2px var(--ink-border);display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:4px;flex-shrink:0">
- <span style="font-size:24px;color:var(--ink-fade)">{{ dragRef ? '+' : '+' }}</span>
+ <div class="upload-zone" @click="triggerUpload" :class="{ 'drag-over': dragRef }" style="width:60px;height:60px;min-height:auto;border:dashed 2px var(--ink-border);display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:4px;flex-shrink:0">
+ <span style="font-size:20px;color:var(--ink-fade)">{{ dragRef ? '+' : '+' }}</span>
  </div>
  <input ref="fileInput" type="file" accept="image/*" multiple @change="onFileSelected" style="display:none">
  </div>
@@ -278,7 +242,7 @@ const GeneratePage = {
  </div>
 
  <!-- 音频拖放 -->
- <div class="form-label mt-3">
+ <div class="form-label mt-2">
  <img src="/static/form/prompt.svg" alt="">音频参考
  </div>
  <div class="f gap-2" style="flex-wrap:wrap;align-items:flex-start"
@@ -287,19 +251,19 @@ const GeneratePage = {
  @dragleave.prevent="dragAudio = false"
  @drop.prevent="onAudioDrop"
  :class="{ 'drop-highlight': dragAudio }">
- <div v-for="(a, i) in audioFiles" :key="i" style="position:relative;height:36px;display:flex;align-items:center;padding:0 8px;border-radius:4px;background:var(--card-bg);border:1px solid var(--ink-border);font-size:12px;gap:6px">
+ <div v-for="(a, i) in audioFiles" :key="i" style="position:relative;height:28px;display:flex;align-items:center;padding:0 6px;border-radius:4px;background:var(--card-bg);border:1px solid var(--ink-border);font-size:11px;gap:4px">
  
- <span style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ a.name || '音频 '+(i+1) }}</span>
- <button @click="audioFiles.splice(i,1)" class="btn btn-ghost" style="margin-left:4px;width:18px;height:18px;line-height:1;font-size:11px;padding:0;border-radius:50%;background:rgba(0,0,0,.5);color:#fff">×</button>
+ <span style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ a.name || '音频 '+(i+1) }}</span>
+ <button @click="audioFiles.splice(i,1)" class="btn btn-ghost" style="margin-left:2px;width:16px;height:16px;line-height:1;font-size:10px;padding:0;border-radius:50%;background:rgba(0,0,0,.5);color:#fff">×</button>
  </div>
- <div class="upload-zone" @click="triggerAudio" :class="{ 'drag-over': dragAudio }" style="height:36px;min-height:auto;border:dashed 2px var(--ink-border);display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:4px;flex-shrink:0;padding:0 12px">
- <span style="font-size:14px;color:var(--ink-fade)">{{ dragAudio ? '松开放入' : '+ 添加音频' }}</span>
+ <div class="upload-zone" @click="triggerAudio" :class="{ 'drag-over': dragAudio }" style="height:28px;min-height:auto;border:dashed 2px var(--ink-border);display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:4px;flex-shrink:0;padding:0 10px">
+ <span style="font-size:13px;color:var(--ink-fade)">{{ dragAudio ? '松开放入' : '+ 添加音频' }}</span>
  </div>
  <input ref="audioInput" type="file" accept="audio/*" @change="onAudioSelected" style="display:none">
  </div>
 
  <!-- 模型选择 -->
- <div class="form-label mt-4">
+ <div class="form-label mt-3">
  <img src="/static/form/models.svg" alt="">模型
  </div>
  <div class="model-selector" @click="modelDropdownOpen = !modelDropdownOpen">
@@ -337,11 +301,9 @@ const GeneratePage = {
  </div>
 
  <!-- 高级选项 -->
- <div class="advanced-trigger mt-3" :class="{ open: showAdvanced }" @click="showAdvanced = !showAdvanced">
- 展开高级选项
- </div>
- <div class="advanced-content" :class="{ open: showAdvanced }">
- <div class="param-row" style="margin-bottom:8px">
+ <div class="form-label mt-3">高级选项</div>
+ <div>
+ <div class="param-row" style="margin-bottom:4px">
  <div style="flex:1">
  <div class="text-xs text-muted mb-1">宽度</div>
  <input v-model.number="customW" type="number" min="64" max="2048" class="input" placeholder="自动">
@@ -402,7 +364,7 @@ const GeneratePage = {
  <div v-else-if="results.length" class="fc ac gap-3" style="width:100%">
  <template v-for="(r, i) in results" :key="i">
  <video v-if="r.mediaType === 'video'" :src="r.url" controls preload="metadata" style="max-width:100%;border-radius:4px"></video>
- <img v-else :src="r.url" :alt="'Result ' + (i+1)" style="max-width:100%;border-radius:4px;cursor:pointer" @click="zoomImage(r.url)">
+ <img v-else :src="r.url" :alt="'Result ' + (i+1)" style="max-width:100%;border-radius:4px;cursor:pointer" @click="zoomImage(r)">
  </template>
  </div>
  <div v-else class="empty">
@@ -417,20 +379,63 @@ const GeneratePage = {
  </div>
  </div>
 
+ <!-- 底部: 提示词 + 生成 -->
+ <div class="card mt-4">
+ <div class="form-label">
+ <img src="/static/form/prompt.svg" alt="">提示词
+ </div>
+ <textarea v-model="prompt" class="textarea" placeholder="请输入英文提示词以获得最佳效果..." rows="6"></textarea>
+
+ <div v-if="showNegative" class="mt-3">
+ <div class="form-label">
+ <img src="/static/form/negative.svg" alt="">负面提示词
+ <span class="text-xs text-muted">(用逗号分隔)</span>
+ </div>
+ <input v-model="negativePrompt" class="input" placeholder="不希望出现的元素">
+ </div>
+
+ <div class="toolbar mt-3">
+ <button class="tool-btn" @click="randomPrompt">
+ <img src="/static/form/prompt.svg" alt="">随机提示词
+ </button>
+ <button class="tool-btn" @click="showStylePicker = !showStylePicker">
+ <img src="/static/form/image.svg" alt="">风格
+ </button>
+ <button class="tool-btn" @click="cycleRatio">
+ <img src="/static/form/aspect-ratio.svg" alt="">{{ ratio }}
+ </button>
+ <button class="tool-btn" @click="optimizePrompt" :disabled="optimizing || !prompt">
+ <img src="/static/form/prompt.svg" alt="">{{ optimizing ? '优化中...' : '优化提示词' }}
+ </button>
+ <div style="margin-left: auto">
+ <button class="btn btn-generate" @click="generate" :disabled="generating || !prompt">
+ {{ generating ? '生成中...' : '生成图片' }}
+ </button>
+ </div>
+ </div>
+ </div>
+
  <!-- 作品选择弹窗 -->
- <div v-if="showWorksPicker" class="modal-overlay" @click.self="showWorksPicker=false">
- <div class="modal" style="max-width:640px">
+ <div v-if="showWorksPicker" class="modal-overlay" @click.self="showWorksPicker=false" style="background:rgba(26,26,26,0.94);align-items:center">
+ <div class="works-picker-dialog" style="max-width:720px">
  <div class="modal-header">
  <h3>选择参考图</h3>
  <button class="btn btn-ghost" @click="showWorksPicker=false">×</button>
  </div>
- <div class="modal-body">
- <div v-if="worksPickerLoading" class="text-center p-4"><div class="spin"></div></div>
- <div v-else-if="myWorks.length === 0" class="text-center p-4 text-muted">还没有作品</div>
- <div v-else class="works-picker-grid">
- <div v-for="img in myWorks" :key="img.id" class="works-picker-item" @click="pickReference(img)">
- <img :src="img.imageUrl" :alt="img.prompt" @error="e => e.target.style.display='none'">
+ <div class="modal-body" style="padding:0">
+ <div style="padding:8px 12px;border-bottom:1px solid var(--ink-border-light)">
+ <input v-model="pickerSearch" type="text" class="input" placeholder="搜索提示词…" style="width:100%;height:32px;font-size:13px">
  </div>
+ <div ref="pickerScroll" class="picker-scroll" @scroll="onPickerScroll">
+ <div v-if="worksPickerLoading && myWorks.length===0" class="text-center p-4"><div class="spin"></div></div>
+ <div v-else-if="filteredWorks.length === 0" class="text-center p-4 text-muted">{{ pickerSearch ? '没有匹配的作品' : '还没有作品' }}</div>
+ <div v-else class="works-picker-grid">
+ <div v-for="img in filteredWorks" :key="img.id" class="works-picker-item" @click="pickReference(img)">
+ <img :src="img.thumbnailUrl || img.imageUrl" :alt="img.prompt" loading="lazy" @error="e => e.target.style.display='none'">
+ </div>
+ </div>
+ <div v-if="pickerLoadingMore" class="text-center p-2"><div class="spin" style="width:18px;height:18px"></div></div>
+ <div v-if="!pickerHasMore && filteredWorks.length > 0" class="text-center p-2 text-muted" style="font-size:12px">没有更多了</div>
  </div>
  </div>
  </div>
@@ -480,6 +485,25 @@ const GeneratePage = {
  const showWorksPicker = ref(false);
  const worksPickerLoading = ref(false);
  const myWorks = ref([]);
+ const pickerSearch = ref('');
+ const pickerLoadingMore = ref(false);
+ const pickerHasMore = ref(true);
+ const pickerOffset = ref(0);
+ const pickerLimit = 40;
+ const pickerScroll = ref(null);
+ const filteredWorks = computed(() => {
+ let list = myWorks.value;
+ // 过滤掉视频
+ list = list.filter(i => (i.mediaType || i.media_type || 'image') === 'image');
+ if (!pickerSearch.value) return list;
+ const q = pickerSearch.value.toLowerCase();
+ return list.filter(i => (i.prompt || '').toLowerCase().includes(q));
+ });
+ const onPickerScroll = () => {
+ const el = pickerScroll.value;
+ if (!el || pickerLoadingMore.value || !pickerHasMore.value || pickerSearch.value) return;
+ if (el.scrollTop + el.clientHeight >= el.scrollHeight - 60) loadMoreWorks();
+ };
 
  const RATIOS = ['1:1', '16:9', '9:16', '4:3', '3:4'];
 
@@ -716,18 +740,52 @@ const GeneratePage = {
  });
  };
 
- const zoomImage = (url) => $openLightbox(url);
+ const zoomImage = (r) => {
+ const data = typeof r === 'string' ? { url: r } : {
+ url: r.url,
+ prompt: prompt.value,
+ negativePrompt: negativePrompt.value,
+ model: selectedModel.value?.name,
+ modelId: selectedModel.value?.id,
+ workflowId: selectedModel.value?.workflowId || selectedModel.value?.id,
+ width: customW.value,
+ height: customH.value,
+ steps: steps.value,
+ batchSize: batchSize.value,
+ duration: duration.value,
+ fps: fps.value,
+ audioStartTime: audioStartTime.value,
+ audioDuration: audioDuration.value,
+ mediaType: r.mediaType,
+ };
+ $openLightbox(data);
+ };
 
  const openWorksPicker = async () => {
  showWorksPicker.value = true;
+ pickerSearch.value = '';
  if (myWorks.value.length === 0) {
  worksPickerLoading.value = true;
  try {
- const d = await api('/api/user/images?limit=50');
+ const d = await api(`/api/user/images?limit=${pickerLimit}&offset=0`);
  myWorks.value = d.images || [];
+ pickerOffset.value = myWorks.value.length;
+ pickerHasMore.value = myWorks.value.length >= pickerLimit;
  } catch {}
  worksPickerLoading.value = false;
  }
+ };
+ const loadMoreWorks = async () => {
+ if (pickerLoadingMore.value || !pickerHasMore.value) return;
+ pickerLoadingMore.value = true;
+ try {
+ const d = await api(`/api/user/images?limit=${pickerLimit}&offset=${pickerOffset.value}`);
+ const imgs = d.images || [];
+ myWorks.value.push(...imgs);
+ pickerOffset.value = myWorks.value.length;
+ pickerHasMore.value = imgs.length >= pickerLimit;
+ } catch {}
+ pickerLoadingMore.value = false;
  };
 
  const pickReference = async (img) => {
@@ -753,6 +811,7 @@ const GeneratePage = {
  triggerAudio, onAudioSelected, onAudioDrop,
  randomPrompt, optimizePrompt, generate, downloadAll, zoomImage,
  showWorksPicker, worksPickerLoading, myWorks, openWorksPicker, pickReference,
+ pickerSearch, pickerLoadingMore, pickerHasMore, pickerScroll, filteredWorks, onPickerScroll,
  };
  },
 };
@@ -908,7 +967,7 @@ const MyWorksPage = {
  <img v-else :src="img.thumbnailUrl || img.imageUrl" :alt="img.prompt" @error="e => e.target.src='/static/images/default-logo.svg'" style="cursor:pointer;width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 4px 0 0">
  <div v-if="!img._playing" class="play-overlay"><svg viewBox="0 0 24 24" width="40" height="40"><circle cx="12" cy="12" r="11" fill="rgba(0,0,0,0.5)"/><path d="M10 8l6 4-6 4z" fill="#fff"/></svg></div>
  </div>
- <img v-else :src="img.thumbnailUrl || img.imageUrl" :alt="img.prompt" @click="$openLightbox(img.imageUrl)" style="cursor:pointer">
+ <img v-else :src="img.thumbnailUrl || img.imageUrl" :alt="img.prompt" @click="$openLightbox({ url: img.imageUrl, id: img.id, prompt: img.prompt, negativePrompt: img.negativePrompt, model: img.modelName || img.model, modelId: img.modelId, workflowId: img.workflowId, width: img.width, height: img.height, steps: img.steps, isPublic: img.isPublic, mediaType: img.mediaType || img.media_type, duration: img.durationSeconds || img.duration_seconds, fps: img.fps, audioStartTime: img.audioStartTime || img.audio_start_time, audioDuration: img.audioDuration || img.audio_duration })" style="cursor:pointer">
  <div class="works-meta">
  <div class="works-prompt" :title="img.prompt">{{ img.prompt || '无提示词' }}</div>
  <div class="works-info">
@@ -1616,8 +1675,94 @@ const app = createApp({
  authStore.logout();
  window.toast.success('已退出登录');
  };
+
+ // 灯箱缩放/旋转/拖动
+ const lbScale = ref(1);
+ const lbRotate = ref(0);
+ const lbX = ref(0);
+ const lbY = ref(0);
+ const lbDragging = ref(false);
+ const lbDragStartX = ref(0);
+ const lbDragStartY = ref(0);
+ const lbDragOriginX = ref(0);
+ const lbDragOriginY = ref(0);
+ const lbZoomIn = () => { lbScale.value = Math.min(lbScale.value + 0.2, 5); };
+ const lbZoomOut = () => { lbScale.value = Math.max(lbScale.value - 0.2, 0.2); };
+ const lbRotateLeft = () => { lbRotate.value -= 90; };
+ const lbRotateRight = () => { lbRotate.value += 90; };
+ const lbReset = () => { lbScale.value = 1; lbRotate.value = 0; lbX.value = 0; lbY.value = 0; };
+ const lbStartDrag = (e) => { lbDragging.value = true; lbDragStartX.value = e.clientX; lbDragStartY.value = e.clientY; lbDragOriginX.value = lbX.value; lbDragOriginY.value = lbY.value; e.preventDefault(); };
+ const lbOnDrag = (e) => { if (!lbDragging.value) return; lbX.value = lbDragOriginX.value + (e.clientX - lbDragStartX.value); lbY.value = lbDragOriginY.value + (e.clientY - lbDragStartY.value); };
+ const lbEndDrag = () => { lbDragging.value = false; };
+ // 打开灯箱时重置
+ watch(lightboxData, (v) => {
+ if (v) { lbScale.value = 1; lbRotate.value = 0; lbX.value = 0; lbY.value = 0; }
+ });
+ // ESC 关闭、滚轮缩放
+ const onLightboxKey = (e) => {
+ if (!lightboxData.value) return;
+ if (e.key === 'Escape') closeLightbox();
+ };
+ const onLightboxWheel = (e) => {
+ if (!lightboxData.value) return;
+ e.preventDefault();
+ if (e.deltaY < 0) lbScale.value = Math.min(lbScale.value + 0.15, 5);
+ else lbScale.value = Math.max(lbScale.value - 0.15, 0.2);
+ };
+ onMounted(() => {
+ window.addEventListener('keydown', onLightboxKey);
+ window.addEventListener('wheel', onLightboxWheel, { passive: false });
+ });
+
+ const lightboxRemake = () => {
+ const d = lightboxData.value;
+ if (!d) return;
+ if (d.id) {
+ // 从社区/作品页来，走 remake 逻辑
+ sessionStorage.setItem('yezhi_remake', JSON.stringify({
+ modelName: d.model || '',
+ modelId: d.modelId || '',
+ workflowId: d.workflowId || '',
+ prompt: d.prompt || '',
+ negativePrompt: d.negativePrompt || '',
+ steps: d.steps || 28,
+ ratio: d.ratio || '1:1',
+ width: d.width || null,
+ height: d.height || null,
+ duration: d.duration || null,
+ fps: d.fps || null,
+ audioStartTime: d.audioStartTime != null ? d.audioStartTime : null,
+ audioDuration: d.audioDuration != null ? d.audioDuration : null,
+ mediaType: d.mediaType || 'image',
+ }));
+ router.push('/generate');
+ } else {
+ // 生成页直接跳转，参数已在 store 里
+ router.push('/generate');
+ }
+ closeLightbox();
+ };
+ const lightboxPublish = async () => {
+ const d = lightboxData.value;
+ if (!d || !d.id) return;
+ try {
+ const resp = await api(`/api/user/images/${d.id}/publish`, { method: 'POST' });
+ d.isPublic = resp.isPublic;
+ window.toast.success(resp.message);
+ } catch (e) { window.toast.error(e.message); }
+ };
+ const lightboxDelete = async () => {
+ const d = lightboxData.value;
+ if (!d || !d.id) return;
+ if (!confirm('确定删除这张图片？')) return;
+ try {
+ await api(`/api/user/images/${d.id}`, { method: 'DELETE' });
+ window.toast.success('已删除');
+ closeLightbox();
+ } catch (e) { window.toast.error(e.message); }
+ };
  onMounted(() => authStore.init());
- return { authStore, isActive, logout, lightboxSrc, openLightbox, closeLightbox };
+ return { authStore, isActive, logout, lightboxData, openLightbox, closeLightbox, lightboxRemake, lightboxPublish, lightboxDelete, lbScale, lbRotate, lbX, lbY, lbZoomIn, lbZoomOut, lbRotateLeft, lbRotateRight, lbReset, lbStartDrag, lbOnDrag, lbEndDrag };
  },
 });
 

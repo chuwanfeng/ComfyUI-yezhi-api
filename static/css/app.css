@@ -818,8 +818,8 @@ body {
 /* ── 弹窗 ────────────────────────────────────── */
 .modal-overlay {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(26,26,26,0.4);
-  backdrop-filter: blur(4px);
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
   display: flex; align-items: center; justify-content: center;
   z-index: 1000;
   animation: modalFade 0.3s ease;
@@ -875,28 +875,148 @@ body {
   position: fixed; inset: 0;
   background: rgba(26,26,26,0.94);
   z-index: 9999;
-  display: flex; align-items: center; justify-content: center;
+  display: flex; align-items: stretch; justify-content: center;
   cursor: pointer;
   animation: modalFade 0.35s ease;
 }
 .lightbox-close {
-  position: absolute; top: 24px; right: 36px;
-  font-size: 32px; color: var(--ink-fade);
-  cursor: pointer; z-index: 1;
+  position: absolute; top: 16px; right: 16px;
+  font-size: 28px; color: var(--ink-fade);
+  cursor: pointer; z-index: 10;
   transition: color 0.3s;
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; background: rgba(0,0,0,0.4);
 }
 .lightbox-close:hover { color: var(--cinnabar); }
 .lightbox-image {
-  max-width: 95vw; max-height: 95vh;
-  object-fit: contain; border-radius: 4px;
-  cursor: default;
-  box-shadow: 0 4px 40px rgba(0,0,0,0.3);
+  max-width: 100%; max-height: 100%;
+  object-fit: contain;
+  cursor: grab;
+  transition: transform 0.05s linear;
+  user-select: none; -webkit-user-drag: none;
+}
+.lightbox-image:active { cursor: grabbing; }
+.lightbox-toolbar {
+  position: absolute; bottom: 16px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; align-items: center; gap: 4px;
+  background: rgba(0,0,0,0.6);
+  border-radius: 8px; padding: 6px 8px;
+  backdrop-filter: blur(8px);
+  z-index: 5;
+}
+.lb-tool-btn {
+  width: 36px; height: 36px;
+  border: none; border-radius: 6px;
+  background: transparent; color: #ddd;
+  font-size: 20px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.lb-tool-btn:hover {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+}
+.lb-tool-zoom {
+  color: #aaa; font-size: 13px; min-width: 44px;
+  text-align: center; user-select: none;
+}
+.lightbox-content {
+  display: flex; flex-direction: row; align-items: stretch;
+  width: 100%; height: 100%;
+}
+.lightbox-image-wrap {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 0; overflow: hidden;
+  min-width: 0;
+  position: relative;
+}
+.lightbox-sidebar {
+  width: 420px; flex-shrink: 0;
+  background: rgba(30,30,30,0.98);
+  display: flex; flex-direction: column;
+  height: 100%;
+  border-left: 1px solid rgba(255,255,255,0.06);
+}
+.lightbox-info-section {
+  flex: 1; overflow-y: auto;
+  padding: 24px;
+  display: flex; flex-direction: column; gap: 20px;
+}
+.lightbox-info-row {
+  display: flex; gap: 8px; align-items: flex-start; flex-direction: column;
+}
+.lightbox-info-label {
+  color: var(--ink-fade); font-size: 14px; white-space: nowrap;
+  font-weight: 600;
+}
+.lightbox-info-value {
+  color: #e8e8e8; font-size: 15px; line-height: 1.7; word-break: break-word;
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.lightbox-tag {
+  background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 4px; font-size: 14px;
+}
+.lightbox-actions {
+  padding: 16px 24px 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex; flex-direction: row; gap: 10px;
+  flex-shrink: 0;
+}
+.lightbox-action-btn {
+  flex: 1;
+  padding: 10px 0;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.06);
+  color: #ccc; font-size: 14px; cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.lightbox-action-btn:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.25);
+  color: #fff;
+}
+.lightbox-action-btn.primary {
+  background: var(--cinnabar, #e85d4a);
+  border-color: var(--cinnabar, #e85d4a);
+  color: #fff;
+}
+.lightbox-action-btn.primary:hover {
+  background: #f06d5a;
+}
+.lightbox-action-btn.danger {
+  border-color: rgba(232,93,74,0.3);
+  color: #e85d4a;
+}
+.lightbox-action-btn.danger:hover {
+  background: rgba(232,93,74,0.12);
+  border-color: rgba(232,93,74,0.5);
+  color: #f06d5a;
 }
 
 /* ── 作品选择弹窗 ────────────────────────────── */
 .works-picker-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
 }
+.works-picker-dialog {
+  background: var(--card-bg);
+  border-radius: 8px;
+  width: 90%;
+  max-height: 80vh;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.works-picker-dialog .modal-header { flex-shrink: 0; }
+.works-picker-dialog .picker-scroll { flex: 1; overflow-y: auto; }
+.picker-scroll {
+  max-height: 60vh; overflow-y: auto; padding: 10px 12px;
+}
+.picker-scroll::-webkit-scrollbar { width: 6px; }
+.picker-scroll::-webkit-scrollbar-thumb { background: var(--ink-border); border-radius: 3px; }
 .works-picker-item {
   aspect-ratio: 1; overflow: hidden; border-radius: 3px;
   cursor: pointer;

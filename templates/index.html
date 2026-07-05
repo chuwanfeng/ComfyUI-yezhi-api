@@ -69,9 +69,47 @@
   </div>
 
   <!-- 全局灯箱 -->
-  <div v-if="lightboxSrc" class="lightbox-overlay" @click="closeLightbox">
+  <div v-if="lightboxData" class="lightbox-overlay" @click="closeLightbox">
     <span class="lightbox-close" @click="closeLightbox">✕</span>
-    <img :src="lightboxSrc" class="lightbox-image" @click.stop>
+    <div class="lightbox-content" @click.stop>
+      <div class="lightbox-image-wrap">
+        <img :src="lightboxData.url" class="lightbox-image" :style="{ transform: 'translate(' + lbX + 'px,' + lbY + 'px) scale(' + lbScale + ') rotate(' + lbRotate + 'deg)' }" @mousedown="lbStartDrag" @mousemove="lbOnDrag" @mouseup="lbEndDrag" @mouseleave="lbEndDrag">
+        <div class="lightbox-toolbar" @click.stop>
+          <button class="lb-tool-btn" @click="lbZoomIn" title="放大">＋</button>
+          <span class="lb-tool-zoom">{{ Math.round(lbScale * 100) }}%</span>
+          <button class="lb-tool-btn" @click="lbZoomOut" title="缩小">－</button>
+          <button class="lb-tool-btn" @click="lbRotateLeft" title="向左旋转">↺</button>
+          <button class="lb-tool-btn" @click="lbRotateRight" title="向右旋转">↻</button>
+          <button class="lb-tool-btn" @click="lbReset" title="重置">⤢</button>
+        </div>
+      </div>
+      <div class="lightbox-sidebar">
+        <div class="lightbox-info-section">
+          <div v-if="lightboxData.prompt" class="lightbox-info-row">
+            <span class="lightbox-info-label">提示词</span>
+            <span class="lightbox-info-value">{{ lightboxData.prompt }}</span>
+          </div>
+          <div v-if="lightboxData.negativePrompt" class="lightbox-info-row">
+            <span class="lightbox-info-label">负面提示词</span>
+            <span class="lightbox-info-value">{{ lightboxData.negativePrompt }}</span>
+          </div>
+          <div class="lightbox-info-row" v-if="lightboxData.model || lightboxData.width || lightboxData.height">
+            <span class="lightbox-info-label">参数</span>
+            <span class="lightbox-info-value">
+              <span v-if="lightboxData.model" class="lightbox-tag">{{ lightboxData.model }}</span>
+              <span v-if="lightboxData.width && lightboxData.height" class="lightbox-tag">{{ lightboxData.width }}×{{ lightboxData.height }}</span>
+              <span v-if="lightboxData.steps" class="lightbox-tag">{{ lightboxData.steps }} steps</span>
+              <span v-if="lightboxData.batchSize > 1" class="lightbox-tag">×{{ lightboxData.batchSize }}</span>
+            </span>
+          </div>
+        </div>
+        <div class="lightbox-actions">
+          <button class="lightbox-action-btn primary" @click="lightboxRemake">生成同款</button>
+          <button class="lightbox-action-btn" @click="lightboxPublish">{{ lightboxData.isPublic ? '取消发布' : '发布' }}</button>
+          <button class="lightbox-action-btn danger" @click="lightboxDelete">删除</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
