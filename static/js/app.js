@@ -1724,7 +1724,6 @@ const app = createApp({
  if (e.key === 'Escape') closeLightbox();
  if (e.key === ' ' && lightboxData.value.mediaType === 'video') {
  e.preventDefault();
- e.stopPropagation();
  const v = lightboxVideoEl.value;
  if (!v) return;
  if (v.paused) v.play(); else v.pause();
