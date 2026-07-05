@@ -1014,14 +1014,14 @@ video.lightbox-image { cursor: default; }
 
 /* ── 作品选择弹窗 ────────────────────────────── */
 .works-picker-grid {
-  display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
 }
 .works-picker-dialog {
   background: var(--card-bg);
   border-radius: 8px;
-  width: 96%;
-  max-width: 1400px;
-  max-height: 88vh;
+  width: 98%;
+  max-width: 1600px;
+  max-height: 90vh;
   display: flex; flex-direction: column;
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0,0,0,0.5);
