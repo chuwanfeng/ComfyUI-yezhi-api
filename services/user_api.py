@@ -133,6 +133,48 @@ def publish_image(image_id: str):
         db.close()
 
 
+@user_bp.route("/images/<image_id>/thumbnail", methods=["POST"])
+def update_thumbnail(image_id: str):
+    """更新视频缩略图（前端截取当前帧上传）"""
+    user_id = get_user_id_from_request(request)
+    if not user_id:
+        return jsonify({"error": "未登录"}), 401
+
+    db = get_db_session()
+    try:
+        img = (
+            db.query(UserGeneratedImage)
+            .filter(
+                UserGeneratedImage.id == image_id,
+                UserGeneratedImage.user_id == user_id,
+            )
+            .first()
+        )
+        if not img:
+            return jsonify({"error": "作品不存在"}), 404
+
+        file = request.files.get("frame")
+        if not file:
+            return jsonify({"error": "缺少帧图片"}), 400
+
+        frame_data = file.read()
+        if len(frame_data) > 5 * 1024 * 1024:
+            return jsonify({"error": "图片太大"}), 400
+
+        # 删除旧缩略图（如果不等于 image_url）
+        if img.thumbnail_url and img.thumbnail_url != img.image_url:
+            _delete_image_file(img.thumbnail_url)
+
+        from utils.storage import save_upload
+        thumb_url = save_upload(frame_data, f"{image_id}_thumb.jpg", subdir="generations")
+        img.thumbnail_url = thumb_url
+        db.commit()
+
+        return jsonify({"message": "封面已更新", "thumbnailUrl": thumb_url})
+    finally:
+        db.close()
+
+
 def _image_dict(img: UserGeneratedImage) -> dict:
     # 根据宽高推断比例
     w, h = img.width or 1024, img.height or 1024

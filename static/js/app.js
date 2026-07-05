@@ -2,7 +2,7 @@
  * ComfyUI-Yezhi-API — Vue 3 SPA
  * 视觉风格复刻 Dreamifly
  */
-const { createApp, ref, computed, reactive, onMounted, watch, nextTick } = Vue;
+const { createApp, ref, computed, reactive, onMounted, onUnmounted, watch, nextTick } = Vue;
 const { createRouter, createWebHashHistory } = VueRouter;
 const { createPinia, defineStore } = Pinia;
 
@@ -931,7 +931,22 @@ const CommunityPage = {
  } catch {}
  };
 
- onMounted(load);
+ onMounted(() => {
+ load();
+ const handler = (e) => {
+ if (e.detail.action === 'delete') {
+ images.value = images.value.filter(img => img.id !== e.detail.id);
+ } else if (e.detail.action === 'publish') {
+ const img = images.value.find(img => img.id === e.detail.id);
+ if (img) img.isPublic = e.detail.isPublic;
+ } else if (e.detail.action === 'thumbnail') {
+ const img = images.value.find(img => img.id === e.detail.id);
+ if (img) img.thumbnailUrl = e.detail.thumbnailUrl;
+ }
+ };
+ window.addEventListener('lightbox-data-changed', handler);
+ onUnmounted(() => window.removeEventListener('lightbox-data-changed', handler));
+ });
  return { authStore, images: filteredImages, loading, loadingMore, activeFilter, modelTags, hasMore, setFilter, loadMore, toggleLike };
  },
 };
@@ -1072,7 +1087,12 @@ const MyWorksPage = {
  router.push('/generate');
  };
 
- onMounted(load);
+ onMounted(() => {
+ load();
+ const handler = () => load();
+ window.addEventListener('lightbox-data-changed', handler);
+ onUnmounted(() => window.removeEventListener('lightbox-data-changed', handler));
+ });
  return { authStore, images, filteredImages, modelTags, activeFilter, hasMore, loadingMore, publish, remove, remake, loadMore };
  },
 };
@@ -1679,6 +1699,7 @@ const app = createApp({
  const lbRotate = ref(0);
  const lbX = ref(0);
  const lbY = ref(0);
+ const lightboxVideoEl = ref(null);
  const lbDragging = ref(false);
  const lbDragStartX = ref(0);
  const lbDragStartY = ref(0);
@@ -1747,6 +1768,7 @@ const app = createApp({
  const resp = await api(`/api/user/images/${d.id}/publish`, { method: 'POST' });
  d.isPublic = resp.isPublic;
  window.toast.success(resp.message);
+ window.dispatchEvent(new CustomEvent('lightbox-data-changed', { detail: { action: 'publish', id: d.id, isPublic: resp.isPublic } }));
  } catch (e) { window.toast.error(e.message); }
  };
  const lightboxDelete = async () => {
@@ -1757,10 +1779,38 @@ const app = createApp({
  await api(`/api/user/images/${d.id}`, { method: 'DELETE' });
  window.toast.success('已删除');
  closeLightbox();
+ window.dispatchEvent(new CustomEvent('lightbox-data-changed', { detail: { action: 'delete', id: d.id } }));
+ } catch (e) { window.toast.error(e.message); }
+ };
+ const lightboxSetThumb = async () => {
+ const d = lightboxData.value;
+ if (!d || !d.id) return;
+ const video = lightboxVideoEl.value;
+ if (!video) return;
+ try {
+ const canvas = document.createElement('canvas');
+ canvas.width = video.videoWidth;
+ canvas.height = video.videoHeight;
+ const ctx = canvas.getContext('2d');
+ ctx.drawImage(video, 0, 0);
+ canvas.toBlob(async (blob) => {
+ if (!blob) { window.toast.error('截帧失败'); return; }
+ const fd = new FormData();
+ fd.append('frame', blob, 'frame.jpg');
+ const resp = await fetch(`/api/user/images/${d.id}/thumbnail`, { method: 'POST', body: fd, headers: authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {} });
+ const result = await resp.json();
+ if (resp.ok) {
+ d.thumbnailUrl = result.thumbnailUrl;
+ window.toast.success('封面已更新');
+ window.dispatchEvent(new CustomEvent('lightbox-data-changed', { detail: { action: 'thumbnail', id: d.id, thumbnailUrl: result.thumbnailUrl } }));
+ } else {
+ window.toast.error(result.error || '上传失败');
+ }
+ }, 'image/jpeg', 0.9);
  } catch (e) { window.toast.error(e.message); }
  };
  onMounted(() => authStore.init());
- return { authStore, isActive, logout, lightboxData, openLightbox, closeLightbox, lightboxRemake, lightboxPublish, lightboxDelete, lbScale, lbRotate, lbX, lbY, lbZoomIn, lbZoomOut, lbRotateLeft, lbRotateRight, lbReset, lbStartDrag, lbOnDrag, lbEndDrag };
+ return { authStore, isActive, logout, lightboxData, openLightbox, closeLightbox, lightboxRemake, lightboxPublish, lightboxDelete, lightboxSetThumb, lightboxVideoEl, lbScale, lbRotate, lbX, lbY, lbZoomIn, lbZoomOut, lbRotateLeft, lbRotateRight, lbReset, lbStartDrag, lbOnDrag, lbEndDrag };
  },
 });
 

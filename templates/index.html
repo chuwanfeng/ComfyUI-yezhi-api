@@ -79,7 +79,7 @@
     <span class="lightbox-close" @click="closeLightbox">✕</span>
     <div class="lightbox-content" @click.stop>
       <div class="lightbox-image-wrap">
-        <video v-if="lightboxData.mediaType === 'video'" :src="lightboxData.url" class="lightbox-video" controls autoplay muted playsinline></video>
+        <video v-if="lightboxData.mediaType === 'video'" ref="lightboxVideoEl" :src="lightboxData.url" class="lightbox-video" controls autoplay muted playsinline></video>
         <img v-else :src="lightboxData.url" class="lightbox-image" :style="{ transform: 'translate(' + lbX + 'px,' + lbY + 'px) scale(' + lbScale + ') rotate(' + lbRotate + 'deg)' }" @mousedown="lbStartDrag" @mousemove="lbOnDrag" @mouseup="lbEndDrag" @mouseleave="lbEndDrag">
         <div class="lightbox-toolbar" @click.stop v-if="lightboxData.mediaType !== 'video'">
           <button class="lb-tool-btn" @click="lbZoomIn" title="放大">＋</button>
@@ -109,6 +109,9 @@
               <span v-if="lightboxData.batchSize > 1" class="lightbox-tag">×{{ lightboxData.batchSize }}</span>
             </span>
           </div>
+        </div>
+        <div v-if="lightboxData.mediaType === 'video'" class="lightbox-video-actions">
+          <button class="lightbox-action-btn" @click="lightboxSetThumb">设为封面</button>
         </div>
         <div class="lightbox-actions">
           <button class="lightbox-action-btn primary" @click="lightboxRemake">生成同款</button>

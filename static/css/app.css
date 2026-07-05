@@ -975,6 +975,10 @@ video.lightbox-image { cursor: default; }
   display: flex; flex-direction: row; gap: 10px;
   flex-shrink: 0;
 }
+.lightbox-video-actions {
+  padding: 0 24px 8px;
+  display: flex; gap: 10px;
+}
 .lightbox-action-btn {
   flex: 1;
   padding: 10px 0;
