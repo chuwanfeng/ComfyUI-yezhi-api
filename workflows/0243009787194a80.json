@@ -6,7 +6,7 @@
     "class_type": "SaveVideo",
     "inputs": {
       "codec": "auto",
-      "filename_prefix": "LTX-2.3-MV/20260702_191837",
+      "filename_prefix": "LTX-2.3-MV/20260705_212327",
       "format": "auto",
       "video": [
         "94",
@@ -180,7 +180,7 @@
     "inputs": {
       "ckpt_name": "LTX-2.3/ltx-2.3-22b-distilled-1.1.safetensors",
       "device": "default",
-      "text_encoder": "gemma_3_12B_it_fp8_e4m3fn.safetensors"
+      "text_encoder": "LTX-2.3/gemma-3-12b-it-ablit-norms-biproj-fp8mixed.safetensors"
     }
   },
   "84:27": {

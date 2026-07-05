@@ -5,7 +5,7 @@
     },
     "class_type": "LoadImage",
     "inputs": {
-      "image": "yezhi_bf6885ad957b.png"
+      "image": "20260622_030647_00001_.png"
     }
   },
   "39": {
@@ -14,7 +14,7 @@
     },
     "class_type": "LoadImage",
     "inputs": {
-      "image": "yezhi_bddc96f760cf.png"
+      "image": "20260622_033010_00001_.png"
     }
   },
   "68": {
@@ -24,7 +24,7 @@
     "class_type": "SaveVideo",
     "inputs": {
       "codec": "auto",
-      "filename_prefix": "ltx2.3_flf2v/20260703_160941",
+      "filename_prefix": "ltx2.3_flf2v/20260705_212631",
       "format": "auto",
       "video": [
         "129:122",
@@ -38,7 +38,7 @@
     },
     "class_type": "RandomNoise",
     "inputs": {
-      "noise_seed": 1040815584596992
+      "noise_seed": 333928591018272
     }
   },
   "129:101": {
@@ -79,7 +79,7 @@
     "inputs": {
       "ckpt_name": "LTX-2.3/ltx-2.3-22b-distilled-1.1.safetensors",
       "device": "default",
-      "text_encoder": "gemma_3_12B_it_fp8_e4m3fn.safetensors"
+      "text_encoder": "LTX-2.3/gemma-3-12b-it-ablit-norms-biproj-fp8mixed.safetensors"
     }
   },
   "129:104": {
@@ -303,7 +303,7 @@
     "inputs": {
       "cfg": 1,
       "model": [
-        "129:195",
+        "129:196",
         0
       ],
       "negative": [
@@ -531,6 +531,20 @@
         0
       ],
       "strength_model": 0.8
+    }
+  },
+  "129:196": {
+    "_meta": {
+      "title": "LoRA加载器（仅模型）"
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "lora_name": "LTX-2.3/Ltx2.3-Licon-VBVR-I2V-390K-R32.safetensors",
+      "model": [
+        "129:195",
+        0
+      ],
+      "strength_model": 1
     }
   },
   "129:98": {
