@@ -680,8 +680,8 @@ body {
 .fade-in { animation: inkFadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
 
 /* ── 页面切换过渡 ─────────────────────────── */
-.page-enter-active { transition: opacity 0.15s ease; }
-.page-leave-active { transition: opacity 0.1s ease; }
+.page-enter-active { transition: opacity 0.08s ease; }
+.page-leave-active { transition: opacity 0.04s ease; }
 .page-enter-from, .page-leave-to { opacity: 0; }
 
 /* ── 滚动条（淡墨色）─────────────────────────── */

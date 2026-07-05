@@ -78,6 +78,7 @@ const useAuthStore = defineStore('auth', {
  this.user = d.user;
  } catch {
  this.logout();
+ window.location.hash = '#/login';
  }
  },
  login(token, user) {
@@ -1721,6 +1722,11 @@ const app = createApp({
  const onLightboxKey = (e) => {
  if (!lightboxData.value) return;
  if (e.key === 'Escape') closeLightbox();
+ if (e.key === ' ' && lightboxData.value.mediaType === 'video') {
+ e.preventDefault();
+ const v = lightboxVideoEl.value;
+ if (v) { if (v.paused) v.play(); else v.pause(); }
+ }
  };
  const onLightboxWheel = (e) => {
  if (!lightboxData.value) return;
