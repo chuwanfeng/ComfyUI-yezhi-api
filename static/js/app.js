@@ -1716,19 +1716,18 @@ const app = createApp({
  const lbEndDrag = () => { lbDragging.value = false; };
  // 打开灯箱时重置
  watch(lightboxData, (v) => {
- if (v) {
- lbScale.value = 1; lbRotate.value = 0; lbX.value = 0; lbY.value = 0;
- // 视频自动获焦点，空格暂停/播放交给浏览器原生
- if (v.mediaType === 'video') {
- nextTick(() => { lightboxVideoEl.value && lightboxVideoEl.value.focus(); });
- }
- }
+ if (v) { lbScale.value = 1; lbRotate.value = 0; lbX.value = 0; lbY.value = 0; }
  });
  // ESC 关闭、滚轮缩放
  const onLightboxKey = (e) => {
  if (!lightboxData.value) return;
  if (e.key === 'Escape') closeLightbox();
- // 视频空格暂停/播放完全交给浏览器原生 controls
+ if (e.key === ' ' && lightboxData.value.mediaType === 'video') {
+ e.preventDefault();
+ const v = lightboxVideoEl.value;
+ if (!v) return;
+ if (v.paused) v.play(); else v.pause();
+ }
  };
  const onLightboxWheel = (e) => {
  if (!lightboxData.value) return;
