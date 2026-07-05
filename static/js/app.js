@@ -1723,9 +1723,10 @@ const app = createApp({
  if (!lightboxData.value) return;
  if (e.key === 'Escape') closeLightbox();
  if (e.key === ' ' && lightboxData.value.mediaType === 'video') {
- e.preventDefault();
  const v = lightboxVideoEl.value;
  if (!v) return;
+ if (document.activeElement === v) return; // video 已获焦点，浏览器原生处理
+ e.preventDefault();
  if (v.paused) v.play(); else v.pause();
  }
  };
