@@ -113,8 +113,10 @@
         </div>
         <div class="lightbox-actions">
           <button class="lightbox-action-btn primary" @click="lightboxRemake">生成同款</button>
-          <button class="lightbox-action-btn" @click="lightboxPublish">{{ lightboxData.isPublic ? '取消发布' : '发布' }}</button>
-          <button class="lightbox-action-btn danger" @click="lightboxDelete">删除</button>
+          <template v-if="lightboxData.userId && authStore.user && lightboxData.userId === authStore.user.id">
+            <button class="lightbox-action-btn" @click="lightboxPublish">{{ lightboxData.isPublic ? '取消发布' : '发布' }}</button>
+            <button class="lightbox-action-btn danger" @click="lightboxDelete">删除</button>
+          </template>
         </div>
       </div>
     </div>
