@@ -67,11 +67,9 @@ const useAuthStore = defineStore('auth', {
  },
  actions: {
  async init() {
- try {
- const d = await api('/api/health');
- this.selfHosted = d.self_hosted;
- } catch {}
- if (this.token) await this.fetchMe();
+ const tasks = [api('/api/health').then(d => { this.selfHosted = d.self_hosted; }).catch(() => {})];
+ if (this.token) tasks.push(this.fetchMe());
+ await Promise.all(tasks);
  this.ready = true;
  },
  async fetchMe() {
@@ -871,7 +869,7 @@ const CommunityPage = {
  setup() {
  const authStore = useAuthStore();
  const images = ref([]);
- const loading = ref(true);
+ const loading = ref(false);
  const loadingMore = ref(false);
  const activeFilter = ref('');
  const modelTags = ref([]);
@@ -879,7 +877,7 @@ const CommunityPage = {
  const pageSize = 24;
 
  const load = async () => {
- loading.value = true;
+ if (images.value.length === 0) loading.value = true;
  try {
  const params = new URLSearchParams({ limit: pageSize, offset: 0 });
  const d = await api('/api/community/feed?' + params);

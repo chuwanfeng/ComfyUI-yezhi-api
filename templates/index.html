@@ -21,7 +21,7 @@
 <div id="app">
   <div v-if="!authStore.ready" class="fc ac jc" style="height:100vh"><div class="spin"></div></div>
 
-  <div v-else-if="$route.path === '/login'" class="auth-page fade-in"><router-view></router-view></div>
+  <div v-else-if="$route.path === '/login'" class="auth-page"><router-view v-slot="{ Component }"><transition name="page" mode="out-in"><component :is="Component" /></transition></router-view></div>
 
   <div v-else class="app-layout">
     <!-- 左侧导航 (复刻 Dreamifly 风格) -->
@@ -59,7 +59,13 @@
 
     <!-- 右侧主视图 -->
     <main class="main-content">
-      <router-view></router-view>
+      <router-view v-slot="{ Component }">
+        <transition name="page" mode="out-in">
+          <keep-alive>
+            <component :is="Component" />
+          </keep-alive>
+        </transition>
+      </router-view>
     </main>
   </div>
 
