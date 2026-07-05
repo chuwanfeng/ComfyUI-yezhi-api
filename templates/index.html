@@ -73,7 +73,7 @@
     <span class="lightbox-close" @click="closeLightbox">✕</span>
     <div class="lightbox-content" @click.stop>
       <div class="lightbox-image-wrap">
-        <video v-if="lightboxData.mediaType === 'video'" :src="lightboxData.url" class="lightbox-image" controls autoplay playsinline :style="{ transform: 'translate(' + lbX + 'px,' + lbY + 'px) scale(' + lbScale + ') rotate(' + lbRotate + 'deg)' }" @mousedown="lbStartDrag" @mousemove="lbOnDrag" @mouseup="lbEndDrag" @mouseleave="lbEndDrag"></video>
+        <video v-if="lightboxData.mediaType === 'video'" :src="lightboxData.url" class="lightbox-video" controls autoplay muted playsinline></video>
         <img v-else :src="lightboxData.url" class="lightbox-image" :style="{ transform: 'translate(' + lbX + 'px,' + lbY + 'px) scale(' + lbScale + ') rotate(' + lbRotate + 'deg)' }" @mousedown="lbStartDrag" @mousemove="lbOnDrag" @mouseup="lbEndDrag" @mouseleave="lbEndDrag">
         <div class="lightbox-toolbar" @click.stop v-if="lightboxData.mediaType !== 'video'">
           <button class="lb-tool-btn" @click="lbZoomIn" title="放大">＋</button>
