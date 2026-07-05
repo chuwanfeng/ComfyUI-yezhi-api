@@ -73,8 +73,9 @@
     <span class="lightbox-close" @click="closeLightbox">✕</span>
     <div class="lightbox-content" @click.stop>
       <div class="lightbox-image-wrap">
-        <img :src="lightboxData.url" class="lightbox-image" :style="{ transform: 'translate(' + lbX + 'px,' + lbY + 'px) scale(' + lbScale + ') rotate(' + lbRotate + 'deg)' }" @mousedown="lbStartDrag" @mousemove="lbOnDrag" @mouseup="lbEndDrag" @mouseleave="lbEndDrag">
-        <div class="lightbox-toolbar" @click.stop>
+        <video v-if="lightboxData.mediaType === 'video'" :src="lightboxData.url" class="lightbox-image" controls autoplay playsinline :style="{ transform: 'translate(' + lbX + 'px,' + lbY + 'px) scale(' + lbScale + ') rotate(' + lbRotate + 'deg)' }" @mousedown="lbStartDrag" @mousemove="lbOnDrag" @mouseup="lbEndDrag" @mouseleave="lbEndDrag"></video>
+        <img v-else :src="lightboxData.url" class="lightbox-image" :style="{ transform: 'translate(' + lbX + 'px,' + lbY + 'px) scale(' + lbScale + ') rotate(' + lbRotate + 'deg)' }" @mousedown="lbStartDrag" @mousemove="lbOnDrag" @mouseup="lbEndDrag" @mouseleave="lbEndDrag">
+        <div class="lightbox-toolbar" @click.stop v-if="lightboxData.mediaType !== 'video'">
           <button class="lb-tool-btn" @click="lbZoomIn" title="放大">＋</button>
           <span class="lb-tool-zoom">{{ Math.round(lbScale * 100) }}%</span>
           <button class="lb-tool-btn" @click="lbZoomOut" title="缩小">－</button>

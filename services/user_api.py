@@ -147,7 +147,7 @@ def _image_dict(img: UserGeneratedImage) -> dict:
         "prompt": img.prompt,
         "negativePrompt": img.negative_prompt or "",
         "imageUrl": img.image_url,
-        "thumbnailUrl": img.thumbnail_url or img.image_url,
+        "thumbnailUrl": (img.thumbnail_url if img.thumbnail_url and img.thumbnail_url != img.image_url else (None if (img.media_type or 'image') == 'video' else img.image_url)),
         "width": img.width,
         "height": img.height,
         "ratio": ratio,

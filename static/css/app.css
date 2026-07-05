@@ -897,6 +897,7 @@ body {
   user-select: none; -webkit-user-drag: none;
 }
 .lightbox-image:active { cursor: grabbing; }
+video.lightbox-image { cursor: default; }
 .lightbox-toolbar {
   position: absolute; bottom: 16px; left: 50%;
   transform: translateX(-50%);

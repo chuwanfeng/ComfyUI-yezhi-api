@@ -836,10 +836,10 @@ const CommunityPage = {
  <div v-else>
  <div class="community-grid">
  <div v-for="img in images" :key="img.id" class="community-item">
- <div v-if="img.mediaType === 'video'" class="video-thumb" @click="img._playing = true">
- <video v-if="img._playing" :src="img.imageUrl" controls muted playsinline style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 4px 0 0"></video>
- <img v-else :src="img.thumbnailUrl || img.imageUrl" :alt="img.prompt" @error="e => e.target.src='/static/images/default-logo.svg'" style="cursor:pointer;width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 4px 0 0">
- <div v-if="!img._playing" class="play-overlay"><svg viewBox="0 0 24 24" width="40" height="40"><circle cx="12" cy="12" r="11" fill="rgba(0,0,0,0.5)"/><path d="M10 8l6 4-6 4z" fill="#fff"/></svg></div>
+ <div v-if="img.mediaType === 'video'" class="video-thumb" @click="$openLightbox({ url: img.imageUrl, id: img.id, prompt: img.prompt, negativePrompt: img.negativePrompt, model: img.modelName || img.model, modelId: img.modelId, workflowId: img.workflowId, width: img.width, height: img.height, steps: img.steps, isPublic: img.isPublic, mediaType: 'video', duration: img.durationSeconds || img.duration_seconds, fps: img.fps })" style="cursor:pointer">
+ <img v-if="img.thumbnailUrl" :src="img.thumbnailUrl" :alt="img.prompt" @error="e => e.target.src='/static/images/default-logo.svg'" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 4px 0 0">
+ <video v-else :src="img.imageUrl" preload="metadata" muted playsinline style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 4px 0 0;pointer-events:none"></video>
+ <div class="play-overlay"><svg viewBox="0 0 24 24" width="40" height="40"><circle cx="12" cy="12" r="11" fill="rgba(0,0,0,0.5)"/><path d="M10 8l6 4-6 4z" fill="#fff"/></svg></div>
  </div>
  <img v-else :src="img.thumbnailUrl" :alt="img.prompt" @error="e => e.target.src='/static/images/default-logo.svg'" @click="$openLightbox(img.imageUrl || img.thumbnailUrl)" style="cursor:pointer">
  <div class="community-meta">
@@ -962,10 +962,10 @@ const MyWorksPage = {
  <div v-else>
  <div class="community-grid">
  <div v-for="img in filteredImages" :key="img.id" class="community-item">
- <div v-if="img.mediaType === 'video'" class="video-thumb" @click="img._playing = true">
- <video v-if="img._playing" :src="img.imageUrl" controls muted playsinline style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 4px 0 0"></video>
- <img v-else :src="img.thumbnailUrl || img.imageUrl" :alt="img.prompt" @error="e => e.target.src='/static/images/default-logo.svg'" style="cursor:pointer;width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 4px 0 0">
- <div v-if="!img._playing" class="play-overlay"><svg viewBox="0 0 24 24" width="40" height="40"><circle cx="12" cy="12" r="11" fill="rgba(0,0,0,0.5)"/><path d="M10 8l6 4-6 4z" fill="#fff"/></svg></div>
+ <div v-if="img.mediaType === 'video'" class="video-thumb" @click="$openLightbox({ url: img.imageUrl, id: img.id, prompt: img.prompt, negativePrompt: img.negativePrompt, model: img.modelName || img.model, modelId: img.modelId, workflowId: img.workflowId, width: img.width, height: img.height, steps: img.steps, isPublic: img.isPublic, mediaType: 'video', duration: img.durationSeconds || img.duration_seconds, fps: img.fps, audioStartTime: img.audioStartTime || img.audio_start_time, audioDuration: img.audioDuration || img.audio_duration })" style="cursor:pointer">
+ <img v-if="img.thumbnailUrl" :src="img.thumbnailUrl" :alt="img.prompt" @error="e => e.target.src='/static/images/default-logo.svg'" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 4px 0 0">
+ <video v-else :src="img.imageUrl" preload="metadata" muted playsinline style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px 4px 0 0;pointer-events:none"></video>
+ <div class="play-overlay"><svg viewBox="0 0 24 24" width="40" height="40"><circle cx="12" cy="12" r="11" fill="rgba(0,0,0,0.5)"/><path d="M10 8l6 4-6 4z" fill="#fff"/></svg></div>
  </div>
  <img v-else :src="img.thumbnailUrl || img.imageUrl" :alt="img.prompt" @click="$openLightbox({ url: img.imageUrl, id: img.id, prompt: img.prompt, negativePrompt: img.negativePrompt, model: img.modelName || img.model, modelId: img.modelId, workflowId: img.workflowId, width: img.width, height: img.height, steps: img.steps, isPublic: img.isPublic, mediaType: img.mediaType || img.media_type, duration: img.durationSeconds || img.duration_seconds, fps: img.fps, audioStartTime: img.audioStartTime || img.audio_start_time, audioDuration: img.audioDuration || img.audio_duration })" style="cursor:pointer">
  <div class="works-meta">

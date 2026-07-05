@@ -23,6 +23,7 @@ from utils.auth import get_user_id_from_request
 from utils import profanity_filter
 import config
 import os
+import uuid
 import json
 
 gen_bp = Blueprint("generation", __name__, url_prefix="/api")
@@ -275,6 +276,21 @@ def _generate_quick(db, data: dict, user_id: str, ip_address: str) -> Response:
                         is_video = media.get("type") == "video" or media.get("ext", "png").lower() in ("mp4", "webm", "avi", "mov", "gif")
                         ext = media.get("ext", "png")
                         url = save_upload(media["data"], f"generated_{prompt_id}_{i}.{ext}", subdir="generations")
+                        # 视频生成缩略图
+                        thumb_url = None
+                        if is_video:
+                            try:
+                                import subprocess, tempfile
+                                thumb_name = f"{uuid.uuid4().hex}.jpg"
+                                thumb_dir = os.path.join(config.UPLOAD_DIR, "generations")
+                                os.makedirs(thumb_dir, exist_ok=True)
+                                thumb_path = os.path.join(thumb_dir, thumb_name)
+                                local_video = os.path.join(config.UPLOAD_DIR, url.lstrip('/uploads/').replace('/', os.sep))
+                                subprocess.run(["ffmpeg", "-y", "-i", local_video, "-ss", "00:00:01", "-vframes", "1", "-q:v", "2", thumb_path], capture_output=True, timeout=10)
+                                if os.path.exists(thumb_path):
+                                    thumb_url = f"/uploads/generations/{thumb_name}"
+                            except Exception as e:
+                                logging.warning(f"生成视频缩略图失败: {e}")
                         generated = UserGeneratedImage(
                             user_id=user_id if user_id else "anonymous",
                             model_name=model_id or (workflow_record.name if workflow_record else "custom"),
@@ -282,6 +298,7 @@ def _generate_quick(db, data: dict, user_id: str, ip_address: str) -> Response:
                             prompt=prompt,
                             negative_prompt=negative_prompt,
                             image_url=url,
+                            thumbnail_url=thumb_url,
                             width=width,
                             height=height,
                             steps=steps,

@@ -82,7 +82,7 @@ def get_feed():
                 "userAvatar": user.avatar if user else "/static/images/default-avatar.svg",
                 "prompt": img.prompt,
                 "imageUrl": img.image_url,
-                "thumbnailUrl": img.thumbnail_url or img.image_url,
+                "thumbnailUrl": (img.thumbnail_url if img.thumbnail_url and img.thumbnail_url != img.image_url else (None if (img.media_type or 'image') == 'video' else img.image_url)),
                 "width": img.width,
                 "height": img.height,
                 "modelName": img.model_name,
