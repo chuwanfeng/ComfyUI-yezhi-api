@@ -1723,10 +1723,10 @@ const app = createApp({
  if (!lightboxData.value) return;
  if (e.key === 'Escape') closeLightbox();
  if (e.key === ' ' && lightboxData.value.mediaType === 'video') {
+ e.preventDefault();
+ e.stopPropagation();
  const v = lightboxVideoEl.value;
  if (!v) return;
- if (document.activeElement === v) return; // video 已获焦点，浏览器原生处理
- e.preventDefault();
  if (v.paused) v.play(); else v.pause();
  }
  };
@@ -1737,7 +1737,7 @@ const app = createApp({
  else lbScale.value = Math.max(lbScale.value - 0.15, 0.2);
  };
  onMounted(() => {
- window.addEventListener('keydown', onLightboxKey);
+ window.addEventListener('keydown', onLightboxKey, true);
  window.addEventListener('wheel', onLightboxWheel, { passive: false });
  });
 
