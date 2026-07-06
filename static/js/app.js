@@ -295,7 +295,7 @@ const GeneratePage = {
  <div class="name">{{ m.name }}</div>
  <span class="text-xs text-muted">{{ m.description }}</span>
  </div>
- <div v-if="workflows.length" style="padding:6px 0; border-top:1px solid var(--ink-border); margin:4px 0; font-size:11px; color:var(--ink-fade)">自定义工作流</div>
+ <div v-if="workflows.length" style="padding:6px 0; border-top:1px solid var(--ink-border); margin:4px 0; font-size:11px; color:var(--ink-fade)">工作流</div>
  <div v-for="w in workflows" :key="'wf_'+w.id" class="model-selector mb-1" style="padding:6px" @click.stop="selectModel(w)">
  <img :src="w.cover_url || '/static/common/workflow.svg'" class="thumb" @error="e => e.target.style.display='none'">
  <div class="name">{{ w.name }}</div>
@@ -529,9 +529,9 @@ const GeneratePage = {
  selectedModel.value = d.models[0];
  }
  } catch {}
- // 加载用户工作流
+ // 加载工作流（含公开 + 内置 + 自己的）
  try {
- const wd = await api('/api/workflows/my');
+ const wd = await api('/api/workflows');
  workflows.value = (wd.workflows || []).map(w => ({ ...w, type: 'workflow' }));
  } catch {}
  const preferred = sessionStorage.getItem('yezhi_preferred_model');
@@ -1323,6 +1323,7 @@ const WorkflowsPage = {
  <div class="wf-actions">
  <button class="btn btn-primary text-sm" @click="useWorkflow(wf)">使用</button>
  <button v-if="!wf.is_builtin" class="btn btn-ghost text-sm" @click="editWorkflow(wf)">编辑</button>
+ <button v-if="!wf.is_builtin" class="btn text-sm" :class="wf.is_public ? 'btn-ghost' : 'btn-secondary'" @click="togglePublish(wf)">{{ wf.is_public ? '取消发布' : '发布' }}</button>
  <button v-if="!wf.is_builtin" class="btn btn-ghost text-sm" @click="deleteWorkflow(wf)">删除</button>
  </div>
  </div>
@@ -1541,6 +1542,17 @@ const WorkflowsPage = {
  editData.value = { name: '', description: '', comfyui_url: '', cover_url: '', workflow_json: '' };
  };
 
+ const togglePublish = async (wf) => {
+ try {
+ const d = await api('/api/workflows/' + wf.id, {
+ method: 'PUT', body: { is_public: !wf.is_public }
+ });
+ const idx = workflows.value.findIndex(w => w.id === wf.id);
+ if (idx >= 0) workflows.value[idx] = { ...workflows.value[idx], ...d.workflow };
+ window.toast.success(wf.is_public ? '已取消发布' : '已发布为公用模型');
+ } catch (e) { window.toast.error(e.message); }
+ };
+
  const deleteWorkflow = async (wf) => {
  if (!confirm('确定删除工作流 "' + wf.name + '"？')) return;
  try {
@@ -1604,7 +1616,7 @@ const WorkflowsPage = {
  authStore, workflows, showCreate, showImport, editingWorkflow, testingWorkflow,
  testPrompt, testing, testResults, testError, importData, editData, jsonFileInput, isDragging,
  pickJsonFile, onJsonFilePicked, onDrop, clearJsonFile,
- importWorkflow, editWorkflow, saveWorkflow, closeModal, deleteWorkflow, useWorkflow, runTest,
+ importWorkflow, editWorkflow, saveWorkflow, closeModal, deleteWorkflow, togglePublish, useWorkflow, runTest,
  };
  },
 };
