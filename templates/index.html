@@ -7,6 +7,7 @@
 <title>ComfyUI-Yezhi-API - 墨韵 AI 创作平台</title>
 <link rel="stylesheet" href="/static/css/app.css">
 <link rel="icon" type="image/svg+xml" href="/static/images/default-logo.svg">
+<script>(function(){var t=localStorage.getItem('yezhi_theme')||'light';document.documentElement.dataset.theme=t;})();</script>
 <script src="https://unpkg.com/vue@3.5/dist/vue.global.prod.js"></script>
 <script src="https://unpkg.com/vue-router@4.5/dist/vue-router.global.prod.js"></script>
 <script src="https://unpkg.com/vue-demi@0.14.10/lib/index.iife.js"></script>
@@ -48,6 +49,9 @@
       </router-link>
 
       <div class="sidebar-bottom">
+        <div class="icon-btn" title="切换主题" @click="toggleTheme">
+          <span style="font-size: 16px">{{ theme === 'dark' ? '☀' : '☾' }}</span>
+        </div>
         <div v-if="authStore.isLoggedIn" class="icon-btn" title="退出" @click="logout">
           <span style="font-size: 16px">⏻</span>
         </div>

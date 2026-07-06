@@ -81,6 +81,68 @@ body {
   --shadow-cinnabar: 0 2px 12px rgba(196,58,49,0.15);
 }
 
+/* ── 暗黑模式变量 ───────────────────────────── */
+[data-theme="dark"] {
+  --paper: #1a1a1a;
+  --card-bg: #252525;
+  --card-bg-hover: #2c2c2c;
+  --ink: #e8e3dc;
+  --ink-light: #c0b8ae;
+  --ink-mid: #9a928a;
+  --ink-fade: #6e6760;
+  --ink-border: #3a3a3a;
+  --ink-border-light: #333333;
+  --cinnabar: #d44a3f;
+  --cinnabar-dark: #b53a2f;
+  --cinnabar-light: #3a1e1a;
+  --cinnabar-pale: #2d1815;
+  --gold: #d4b87e;
+  --gold-light: #2a2418;
+  --verdant: #4a9a78;
+  --verdant-light: #1a2d22;
+  --indigo: #5a8fa3;
+  --indigo-light: #1a282d;
+  --shadow-ink: 0 2px 16px rgba(0,0,0,0.3);
+  --shadow-ink-lg: 0 4px 24px rgba(0,0,0,0.4);
+  --shadow-cinnabar: 0 2px 12px rgba(212,74,63,0.2);
+  color-scheme: dark;
+}
+
+/* 暗黑模式 body 背景 */
+[data-theme="dark"] body {
+  color: #e8e3dc;
+  background-color: #1a1a1a;
+  background-image:
+    radial-gradient(ellipse 1200px 400px at 50% 100%, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 30%, transparent 60%),
+    radial-gradient(ellipse 600px 800px at 100% 50%, rgba(0,0,0,0.3) 0%, transparent 65%),
+    radial-gradient(ellipse 200px 150px at 88% 75%, rgba(196,58,49,0.08) 0%, transparent 70%),
+    repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.008) 3px, rgba(255,255,255,0.008) 5px);
+}
+[data-theme="dark"] .geo-bg::before {
+  background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.02) 60%, rgba(0,0,0,0.06) 100%);
+}
+[data-theme="dark"] .geo-bg::after {
+  background-image:
+    radial-gradient(circle 10px at 85% 70%, rgba(255,255,255,0.03) 0%, transparent 80%),
+    radial-gradient(circle 6px at 92% 85%, rgba(255,255,255,0.025) 0%, transparent 80%),
+    radial-gradient(circle 3px at 88% 78%, rgba(196,58,49,0.08) 0%, transparent 70%);
+}
+[data-theme="dark"] .nav-btn:hover {
+  background: linear-gradient(90deg, rgba(196,58,49,0.08) 0%, rgba(255,255,255,0.03) 100%);
+}
+[data-theme="dark"] .drop-zone:hover {
+  background: rgba(255,255,255,0.02);
+}
+[data-theme="dark"] .community-item img {
+  background: #2a2a2a;
+}
+[data-theme="dark"] .nav-btn img {
+  filter: invert(1) brightness(1.2);
+}
+[data-theme="dark"] .brand img {
+  border-color: var(--ink-border);
+}
+
 /* ── 主布局 ─────────────────────────────────── */
 .app-layout { position: relative; z-index: 1; min-height: 100vh; display: flex; }
 .main-content { flex: 1; min-width: 0; }

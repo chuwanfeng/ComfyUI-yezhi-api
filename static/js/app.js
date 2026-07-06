@@ -95,6 +95,21 @@ const useAuthStore = defineStore('auth', {
 });
 
 // ═══════════════════════════════════════════════
+// 主题切换（暗黑模式）
+// ═══════════════════════════════════════════════
+const theme = ref(localStorage.getItem('yezhi_theme') || 'light');
+function applyTheme(t) {
+ document.documentElement.dataset.theme = t;
+ localStorage.setItem('yezhi_theme', t);
+ theme.value = t;
+}
+function toggleTheme() {
+ applyTheme(theme.value === 'dark' ? 'light' : 'dark');
+}
+// 初始化主题（在 app mount 之前立即执行，避免闪烁）
+applyTheme(theme.value);
+
+// ═══════════════════════════════════════════════
 // 共享: 模型数据 — 仅保留厂商 API 模型
 // ═══════════════════════════════════════════════
 const FALLBACK_MODELS = [
@@ -1820,7 +1835,7 @@ const app = createApp({
  } catch (e) { window.toast.error(e.message); }
  };
  onMounted(() => authStore.init());
- return { authStore, isActive, logout, lightboxData, openLightbox, closeLightbox, lightboxRemake, lightboxPublish, lightboxDelete, lightboxSetThumb, lightboxVideoEl, lbScale, lbRotate, lbX, lbY, lbZoomIn, lbZoomOut, lbRotateLeft, lbRotateRight, lbReset, lbStartDrag, lbOnDrag, lbEndDrag };
+ return { authStore, isActive, logout, theme, toggleTheme, lightboxData, openLightbox, closeLightbox, lightboxRemake, lightboxPublish, lightboxDelete, lightboxSetThumb, lightboxVideoEl, lbScale, lbRotate, lbX, lbY, lbZoomIn, lbZoomOut, lbRotateLeft, lbRotateRight, lbReset, lbStartDrag, lbOnDrag, lbEndDrag };
  },
 });
 
