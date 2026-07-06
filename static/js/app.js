@@ -884,10 +884,8 @@ const CommunityPage = {
  const d = await api('/api/community/feed?' + params);
  images.value = d.images || [];
  total.value = d.total || 0;
- // 提取模型标签
- const tags = new Set();
- images.value.forEach(img => { if (img.modelName) tags.add(img.modelName); });
- modelTags.value = [...tags].sort();
+ // 使用后端返回的全量标签
+ if (d.modelTags) modelTags.value = d.modelTags;
  } catch {
  images.value = [];
  } finally {
@@ -915,9 +913,7 @@ const CommunityPage = {
  const d = await api('/api/community/feed?' + params);
  const newImages = d.images || [];
  images.value = [...images.value, ...newImages];
- // 更新标签
- newImages.forEach(img => { if (img.modelName && !modelTags.value.includes(img.modelName)) modelTags.value.push(img.modelName); });
- modelTags.value.sort();
+ // 标签已由首次加载从后端获取，无需追加
  } catch {} finally {
  loadingMore.value = false;
  }
@@ -1016,11 +1012,12 @@ const MyWorksPage = {
 
  const images = computed(() => allImages.value);
 
- const modelTags = computed(() => {
- const tags = new Set();
- allImages.value.forEach(img => { if (img.modelName) tags.add(img.modelName); });
- return [...tags].sort();
- });
+ const modelTags = ref([]);
+ const loadingMore = ref(false);
+ const total = ref(0);
+ const pageSize = 50;
+
+ const images = computed(() => allImages.value);
 
  const filteredImages = computed(() => {
  if (!activeFilter.value) return allImages.value;
@@ -1035,6 +1032,7 @@ const MyWorksPage = {
  const d = await api('/api/user/images?limit=' + pageSize);
  allImages.value = d.images || [];
  total.value = d.total || 0;
+ if (d.modelTags) modelTags.value = d.modelTags;
  } catch {}
  };
 

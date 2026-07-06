@@ -44,6 +44,21 @@ def get_feed():
             )
             query = query.filter(UserGeneratedImage.id.in_(image_ids))
 
+        # 全量模型标签（不受分页影响）
+        model_tags_list = [
+            r[0] for r in
+            db.query(UserGeneratedImage.model_name)
+            .filter(
+                UserGeneratedImage.is_public == True,
+                UserGeneratedImage.is_nsfw == False,
+                UserGeneratedImage.model_name != None,
+                UserGeneratedImage.model_name != "",
+            )
+            .distinct()
+            .all()
+        ]
+        model_tags_list.sort()
+
         total = query.count()
         images = query.offset(offset).limit(limit).all()
 
@@ -98,7 +113,7 @@ def get_feed():
                 "fps": img.fps,
             })
 
-        return jsonify({"images": result, "total": total})
+        return jsonify({"images": result, "total": total, "modelTags": model_tags_list})
     finally:
         db.close()
 

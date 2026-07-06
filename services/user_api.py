@@ -63,11 +63,27 @@ def list_images():
             .order_by(UserGeneratedImage.created_at.desc())
         )
         total = query.count()
+
+        # 全量模型标签（不受分页影响）
+        model_tags = [
+            r[0] for r in
+            db.query(UserGeneratedImage.model_name)
+            .filter(
+                UserGeneratedImage.user_id == user_id,
+                UserGeneratedImage.model_name != None,
+                UserGeneratedImage.model_name != "",
+            )
+            .distinct()
+            .all()
+        ]
+        model_tags.sort()
+
         images = query.offset(offset).limit(limit).all()
 
         return jsonify({
             "images": [_image_dict(img) for img in images],
             "total": total,
+            "modelTags": model_tags,
         })
     finally:
         db.close()
