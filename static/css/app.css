@@ -139,6 +139,9 @@ body {
 [data-theme="dark"] .nav-btn img {
   filter: invert(1) brightness(1.2);
 }
+[data-theme="dark"] .form-label img {
+  filter: invert(1) brightness(1.2);
+}
 [data-theme="dark"] .brand img {
   border-color: var(--ink-border);
 }
@@ -153,7 +156,7 @@ body {
   padding: 28px 20px;
   background: transparent;
   display: flex; flex-direction: column; gap: 10px;
-  position: relative;
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
 }
 .sidebar::after {
   content: "";
@@ -219,6 +222,7 @@ body {
 .sidebar-bottom {
   margin-top: auto; display: flex; flex-direction: column;
   gap: 10px; align-items: center;
+  padding-top: 16px;
 }
 .sidebar-section {
   font-size: 12px; color: var(--ink-fade);

@@ -49,14 +49,16 @@
       </router-link>
 
       <div class="sidebar-bottom">
-        <div class="icon-btn" title="切换主题" @click="toggleTheme">
-          <span style="font-size: 16px">{{ theme === 'dark' ? '☀' : '☾' }}</span>
-        </div>
-        <div v-if="authStore.isLoggedIn" class="icon-btn" title="退出" @click="logout">
-          <span style="font-size: 16px">⏻</span>
-        </div>
-        <div v-else class="icon-btn" title="登录" @click="$router.push('/login')">
-          <span style="font-size: 16px">🔑</span>
+        <div style="display:flex;flex-direction:row;gap:10px;align-items:center">
+          <div class="icon-btn" title="切换主题" @click="toggleTheme">
+            <span style="font-size: 16px">{{ theme === 'dark' ? '☀' : '☾' }}</span>
+          </div>
+          <div v-if="authStore.isLoggedIn" class="icon-btn" title="退出" @click="logout">
+            <span style="font-size: 16px">⏻</span>
+          </div>
+          <div v-else class="icon-btn" title="登录" @click="$router.push('/login')">
+            <span style="font-size: 16px">🔑</span>
+          </div>
         </div>
       </div>
     </aside>
