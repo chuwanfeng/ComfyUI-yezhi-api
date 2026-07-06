@@ -36,13 +36,7 @@ def get_feed():
         )
 
         if tag:
-            # 通过标签表过滤
-            image_ids = (
-                db.query(CommunityTag.image_id)
-                .filter(CommunityTag.tag == tag)
-                .subquery()
-            )
-            query = query.filter(UserGeneratedImage.id.in_(image_ids))
+            query = query.filter(UserGeneratedImage.model_name == tag)
 
         # 全量模型标签（不受分页影响）
         model_tags_list = [

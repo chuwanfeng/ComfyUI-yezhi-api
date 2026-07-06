@@ -878,13 +878,13 @@ const CommunityPage = {
  const pageSize = 24;
 
  const load = async () => {
- if (images.value.length === 0) loading.value = true;
+ loading.value = true;
  try {
  const params = new URLSearchParams({ limit: pageSize, offset: 0 });
+ if (activeFilter.value) params.set('tag', activeFilter.value);
  const d = await api('/api/community/feed?' + params);
  images.value = d.images || [];
  total.value = d.total || 0;
- // 使用后端返回的全量标签
  if (d.modelTags) modelTags.value = d.modelTags;
  } catch {
  images.value = [];
@@ -895,13 +895,10 @@ const CommunityPage = {
 
  const setFilter = (m) => {
  activeFilter.value = m;
- // 前端过滤
+ load();
  };
 
- const filteredImages = computed(() => {
- if (!activeFilter.value) return images.value;
- return images.value.filter(img => img.modelName === activeFilter.value);
- });
+ const filteredImages = computed(() => images.value);
 
  const hasMore = computed(() => images.value.length < total.value);
 
@@ -910,10 +907,10 @@ const CommunityPage = {
  loadingMore.value = true;
  try {
  const params = new URLSearchParams({ limit: pageSize, offset: images.value.length });
+ if (activeFilter.value) params.set('tag', activeFilter.value);
  const d = await api('/api/community/feed?' + params);
  const newImages = d.images || [];
  images.value = [...images.value, ...newImages];
- // 标签已由首次加载从后端获取，无需追加
  } catch {} finally {
  loadingMore.value = false;
  }
@@ -964,8 +961,8 @@ const MyWorksPage = {
  <template v-else>
  <!-- 标签筛选 -->
  <div v-if="modelTags.length > 0" class="filter-bar">
- <span class="filter-tag" :class="{ active: activeFilter === '' }" @click="activeFilter = ''">全部</span>
- <span v-for="m in modelTags" :key="m" class="filter-tag" :class="{ active: activeFilter === m }" @click="activeFilter = m">{{ m }}</span>
+ <span class="filter-tag" :class="{ active: activeFilter === '' }" @click="setFilter('')">全部</span>
+ <span v-for="m in modelTags" :key="m" class="filter-tag" :class="{ active: activeFilter === m }" @click="setFilter(m)">{{ m }}</span>
  </div>
 
  <div v-if="images.length === 0" class="text-center p-6 text-muted">还没有作品，去生成一些吧</div>
@@ -1014,28 +1011,34 @@ const MyWorksPage = {
 
  const modelTags = ref([]);
 
- const filteredImages = computed(() => {
- if (!activeFilter.value) return allImages.value;
- return allImages.value.filter(img => img.modelName === activeFilter.value);
- });
+ const filteredImages = computed(() => allImages.value);
 
  const hasMore = computed(() => allImages.value.length < total.value);
 
  const load = async () => {
  if (!authStore.isLoggedIn) return;
  try {
- const d = await api('/api/user/images?limit=' + pageSize);
+ let url = '/api/user/images?limit=' + pageSize;
+ if (activeFilter.value) url += '&tag=' + encodeURIComponent(activeFilter.value);
+ const d = await api(url);
  allImages.value = d.images || [];
  total.value = d.total || 0;
  if (d.modelTags) modelTags.value = d.modelTags;
  } catch {}
  };
 
+ const setFilter = (m) => {
+ activeFilter.value = m;
+ load();
+ };
+
  const loadMore = async () => {
  if (loadingMore.value) return;
  loadingMore.value = true;
  try {
- const d = await api('/api/user/images?limit=' + pageSize + '&offset=' + allImages.value.length);
+ let url = '/api/user/images?limit=' + pageSize + '&offset=' + allImages.value.length;
+ if (activeFilter.value) url += '&tag=' + encodeURIComponent(activeFilter.value);
+ const d = await api(url);
  allImages.value = [...allImages.value, ...(d.images || [])];
  } catch {} finally {
  loadingMore.value = false;
@@ -1088,7 +1091,7 @@ const MyWorksPage = {
  window.addEventListener('lightbox-data-changed', handler);
  onUnmounted(() => window.removeEventListener('lightbox-data-changed', handler));
  });
- return { authStore, images, filteredImages, modelTags, activeFilter, hasMore, loadingMore, publish, remove, remake, loadMore };
+ return { authStore, images, filteredImages, modelTags, activeFilter, setFilter, hasMore, loadingMore, publish, remove, remake, loadMore };
  },
 };
 

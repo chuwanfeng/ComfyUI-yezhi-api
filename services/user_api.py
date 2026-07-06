@@ -56,12 +56,17 @@ def list_images():
     try:
         limit = request.args.get("limit", 20, type=int)
         offset = request.args.get("offset", 0, type=int)
+        tag = request.args.get("tag")
 
         query = (
             db.query(UserGeneratedImage)
             .filter(UserGeneratedImage.user_id == user_id)
             .order_by(UserGeneratedImage.created_at.desc())
         )
+
+        if tag:
+            query = query.filter(UserGeneratedImage.model_name == tag)
+
         total = query.count()
 
         # 全量模型标签（不受分页影响）
