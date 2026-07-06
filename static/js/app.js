@@ -905,12 +905,15 @@ const CommunityPage = {
  const loadMore = async () => {
  if (loadingMore.value) return;
  loadingMore.value = true;
+ const savedScroll = window.scrollY;
  try {
  const params = new URLSearchParams({ limit: pageSize, offset: images.value.length });
  if (activeFilter.value) params.set('tag', activeFilter.value);
  const d = await api('/api/community/feed?' + params);
  const newImages = d.images || [];
  images.value = [...images.value, ...newImages];
+ await nextTick();
+ window.scrollTo(0, savedScroll);
  } catch {} finally {
  loadingMore.value = false;
  }
@@ -1035,11 +1038,14 @@ const MyWorksPage = {
  const loadMore = async () => {
  if (loadingMore.value) return;
  loadingMore.value = true;
+ const savedScroll = window.scrollY;
  try {
  let url = '/api/user/images?limit=' + pageSize + '&offset=' + allImages.value.length;
  if (activeFilter.value) url += '&tag=' + encodeURIComponent(activeFilter.value);
  const d = await api(url);
  allImages.value = [...allImages.value, ...(d.images || [])];
+ await nextTick();
+ window.scrollTo(0, savedScroll);
  } catch {} finally {
  loadingMore.value = false;
  }
