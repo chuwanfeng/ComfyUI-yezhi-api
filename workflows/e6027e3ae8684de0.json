@@ -1,0 +1,255 @@
+{
+  "154": {
+    "_meta": {
+      "title": "保存图像"
+    },
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "z-image-double/20260706_141932",
+      "images": [
+        "220:203",
+        0
+      ]
+    }
+  },
+  "220:198": {
+    "_meta": {
+      "title": "LoRA加载器（仅模型）"
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "lora_name": "zit_fdpo_v1.safetensors",
+      "model": [
+        "220:216",
+        0
+      ],
+      "strength_model": 0.5000000000000001
+    }
+  },
+  "220:200": {
+    "_meta": {
+      "title": "加载VAE"
+    },
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    }
+  },
+  "220:201": {
+    "_meta": {
+      "title": "加载CLIP"
+    },
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen_3_4b.safetensors",
+      "device": "default",
+      "type": "lumina2"
+    }
+  },
+  "220:202": {
+    "_meta": {
+      "title": "条件零化"
+    },
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "220:214",
+        0
+      ]
+    }
+  },
+  "220:203": {
+    "_meta": {
+      "title": "VAE解码"
+    },
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "220:209",
+        0
+      ],
+      "vae": [
+        "220:200",
+        0
+      ]
+    }
+  },
+  "220:205": {
+    "_meta": {
+      "title": "Seed 种子"
+    },
+    "class_type": "PrimitiveInt",
+    "inputs": {
+      "value": 930541016714978
+    }
+  },
+  "220:207": {
+    "_meta": {
+      "title": "CLIP文本编码"
+    },
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "220:201",
+        0
+      ],
+      "text": "masterpiece, best quality, ultra detailed,\nrandom unique face, different facial structure, varied face shape,highly varied facial features, unique and distinct face every time, no repeated facial structure, diverse bone structure, random ethnicity facial diversity,\n(round face, oval face, heart-shaped face, square face, long face, diamond face:1.3),\nrandom facial features, random eye shape, random nose and mouth,Random different hairstyle\ndistinct appearance, not same face   \n\n    国家舞蹈团女舞蹈家，随机发型，素颜，无任何化妆痕迹，38F的巨乳，脖子以下就是乳肉，面积大而饱满，即使躺着都象能克服地心引力一样，向上挺起，而臀部象是磨盘一样硕大，丰满的大腿，丰腴的手臂，象馒头一样高高鼓起的阴阜，自然浓密的阴毛，皮肤水嫩的象是婴儿的皮肤一样，又白又嫩，牛乳的肌肤，婴儿般白嫩，丰满微胖型，清冷高雅。\n   \n\n\n场景：\n    最高质量，超写实，女舞蹈家和中国老年男性，阳光灿烂的午后，绳艺，女舞蹈家被捆绑在中国公园长椅，身体扭曲成各种型状，脖子上带着项圈，周围人潮汹涌，老人亲密抱着女舞蹈家挑逗她的敏感部位，双方交缠着，女舞蹈家主动诱惑挑逗索舌吻，口水滴落，亲密的望着老人，眼神满是爱恋、痴迷，在极致羞辱中达到真实高潮，屈辱的喷尿，眼泪大颗滴落，身体上、嘴里和脸上全是浓稠精液，汗水均匀分布皮肤，乳房自然跳动，臀肉真实颤动，结合处无异常重叠，身体比例完美协调，解剖正确，四肢位置自然无扭曲，午后强烈的阳光洒落在身上，皮肤通透，电影感，皮肤湿润真实纹理，高分辨率，8k，(perfect anatomy:1.3), (no clipping:1.4), (coherent limbs:1.2)\n"
+    }
+  },
+  "220:208": {
+    "_meta": {
+      "title": "K采样器（高级）"
+    },
+    "class_type": "KSamplerAdvanced",
+    "inputs": {
+      "add_noise": "enable",
+      "cfg": 3,
+      "end_at_step": 3,
+      "latent_image": [
+        "220:215",
+        0
+      ],
+      "model": [
+        "220:211",
+        0
+      ],
+      "negative": [
+        "220:214",
+        0
+      ],
+      "noise_seed": [
+        "220:205",
+        0
+      ],
+      "positive": [
+        "220:207",
+        0
+      ],
+      "return_with_leftover_noise": "enable",
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 0,
+      "steps": 9
+    }
+  },
+  "220:209": {
+    "_meta": {
+      "title": "K采样器（高级）"
+    },
+    "class_type": "KSamplerAdvanced",
+    "inputs": {
+      "add_noise": "disable",
+      "cfg": 1,
+      "end_at_step": 10000,
+      "latent_image": [
+        "220:208",
+        0
+      ],
+      "model": [
+        "220:210",
+        0
+      ],
+      "negative": [
+        "220:202",
+        0
+      ],
+      "noise_seed": [
+        "220:205",
+        0
+      ],
+      "positive": [
+        "220:207",
+        0
+      ],
+      "return_with_leftover_noise": "disable",
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 3,
+      "steps": 9
+    }
+  },
+  "220:210": {
+    "_meta": {
+      "title": "采样算法（AuraFlow）"
+    },
+    "class_type": "ModelSamplingAuraFlow",
+    "inputs": {
+      "model": [
+        "220:213",
+        0
+      ],
+      "shift": 8.000000000000002
+    }
+  },
+  "220:211": {
+    "_meta": {
+      "title": "采样算法（AuraFlow）"
+    },
+    "class_type": "ModelSamplingAuraFlow",
+    "inputs": {
+      "model": [
+        "220:198",
+        0
+      ],
+      "shift": 8.000000000000002
+    }
+  },
+  "220:213": {
+    "_meta": {
+      "title": "LoRA加载器（仅模型）"
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "lora_name": "skin_texture_Photorealistic_style_v4.5.safetensors",
+      "model": [
+        "220:217",
+        0
+      ],
+      "strength_model": 0.5000000000000001
+    }
+  },
+  "220:214": {
+    "_meta": {
+      "title": "CLIP文本编码"
+    },
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "220:201",
+        0
+      ],
+      "text": "same face, identical twin, look-alike, cloned appearance, repetitive face, same person again, internet celebrity face, overly symmetrical face, baby face default, oval perfect face, influencer look, same facial features across images\n\n泛黄，发绿，模糊，低分辨率，低质量图像，扭曲的肢体，诡异的外观，丑陋，AI感，噪点，网格感，JPEG压缩条纹，异常的肢体，水印，乱码，意义不明的字符，泛蓝,模糊，低分辨率，畸形，多余的肢体，手的结构错误，卡通，插画，文字，水印，logo，过度曝光，曝光不足，平光，生硬的阴影，面部丑陋，比例失调，手指畸形，眼睛畸形，耳朵畸形，鼻子畸形，嘴巴畸形，牙齿畸形，头发杂乱，衣服褶皱不自然，背景杂乱，构图混乱，透视错误，景深错误，对焦模糊，色彩失真，对比度低，饱和度低，质感差，塑料感，不真实。"
+    }
+  },
+  "220:215": {
+    "_meta": {
+      "title": "Output Size 输出大小"
+    },
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "batch_size": 1,
+      "height": 1024,
+      "width": 1024
+    }
+  },
+  "220:216": {
+    "_meta": {
+      "title": "UNet加载器"
+    },
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "z_image_bf16.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "220:217": {
+    "_meta": {
+      "title": "UNet加载器"
+    },
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "redzV15Bf16.6zbT.safetensors",
+      "weight_dtype": "default"
+    }
+  }
+}

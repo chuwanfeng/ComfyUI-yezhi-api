@@ -5,7 +5,7 @@
     },
     "class_type": "LoadImage",
     "inputs": {
-      "image": "20260622_030647_00001_.png"
+      "image": "ref_0_4d75fc5b0720.png"
     }
   },
   "39": {
@@ -14,7 +14,7 @@
     },
     "class_type": "LoadImage",
     "inputs": {
-      "image": "20260622_033010_00001_.png"
+      "image": "ref_1_04687189ee0f.png"
     }
   },
   "68": {
@@ -24,7 +24,7 @@
     "class_type": "SaveVideo",
     "inputs": {
       "codec": "auto",
-      "filename_prefix": "ltx2.3_flf2v/20260705_212631",
+      "filename_prefix": "ltx2.3_flf2v/20260707_025450",
       "format": "auto",
       "video": [
         "129:122",
@@ -38,7 +38,7 @@
     },
     "class_type": "RandomNoise",
     "inputs": {
-      "noise_seed": 333928591018272
+      "noise_seed": 10237718637249
     }
   },
   "129:101": {
@@ -303,7 +303,7 @@
     "inputs": {
       "cfg": 1,
       "model": [
-        "129:196",
+        "129:195",
         0
       ],
       "negative": [
@@ -531,20 +531,6 @@
         0
       ],
       "strength_model": 0.8
-    }
-  },
-  "129:196": {
-    "_meta": {
-      "title": "LoRA加载器（仅模型）"
-    },
-    "class_type": "LoraLoaderModelOnly",
-    "inputs": {
-      "lora_name": "LTX-2.3/Ltx2.3-Licon-VBVR-I2V-390K-R32.safetensors",
-      "model": [
-        "129:195",
-        0
-      ],
-      "strength_model": 1
     }
   },
   "129:98": {

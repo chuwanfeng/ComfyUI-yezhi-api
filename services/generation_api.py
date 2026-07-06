@@ -550,11 +550,34 @@ def _inject_user_params(workflow: dict, param_mapping: dict, values: dict) -> di
                         inp["text"] = values["negative_prompt"]
                         log.info(f'  [auto] Node {nid} ({node["class_type"]}) text = negative_prompt')
 
-        # ── KSampler seed / steps / cfg ──
+        # ── KSampler / KSamplerAdvanced seed / steps / cfg ──
         if "ksampler" in cls or "sampler" in cls:
-            if "seed" in inp and (values.get("seed") is None or values.get("seed") == -1):
-                inp["seed"] = random.randint(0, 2**31 - 1)
-                log.info(f'  [auto] Node {nid} {cls} seed randomized')
+            seed_val = values.get("seed")
+            if "seed" in inp:
+                if seed_val is None or seed_val == -1:
+                    inp["seed"] = random.randint(0, 2**31 - 1)
+                    log.info(f'  [auto] Node {nid} {cls} seed randomized')
+                elif seed_val is not None and seed_val >= 0:
+                    inp["seed"] = seed_val
+                    log.info(f'  [auto] Node {nid} {cls} seed = {seed_val}')
+            # KSamplerAdvanced 用 noise_seed（可能是连线/直连 PrimitiveInt）
+            if "noise_seed" in inp:
+                raw_seed = inp["noise_seed"]
+                # 如果 noise_seed 是连线（多个采样器共享同一 PrimitiveInt）→ 断开连线, 各自写入独立随机数
+                if isinstance(raw_seed, list) and len(raw_seed) >= 2:
+                    if seed_val is not None and seed_val >= 0:
+                        inp["noise_seed"] = seed_val
+                        log.info(f'  [auto] Node {nid} noise_seed disconnected + set = {seed_val}')
+                    else:
+                        inp["noise_seed"] = random.randint(0, 2**63 - 1)
+                        log.info(f'  [auto] Node {nid} noise_seed disconnected + randomized')
+                else:
+                    if seed_val is not None and seed_val >= 0:
+                        inp["noise_seed"] = seed_val
+                        log.info(f'  [auto] Node {nid} {cls} noise_seed = {seed_val}')
+                    elif seed_val is None or seed_val == -1:
+                        inp["noise_seed"] = random.randint(0, 2**63 - 1)
+                        log.info(f'  [auto] Node {nid} {cls} noise_seed randomized')
             if "steps" in inp and values.get("steps"):
                 inp["steps"] = values["steps"]
                 log.info(f'  [auto] Node {nid} steps = {values["steps"]}')
@@ -563,30 +586,111 @@ def _inject_user_params(workflow: dict, param_mapping: dict, values: dict) -> di
 
         # ── RandomNoise / Noise 节点（视频工作流常用）──
         if "noise" in cls and cls != "SamplerCustomAdvanced":
-            if "noise_seed" in inp and (values.get("seed") is None or values.get("seed") == -1):
-                inp["noise_seed"] = random.randint(0, 2**63 - 1)
-                log.info(f'  [auto] Node {nid} {cls} noise_seed randomized')
+            seed_val = values.get("seed")
+            if "noise_seed" in inp:
+                if seed_val is None or seed_val == -1:
+                    inp["noise_seed"] = random.randint(0, 2**63 - 1)
+                    log.info(f'  [auto] Node {nid} {cls} noise_seed randomized')
+                elif seed_val is not None and seed_val >= 0:
+                    inp["noise_seed"] = seed_val
+                    log.info(f'  [auto] Node {nid} {cls} noise_seed = {seed_val}')
 
-        # ── 空潜空间尺寸 + INTConstant 上游尺寸注入 ──
-        if any(kw in cls for kw in ["emptylatent", "empty latent", "emptysd3", "emptyltxlatent"]):
+        # ── 空潜空间尺寸 + 时长/帧率 + INTConstant 上游注入 ──
+        if any(kw in cls for kw in ["emptylatent", "empty latent", "emptysd3", "emptyltxlatent", "emptyltxvlatent"]):
             if values.get("width") and not isinstance(inp.get("width"), list):
                 inp["width"] = values["width"]
                 log.info(f'  [auto] Node {nid} width = {values["width"]}')
-            elif values.get("width") and isinstance(inp.get("width"), list):
-                # 宽高是连线（如 EmptyLTXVLatentVideo）→ 往上游 INTConstant 注入
-                for k, src_id in [("width", inp["width"]), ("height", inp["height"])]:
-                    if isinstance(src_id, list) and len(src_id) == 2:
-                        src_nid = str(src_id[0])
-                        src_node = result.get(src_nid)
-                        if src_node and "intconstant" in (src_node.get("class_type") or "").lower():
-                            if values.get(k) and not isinstance(src_node["inputs"].get("value"), list):
-                                src_node["inputs"]["value"] = values[k]
-                                log.info(f'  [auto] INTConstant {src_nid}.value = {values[k]} (for {k})')
             if values.get("height") and not isinstance(inp.get("height"), list):
                 inp["height"] = values["height"]
                 log.info(f'  [auto] Node {nid} height = {values["height"]}')
             if values.get("batch_size") and "batch_size" in inp and not isinstance(inp.get("batch_size"), list):
                 inp["batch_size"] = values["batch_size"]
+
+            # 遍历所有连线字段，向上游 INTConstant 注入（覆盖 width/height/length/fps/duration）
+            for field_name, value_key in [
+                ("width", "width"), ("height", "height"),
+                ("length", "duration"), ("fps", "fps"), ("frame_rate", "fps"),
+            ]:
+                src_id = inp.get(field_name)
+                if isinstance(src_id, list) and len(src_id) == 2:
+                    src_nid = str(src_id[0])
+                    src_node = result.get(src_nid)
+                    if not src_node:
+                        continue
+                    src_ct = (src_node.get("class_type") or "").lower()
+                    target_val = values.get(value_key)
+                    if not target_val:
+                        continue
+                    # INTConstant → set .value
+                    if "intconstant" in src_ct:
+                        src_field = "value"
+                        # EmptyLTXVLatentVideo.length → INTConstant (ia2v/orig-clip): total frames = duration * fps + 1
+                        if field_name == "length":
+                            fps_val = values.get("fps") or values.get("frame_rate") or 30
+                            target_val = target_val * fps_val + 1
+                    # PrimitiveInt → set .value (for PrimitiveInt used as constant, flf2v seconds)
+                    elif "primitiveint" in src_ct:
+                        src_field = "value"
+                    elif "primitive" in src_ct:
+                        # PrimitiveFloat etc — skip, don't inject into expression nodes
+                        continue
+                    else:
+                        # Deep trace through intermediate nodes (GetImageSize, Resize*, etc.)
+                        # Example: EmptyLTXVLatentVideo.width → GetImageSize → ResizeImageMaskNode → PrimitiveInt
+                        visited_trace = {nid, src_nid}
+                        for _hop in range(4):
+                            src_inp = src_node.get('inputs', {})
+                            next_id = None
+                            if 'getimagesize' in src_ct or 'imagesize' in src_ct:
+                                next_id = src_inp.get('image')
+                            elif 'resize' in src_ct:
+                                next_id = src_inp.get(f'resize_type.{field_name}')
+                            elif 'math' in src_ct or 'expression' in src_ct:
+                                for vk in sorted(src_inp):
+                                    if vk.startswith('values.'):
+                                        next_id = src_inp.get(vk)
+                                        break
+                            elif any(kw in src_ct for kw in ('jwinteger', 'primitivefloat', 'inttofloat', 'floattoint')):
+                                next_id = src_inp.get('value')
+                            else:
+                                break
+                            if not isinstance(next_id, list) or len(next_id) < 2:
+                                break
+                            src_nid = str(next_id[0])
+                            if src_nid in visited_trace:
+                                break
+                            visited_trace.add(src_nid)
+                            src_node = result.get(src_nid)
+                            if not src_node:
+                                break
+                            src_ct = (src_node.get("class_type") or "").lower()
+                            if "intconstant" in src_ct or "primitiveint" in src_ct:
+                                if 'value' in src_node['inputs'] and not isinstance(src_node['inputs'].get('value'), list):
+                                    src_node['inputs']['value'] = target_val
+                                    log.info(f'  [auto] deep trace: {src_ct} {src_nid}.value = {target_val} (via {nid}.{field_name})')
+                                break
+                        continue
+
+                    if src_field in src_node["inputs"] and not isinstance(src_node["inputs"].get(src_field), list):
+                        src_node["inputs"][src_field] = target_val
+                        log.info(f'  [auto] {src_ct} {src_nid}.{src_field} = {target_val} (for {field_name})')
+
+            # LTXV 专用：EmptyLTXVLatentVideo.length → 上游 INTConstant（也用 duration）
+            # LTXV 专用：frame_rate → 上游 INTConstant（用 fps）
+            # 上面的通用循环已覆盖
+
+        # ── LTXVEmptyLatentAudio.frame_rate 注入（flf2v 首尾帧工作流）──
+        if "ltxvemptylatentaudio" in cls:
+            for field_name, value_key in [("frame_rate", "fps")]:
+                src_id = inp.get(field_name)
+                if isinstance(src_id, list) and len(src_id) == 2:
+                    src_nid = str(src_id[0])
+                    src_node = result.get(src_nid)
+                    if src_node and "intconstant" in (src_node.get("class_type") or "").lower():
+                        target_val = values.get(value_key)
+                        if target_val and not isinstance(src_node["inputs"].get("value"), list):
+                            src_node["inputs"]["value"] = target_val
+                            log.info(f'  [auto] INTConstant {src_nid}.value = {target_val} (for audio frame_rate)')
 
         # ── LoadImage：注入上传后的文件名；超出数量的节点填第1张图+禁用（mode=4 靠填入而非跳过，ComfyUI 校验先于 mute）──
         if cls_name == "LoadImage":
@@ -626,7 +730,78 @@ def _inject_user_params(workflow: dict, param_mapping: dict, values: dict) -> di
                 log.info(f'  [auto] Node {nid} ({cls}) duration = {values["audio_duration"]}')
             _inject_user_params._loadaudio_idx = _a_idx + 1
 
+    # 第二遍：反向追踪 fps/frame_rate/length/duration 通过中间节点（JWIntegerToFloat等）到 INTConstant
+    _trace_inject_upstream(result, values)
+
     return result
+
+
+def _trace_inject_upstream(result: dict, values: dict):
+    """
+    Second-pass backward trace: for fps/frame_rate/length/duration fields
+    that connect through intermediate nodes (JWIntegerToFloat, etc) to INTConstant.
+    Handles chains like:
+      LTXVConditioning.frame_rate → JWIntegerToFloat → INTConstant
+      CreateVideo.fps → JWIntegerToFloat → INTConstant
+    """
+    import logging
+    log = logging.getLogger('generation')
+
+    field_map = {
+        'fps': 'fps', 'frame_rate': 'fps',
+        'duration': 'duration',  # length already handled in first pass (frames vs seconds)
+    }
+    for nid, node in result.items():
+        inp = node.get('inputs', {})
+        for field_name, value_key in field_map.items():
+            if field_name not in inp:
+                continue
+            target_val = values.get(value_key)
+            if not target_val:
+                continue
+            src = inp[field_name]
+            if not isinstance(src, list) or len(src) < 2:
+                continue
+            src_nid = str(src[0])
+            # Walk up to 3 hops through pass-through nodes
+            for _hop in range(3):
+                src_node = result.get(src_nid)
+                if not src_node:
+                    break
+                src_ct = (src_node.get('class_type') or '').lower()
+                if 'intconstant' in src_ct or 'primitiveint' in src_ct:
+                    if 'value' in src_node['inputs'] and not isinstance(src_node['inputs'].get('value'), list):
+                        src_node['inputs']['value'] = target_val
+                        log.info(f'  [trace] {src_ct} {src_nid}.value = {target_val} (via {nid}.{field_name})')
+                    break
+                elif any(kw in src_ct for kw in ('jwinteger', 'primitivefloat', 'floattoint', 'inttofloat')):
+                    # Trace through conversion node's value input
+                    next_id = src_node['inputs'].get('value')
+                    if isinstance(next_id, list) and len(next_id) >= 2:
+                        src_nid = str(next_id[0])
+                        continue
+                elif any(kw in src_ct for kw in ('comfymath', 'mathexpression', 'math_expression')):
+                    # Trace through ComfyMathExpression: find a PrimitiveInt child in values.*
+                    # For length→duration and fps→fps, inject into the first matching child
+                    found = False
+                    for vk in sorted(src_node['inputs']):
+                        if not vk.startswith('values.'):
+                            continue
+                        vv = src_node['inputs'][vk]
+                        if isinstance(vv, list) and len(vv) >= 2:
+                            child_nid = str(vv[0])
+                            child_node = result.get(child_nid)
+                            if child_node:
+                                child_ct = (child_node.get('class_type') or '').lower()
+                                if 'intconstant' in child_ct or 'primitiveint' in child_ct:
+                                    if 'value' in child_node['inputs'] and not isinstance(child_node['inputs'].get('value'), list):
+                                        child_node['inputs']['value'] = target_val
+                                        log.info(f'  [trace] {child_ct} {child_nid}.value = {target_val} (via {nid}.{field_name} → math {vk})')
+                                        found = True
+                                        break
+                    if not found:
+                        break
+                    break
 
 
 def _apply_param_mapping(workflow: dict, param_mapping: dict, values: dict) -> dict:
