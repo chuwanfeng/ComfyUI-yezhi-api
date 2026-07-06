@@ -1088,8 +1088,9 @@ const MyWorksPage = {
  router.push('/generate');
  };
 
+ // auth 就绪后加载数据（刷新时 init 异步未完成）
+ watch(() => authStore.isLoggedIn, (v) => { if (v) load(); }, { immediate: true });
  onMounted(() => {
- load();
  const handler = () => load();
  window.addEventListener('lightbox-data-changed', handler);
  onUnmounted(() => window.removeEventListener('lightbox-data-changed', handler));
