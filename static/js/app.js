@@ -1013,11 +1013,6 @@ const MyWorksPage = {
  const images = computed(() => allImages.value);
 
  const modelTags = ref([]);
- const loadingMore = ref(false);
- const total = ref(0);
- const pageSize = 50;
-
- const images = computed(() => allImages.value);
 
  const filteredImages = computed(() => {
  if (!activeFilter.value) return allImages.value;
