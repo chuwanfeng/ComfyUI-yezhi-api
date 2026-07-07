@@ -20,7 +20,7 @@
 <body>
 <div class="geo-bg"></div>
 <div id="app">
-  <div v-if="!authStore.ready && !authStore.token" class="fc ac jc" style="height:100vh"><div class="spin"></div></div>
+  <div v-if="!authStore.ready" class="fc ac jc" style="height:100vh"><div class="spin"></div></div>
 
   <div v-else-if="$route.path === '/login'" class="auth-page"><router-view v-slot="{ Component }"><transition name="page" mode="out-in"><component :is="Component" /></transition></router-view></div>
 
