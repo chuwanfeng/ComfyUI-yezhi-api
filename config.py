@@ -32,21 +32,9 @@ PORT = int(os.getenv("PORT", "5090"))
 JWT_EXPIRE_HOURS = int(os.getenv("JWT_EXPIRE_HOURS", "72"))
 JWT_ALGORITHM = "HS256"
 
-# ── ComfyUI 模型端点 ─────────────────────────
-COMIFY_MODEL_URLS = {
-    "HiDream-full-fp8": os.getenv("HiDream_Fp8_URL", ""),
-    "Flux-Dev": os.getenv("Flux_Dev_URL", ""),
-    "Flux-Krea": os.getenv("Flux_Krea_URL", ""),
-    "Flux-Kontext": os.getenv("Kontext_fp8_URL", ""),
-    "Stable-Diffusion-3.5": os.getenv("Stable_Diffusion_3_5_URL", ""),
-    "Qwen-Image": os.getenv("Qwen_Image_URL", ""),
-    "Qwen-Image-Edit": os.getenv("Qwen_Image_Edit_URL", ""),
-    "Wai-SDXL-V150": os.getenv("Wai_SDXL_V150_URL", ""),
-    "Wai-SDXL-V170": os.getenv("Wai_SDXL_V170_URL", ""),
-    "Z-Image": os.getenv("Z_IMAGE_URL", ""),
-    "Z-Image-Turbo": os.getenv("Z_Image_Turbo_URL", ""),
-    "Flux-2": os.getenv("Flux_2_URL", ""),
-}
+# ── ComfyUI 基础端点 ─────────────────────────
+# 所有未单独配置 URL 的工作流默认使用此地址
+COMFYUI_BASE_URL = os.getenv("COMFYUI_BASE_URL", "")
 
 # ── LLM 提示词优化 ───────────────────────────
 LLM_BASE_URL = os.getenv("PROMPT_OPTIMIZATION_BASE_URL", "")

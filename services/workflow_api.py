@@ -247,7 +247,7 @@ def update_workflow(workflow_id: str):
         wf = db.query(Workflow).filter(Workflow.id == workflow_id).first()
         if not wf:
             return jsonify({"error": "工作流不存在"}), 404
-        if wf.user_id != g.current_user.id:
+        if wf.user_id != g.current_user.id and not g.current_user.is_admin:
             return jsonify({"error": "无权修改"}), 403
 
         data = request.get_json() or {}
@@ -294,7 +294,7 @@ def delete_workflow(workflow_id: str):
         wf = db.query(Workflow).filter(Workflow.id == workflow_id).first()
         if not wf:
             return jsonify({"error": "工作流不存在"}), 404
-        if wf.user_id != g.current_user.id:
+        if wf.user_id != g.current_user.id and not g.current_user.is_admin:
             return jsonify({"error": "无权删除"}), 403
 
         # 删除 JSON 文件

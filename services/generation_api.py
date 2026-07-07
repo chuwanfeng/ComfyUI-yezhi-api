@@ -16,7 +16,6 @@ from models.generation import UserGeneratedImage, SiteStats, ModelUsageStats
 from models.workflow import Workflow
 from models.user import User
 from utils.comfy_client import ComfyUIClient
-from utils.model_config import get_model_by_id
 from utils.moderation import check_text_safety
 from utils.storage import save_upload
 from utils.auth import get_user_id_from_request
@@ -164,9 +163,7 @@ def _generate_quick(db, data: dict, user_id: str, ip_address: str) -> Response:
             return jsonify({"error": f"工作流不存在: {workflow_id}"}), 404
         
         workflow = _load_workflow_json_from_file(workflow_record.json_path)
-        comfy_url = workflow_record.comfyui_url or getattr(config, 'COMFY_URL', '')
-        if not comfy_url:
-            comfy_url = config.COMFYUI_URL
+        comfy_url = workflow_record.comfyui_url or config.COMFYUI_BASE_URL
         
         # ── 参考图：上传到 ComfyUI input/ 目录（MD5 命名，自动去重）──
         input_image_names = []  # 所有图的上传后文件名
@@ -226,28 +223,34 @@ def _generate_quick(db, data: dict, user_id: str, ip_address: str) -> Response:
             "audio_duration": audio_duration,
         })
     else:
-        # 使用模型预设
-        model = get_model_by_id(model_id)
-        if not model:
-            return jsonify({"error": f"未知模型: {model_id}"}), 400
-
-        comfy_url = config.COMIFY_MODEL_URLS.get(model_id, "")
-        if not comfy_url:
-            return jsonify({"error": f"模型 {model_id} 未配置 ComfyUI 端点"}), 400
-
-        # 构建基础 t2i workflow
-        workflow = _build_t2i_workflow(
-            prompt=prompt,
-            negative_prompt=negative_prompt,
-            width=width,
-            height=height,
-            steps=steps,
-            batch_size=batch_size,
-            seed=seed,
-        )
+        # 无 workflow_id 时，把 model_id 当成 workflow_id 再查一次
+        if model_id:
+            workflow_record = db.query(Workflow).filter(Workflow.id == model_id).first()
+            if workflow_record:
+                workflow = _load_workflow_json_from_file(workflow_record.json_path)
+                comfy_url = workflow_record.comfyui_url or config.COMFYUI_BASE_URL
+                # 注入基础参数
+                workflow = _inject_user_params(workflow, {}, {
+                    "prompt": prompt,
+                    "negative_prompt": negative_prompt,
+                    "width": width,
+                    "height": height,
+                    "steps": steps,
+                    "batch_size": batch_size,
+                    "seed": seed,
+                    "duration": duration_seconds,
+                    "fps": fps,
+                    "reference_images": reference_images,
+                    "input_image_names": [],
+                    "input_audio_names": [],
+                    "audio_start_time": audio_start_time,
+                    "audio_duration": audio_duration,
+                })
+        if not workflow:
+            return jsonify({"error": f"未知模型或工作流: {model_id}"}), 400
     
     if not comfy_url:
-        comfy_url = config.COMFYUI_URL
+        comfy_url = config.COMFYUI_BASE_URL
     
     client = ComfyUIClient(comfy_url)
 

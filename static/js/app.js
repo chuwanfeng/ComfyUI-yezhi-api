@@ -621,7 +621,12 @@ const GeneratePage = {
  };
 
  const selectModel = (m) => { selectedModel.value = m; modelDropdownOpen.value = false; };
- const modelList = computed(() => [...models.value, ...workflows.value]);
+ const modelList = computed(() => {
+ // workflow 和 model 可能重叠，按 id 去重
+ const seen = new Set(models.value.map(m => m.id));
+ const filtered = workflows.value.filter(w => !seen.has(w.id));
+ return [...models.value, ...filtered];
+});
  const selectStyle = (s) => {
  selectedStyle.value = selectedStyle.value === s.id ? null : s.id;
  if (selectedStyle.value) {
@@ -1322,9 +1327,8 @@ const WorkflowsPage = {
  </div>
  <div class="wf-actions">
  <button class="btn btn-primary text-sm" @click="useWorkflow(wf)">使用</button>
- <button v-if="!wf.is_builtin" class="btn btn-ghost text-sm" @click="editWorkflow(wf)">编辑</button>
- <button v-if="!wf.is_builtin" class="btn text-sm" :class="wf.is_public ? 'btn-ghost' : 'btn-secondary'" @click="togglePublish(wf)">{{ wf.is_public ? '取消发布' : '发布' }}</button>
- <button v-if="!wf.is_builtin" class="btn btn-ghost text-sm" @click="deleteWorkflow(wf)">删除</button>
+ <button v-if="authStore.user && (authStore.user.isAdmin || wf.user_id === authStore.user.id)" class="btn btn-ghost text-sm" @click="editWorkflow(wf)">编辑</button>
+ <button v-if="authStore.user && (authStore.user.isAdmin || wf.user_id === authStore.user.id)" class="btn btn-ghost text-sm" @click="deleteWorkflow(wf)">删除</button>
  </div>
  </div>
  </div>
