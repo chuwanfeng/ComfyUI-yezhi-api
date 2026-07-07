@@ -232,11 +232,11 @@ const GeneratePage = {
  <!-- 左: 配置 -->
  <div class="card" style="width: 480px; flex-shrink: 0">
  <!-- 上传参考图（多图） -->
- <div class="form-label">
+ <div v-if="needsImage" class="form-label">
  <img src="/static/form/upload.svg" alt="">上传参考图片
- <span class="text-xs text-muted">(可选, 用于图生图/图像编辑)</span>
+ <span class="text-xs text-muted">({{ selectedModel.minImages >= 2 ? '需要首尾两张' : '可选' }}{{ selectedModel.isImageEdit ? ', 图像编辑' : '' }})</span>
  </div>
- <div class="f gap-2" style="flex-wrap:wrap;align-items:flex-start"
+ <div v-if="needsImage" class="f gap-2" style="flex-wrap:wrap;align-items:flex-start"
  @dragenter.prevent="dragRef = true"
  @dragover.prevent="dragRef = true"
  @dragleave.prevent="dragRef = false"
@@ -251,15 +251,15 @@ const GeneratePage = {
  </div>
  <input ref="fileInput" type="file" accept="image/*" multiple @change="onFileSelected" style="display:none">
  </div>
- <div style="margin-top:4px">
+ <div v-if="needsImage" style="margin-top:4px">
  <button class="btn btn-ghost text-xs" @click="openWorksPicker">从我的作品选择</button>
  </div>
 
  <!-- 音频拖放 -->
- <div class="form-label mt-2">
+ <div v-if="needsAudio" class="form-label mt-2">
  <img src="/static/form/prompt.svg" alt="">音频参考
  </div>
- <div class="f gap-2" style="flex-wrap:wrap;align-items:flex-start"
+ <div v-if="needsAudio" class="f gap-2" style="flex-wrap:wrap;align-items:flex-start"
  @dragenter.prevent="dragAudio = true"
  @dragover.prevent="dragAudio = true"
  @dragleave.prevent="dragAudio = false"
@@ -284,22 +284,20 @@ const GeneratePage = {
  <img :src="selectedModel.cover || '/static/models/' + selectedModel.id + '.jpg'" class="thumb" @error="e => e.target.style.display='none'">
  <div class="name">{{ selectedModel.name }}</div>
  <div class="tags">
- <span v-if="selectedModel.isText2Image" class="tag" style="font-size:10px;padding:2px 6px">文生图</span>
- <span v-if="selectedModel.isImageEdit" class="tag" style="font-size:10px;padding:2px 6px;background:#d1fae5;color:#047857">图像编辑</span>
+ <span v-if="selectedModel.tag" class="tag" style="font-size:10px;padding:2px 6px" :style="{ background: tagColor(selectedModel.tag) }">{{ selectedModel.tag }}</span>
  </div>
  <span style="color: var(--ink-fade)">▾</span>
  </div>
- <div v-if="modelDropdownOpen" class="card mt-2" style="padding: 8px; max-height: 240px; overflow-y: auto">
- <div v-for="m in models" :key="m.id" class="model-selector mb-1" style="padding:6px" @click.stop="selectModel(m)">
- <img :src="m.cover || '/static/models/' + m.id + '.jpg'" class="thumb" @error="e => e.target.style.display='none'">
+ <div v-if="modelDropdownOpen" class="card mt-2" style="padding: 8px; max-height: 320px; overflow-y: auto">
+ <div v-for="m in modelList" :key="m.id" class="model-selector mb-1" style="padding:6px" @click.stop="selectModel(m)">
+ <img :src="m.cover || m.cover_url || '/static/common/workflow.svg'" class="thumb" @error="e => e.target.style.display='none'">
+ <div style="flex:1;min-width:0">
  <div class="name">{{ m.name }}</div>
- <span class="text-xs text-muted">{{ m.description }}</span>
+ <div style="display:flex;gap:4px;align-items:center">
+ <span v-if="m.tag" class="tag" style="font-size:9px;padding:1px 5px" :style="{ background: tagColor(m.tag) }">{{ m.tag }}</span>
+ <span class="text-xs text-muted" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ m.description }}</span>
  </div>
- <div v-if="workflows.length" style="padding:6px 0; border-top:1px solid var(--ink-border); margin:4px 0; font-size:11px; color:var(--ink-fade)">工作流</div>
- <div v-for="w in workflows" :key="'wf_'+w.id" class="model-selector mb-1" style="padding:6px" @click.stop="selectModel(w)">
- <img :src="w.cover_url || '/static/common/workflow.svg'" class="thumb" @error="e => e.target.style.display='none'">
- <div class="name">{{ w.name }}</div>
- <span class="text-xs text-muted">{{ w.description || '自定义工作流' }}</span>
+ </div>
  </div>
  </div>
 
@@ -336,19 +334,19 @@ const GeneratePage = {
  <div class="text-xs text-muted mb-1">生成数量</div>
  <input v-model.number="batchSize" type="number" min="1" max="4" class="input">
  </div>
- <div>
+ <div v-if="isVideoModel">
  <div class="text-xs text-muted mb-1">时长(秒)</div>
  <input v-model.number="duration" type="number" min="1" max="60" class="input" placeholder="自动">
  </div>
- <div>
+ <div v-if="isVideoModel">
  <div class="text-xs text-muted mb-1">帧率</div>
  <input v-model.number="fps" type="number" min="8" max="60" class="input" placeholder="自动">
  </div>
- <div v-if="selectedModel && selectedModel.type === 'workflow'">
+ <div v-if="needsAudio">
  <div class="text-xs text-muted mb-1">音频开始帧</div>
  <input v-model.number="audioStartTime" type="number" min="0" class="input" placeholder="0">
  </div>
- <div v-if="selectedModel && selectedModel.type === 'workflow'">
+ <div v-if="needsAudio">
  <div class="text-xs text-muted mb-1">音频长度(秒)</div>
  <input v-model.number="audioDuration" type="number" min="1" class="input" placeholder="全段">
  </div>
@@ -626,7 +624,18 @@ const GeneratePage = {
  const seen = new Set(models.value.map(m => m.id));
  const filtered = workflows.value.filter(w => !seen.has(w.id));
  return [...models.value, ...filtered];
-});
+ });
+
+ // 根据模型类型显隐参数
+ const isVideoModel = computed(() => selectedModel.value?.isVideo || selectedModel.value?.tag?.includes('视频') || false);
+ const needsImage = computed(() => selectedModel.value?.requiresImage || selectedModel.value?.isImageEdit || selectedModel.value?.tag === '图像编辑' || selectedModel.value?.tag === '图生视频' || selectedModel.value?.tag === '音频驱动视频' || false);
+ const needsAudio = computed(() => selectedModel.value?.requiresAudio || selectedModel.value?.tag === '音频驱动视频' || false);
+
+ const TAG_COLORS = {
+ '文生图': '#dbeafe', '图生图': '#fef3c7', '图像编辑': '#d1fae5',
+ '图生视频': '#e0e7ff', '文生视频': '#f3e8ff', '音频驱动视频': '#fce7f3',
+ };
+ const tagColor = (tag) => TAG_COLORS[tag] || '#f3f4f6';
  const selectStyle = (s) => {
  selectedStyle.value = selectedStyle.value === s.id ? null : s.id;
  if (selectedStyle.value) {
@@ -833,6 +842,7 @@ const GeneratePage = {
  audioStartTime, audioDuration,
  dragAudio, audioFiles, audioInput,
  generating, optimizing, results, error, progress, statusText, elapsed,
+ isVideoModel, needsImage, needsAudio, tagColor,
  triggerUpload, onFileSelected, onRefDrop, selectModel, modelList, selectStyle, cycleRatio,
  triggerAudio, onAudioSelected, onAudioDrop,
  randomPrompt, optimizePrompt, generate, downloadAll, zoomImage,
