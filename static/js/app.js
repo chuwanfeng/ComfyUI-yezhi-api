@@ -377,7 +377,7 @@ const GeneratePage = {
  </div>
  <div v-else-if="results.length" class="fc ac gap-3" style="width:100%">
  <template v-for="(r, i) in results" :key="i">
- <video v-if="r.mediaType === 'video'" :src="r.url" controls preload="metadata" style="max-width:100%;border-radius:4px"></video>
+ <video v-if="r.mediaType === 'video'" :src="r.url" controls preload="none" poster="/static/play-placeholder.svg" loading="lazy" style="max-width:100%;border-radius:4px"></video>
  <img v-else :src="r.url" :alt="'Result ' + (i+1)" style="max-width:100%;border-radius:4px;cursor:pointer" @click="zoomImage(r)">
  </template>
  </div>
@@ -676,8 +676,10 @@ const GeneratePage = {
  const height = customH.value || (w >= h ? Math.round(1024 * h / w) : 1024);
 
  try {
+ const ac = new AbortController();
  const r = await fetch('/api/generate', {
  method: 'POST',
+ signal: ac.signal,
  headers: { 'Content-Type': 'application/json', ...(authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}) },
  body: JSON.stringify({
  mode: 'quick',
@@ -732,17 +734,22 @@ const GeneratePage = {
  lastMediaType.value = evt.media_type || 'image';
  } else if (evt.type === 'error') {
  error.value = evt.message;
+ ac.abort();
  } else if (evt.type === 'done') {
  progress.value = 100;
  statusText.value = '完成';
+ ac.abort();
  }
  } catch {}
  }
  }
+
  elapsed.value = ((Date.now() - t0) / 1000).toFixed(1);
  } catch (e) {
+ if (e.name !== 'AbortError') {
  error.value = e.message;
  window.toast.error(e.message);
+ }
  } finally {
  generating.value = false;
  }

@@ -359,7 +359,7 @@ def _generate_quick(db, data: dict, user_id: str, ip_address: str) -> Response:
         mimetype="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
+            "Connection": "close",
             "X-Accel-Buffering": "no",
         },
     )
@@ -401,7 +401,7 @@ def _generate_direct(db, data: dict, user_id: str, ip_address: str) -> Response:
         mimetype="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
+            "Connection": "close",
             "X-Accel-Buffering": "no",
         },
     )
