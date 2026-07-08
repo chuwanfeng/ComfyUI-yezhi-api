@@ -4,7 +4,7 @@ Workflow JSON 存储在文件系统（WORKFLOWS_DIR），数据库只存元数�
 """
 import json
 import os
-from flask import Blueprint, request, jsonify, send_from_directory, g
+from flask import Blueprint, request, jsonify, send_from_directory, g, current_app
 from services.db import get_db_session
 from models.workflow import Workflow, WorkflowTemplate
 from models.user import User
@@ -112,11 +112,21 @@ def _load_workflow_json(json_path: str) -> dict:
         return json.load(f)
 
 
-def _delete_workflow_json(json_path: str):
-    """删除 workflow JSON 文件"""
+def _delete_workflow_files(wf_id: str, json_path: str):
+    """删除工作流关联文件：JSON + SVG 封面"""
+    # 删 JSON 文件
     filepath = _get_workflow_path(json_path)
     if os.path.exists(filepath):
         os.remove(filepath)
+
+    # 删 SVG 封面（由 _workflow_to_model 同步生成）
+    svg_dir = os.path.join(
+        current_app.root_path if current_app else '.',
+        'static', 'models'
+    )
+    svg_path = os.path.join(svg_dir, f"{wf_id}.svg")
+    if os.path.exists(svg_path):
+        os.remove(svg_path)
 
 
 def _auto_param_mapping(workflow_json: dict) -> str:
@@ -470,8 +480,8 @@ def delete_workflow(workflow_id: str):
         if wf.user_id != g.current_user.id and not g.current_user.is_admin:
             return jsonify({"error": "无权删除"}), 403
 
-        # 删除 JSON 文件
-        _delete_workflow_json(wf.json_path)
+        # 删除工作流关联文件
+        _delete_workflow_files(wf.id, wf.json_path)
 
         db.delete(wf)
         db.commit()
