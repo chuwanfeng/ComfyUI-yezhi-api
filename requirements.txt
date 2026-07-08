@@ -1,3 +1,7 @@
+# ── Runtimes ──
+node>=18
+python>=3.10
+
 # Web 框架
 flask>=3.1
 flask-cors>=5.0

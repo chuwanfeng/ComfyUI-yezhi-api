@@ -12,6 +12,8 @@ yezhi.db
 *.bak
 *.bak2
 *.new_wf
+logs/*
+!logs/.gitkeep
 node_modules/
 venv/
 .venv/
