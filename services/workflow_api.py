@@ -48,6 +48,36 @@ def _delete_workflow_json(json_path: str):
         os.remove(filepath)
 
 
+def _auto_param_mapping(workflow_json: dict) -> str:
+    """Auto-generate param_mapping from workflow JSON nodes"""
+    if not isinstance(workflow_json, dict):
+        return None
+    mapping = {}
+    for nid, node in workflow_json.items():
+        ct = node.get("class_type", "")
+        inputs = node.get("inputs", {})
+        if ct == "CLIPTextEncode" and "text" in inputs:
+            if "prompt" not in mapping:
+                mapping["prompt"] = {"node_id": nid, "field": "text"}
+        elif ct == "LoadImage":
+            key = f"referenceImage_{nid}"
+            mapping[key] = {"node_id": nid, "field": "image"}
+        elif ct == "VHS_LoadAudioUpload":
+            mapping["audio"] = {"node_id": nid, "field": "audio"}
+        elif ct in ("EmptyLatentImage", "LTXVEmptyLatentVideo", "EmptySD3LatentImage"):
+            if "width" in inputs and "width" not in mapping:
+                mapping["width"] = {"node_id": nid, "field": "width"}
+                mapping["height"] = {"node_id": nid, "field": "height"}
+            if "frames_number" in inputs and "duration" not in mapping:
+                mapping["duration"] = {"node_id": nid, "field": "frames_number"}
+        elif ct in ("KSampler", "KSamplerAdvanced"):
+            if "steps" in inputs and "steps" not in mapping:
+                mapping["steps"] = {"node_id": nid, "field": "steps"}
+            if "batch_size" in inputs and "batch_size" not in mapping:
+                mapping["batch_size"] = {"node_id": nid, "field": "batch_size"}
+    return json.dumps(mapping, ensure_ascii=False) if mapping else None
+
+
 def _workflow_to_dict(wf: Workflow, include_json: bool = False) -> dict:
     """Workflow 转为 API 响应字典"""
     result = {
@@ -172,6 +202,7 @@ def create_workflow():
         import uuid
         wf_id = uuid.uuid4().hex[:16]
         json_path = _save_workflow_json(wf_id, workflow_json)
+        auto_mapping = _auto_param_mapping(workflow_json)
 
         wf = Workflow(
             id=wf_id,
@@ -181,7 +212,7 @@ def create_workflow():
             cover_url=data.get("cover_url", ""),
             json_path=json_path,
             comfyui_url=data.get("comfyui_url", ""),
-            param_mapping=data.get("param_mapping"),
+            param_mapping=data.get("param_mapping") or auto_mapping,
             is_public=data.get("is_public", False),
         )
         db.add(wf)
@@ -217,6 +248,7 @@ def import_workflow():
         import uuid
         wf_id = uuid.uuid4().hex[:16]
         json_path = _save_workflow_json(wf_id, workflow_json)
+        auto_mapping = _auto_param_mapping(workflow_json)
 
         wf = Workflow(
             id=wf_id,
@@ -226,6 +258,7 @@ def import_workflow():
             cover_url=data.get("cover_url", ""),
             json_path=json_path,
             comfyui_url=data.get("comfyui_url", ""),
+            param_mapping=auto_mapping,
         )
         db.add(wf)
         db.commit()

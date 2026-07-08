@@ -7,6 +7,7 @@ from services.db import get_db_session
 from models.user import User
 from models.generation import UserGeneratedImage
 from models.community import CommunityLike, CommunityTag, ImageReport
+from models.workflow import Workflow
 from utils.auth import get_user_id_from_request
 
 community_bp = Blueprint("community", __name__, url_prefix="/api/community")
@@ -36,10 +37,14 @@ def get_feed():
         )
 
         if tag:
-            query = query.filter(UserGeneratedImage.model_name == tag)
+            wf = db.query(Workflow).filter(Workflow.name == tag).first()
+            if wf:
+                query = query.filter(UserGeneratedImage.model_name == wf.id)
+            else:
+                query = query.filter(UserGeneratedImage.model_name == tag)
 
         # 全量模型标签（不受分页影响）
-        model_tags_list = [
+        raw_tags = [
             r[0] for r in
             db.query(UserGeneratedImage.model_name)
             .filter(
@@ -51,13 +56,24 @@ def get_feed():
             .distinct()
             .all()
         ]
-        model_tags_list.sort()
+        wf_map_tags = {}
+        if raw_tags:
+            for wf in db.query(Workflow).filter(Workflow.id.in_(raw_tags)).all():
+                wf_map_tags[wf.id] = wf.name
+        model_tags_list = sorted({wf_map_tags.get(t, t) for t in raw_tags})
 
         total = query.count()
         images = query.offset(offset).limit(limit).all()
 
         # 获取当前用户ID（可能未登录）
         current_user_id = get_user_id_from_request(request)
+
+        # 预加载工作流名称映射
+        wf_ids = {img.model_name for img in images if img.model_name}
+        wf_map = {}
+        if wf_ids:
+            for wf in db.query(Workflow).filter(Workflow.id.in_(wf_ids)).all():
+                wf_map[wf.id] = wf.name
 
         result = []
         for img in images:
@@ -94,7 +110,7 @@ def get_feed():
                 "thumbnailUrl": (img.thumbnail_url if img.thumbnail_url and img.thumbnail_url != img.image_url else (None if (img.media_type or 'image') == 'video' else img.image_url)),
                 "width": img.width,
                 "height": img.height,
-                "modelName": img.model_name,
+                "modelName": wf_map.get(img.model_name, img.model_name),
                 "likeCount": like_count,
                 "liked": liked,
                 "reportCount": img.report_count or 0,

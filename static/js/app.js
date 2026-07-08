@@ -375,7 +375,7 @@ const GeneratePage = {
  </div>
  <div v-else-if="results.length" class="fc ac gap-3" style="width:100%">
  <template v-for="(r, i) in results" :key="i">
- <video v-if="r.mediaType === 'video'" :src="r.url" controls preload="none" poster="/static/play-placeholder.svg" loading="lazy" style="max-width:100%;border-radius:4px"></video>
+ <div v-if="r.mediaType === 'video'" style="position:relative;cursor:pointer" @click="zoomImage(r)"><video :src="r.url" controls preload="none" poster="/static/play-placeholder.svg" loading="lazy" style="max-width:100%;border-radius:4px"></video></div>
  <img v-else :src="r.url" :alt="'Result ' + (i+1)" style="max-width:100%;border-radius:4px;cursor:pointer" @click="zoomImage(r)">
  </template>
  </div>

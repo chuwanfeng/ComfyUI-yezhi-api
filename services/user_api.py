@@ -5,6 +5,7 @@ from flask import Blueprint, request, jsonify
 from services.db import get_db_session
 from models.user import User
 from models.generation import UserGeneratedImage
+from models.workflow import Workflow
 from utils.auth import get_user_id_from_request
 
 user_bp = Blueprint("user", __name__, url_prefix="/api/user")
@@ -65,12 +66,16 @@ def list_images():
         )
 
         if tag:
-            query = query.filter(UserGeneratedImage.model_name == tag)
+            wf = db.query(Workflow).filter(Workflow.name == tag).first()
+            if wf:
+                query = query.filter(UserGeneratedImage.model_name == wf.id)
+            else:
+                query = query.filter(UserGeneratedImage.model_name == tag)
 
         total = query.count()
 
         # 全量模型标签（不受分页影响）
-        model_tags = [
+        raw_tags = [
             r[0] for r in
             db.query(UserGeneratedImage.model_name)
             .filter(
@@ -81,12 +86,23 @@ def list_images():
             .distinct()
             .all()
         ]
-        model_tags.sort()
+        wf_map_tags = {}
+        if raw_tags:
+            for wf in db.query(Workflow).filter(Workflow.id.in_(raw_tags)).all():
+                wf_map_tags[wf.id] = wf.name
+        model_tags = sorted({wf_map_tags.get(t, t) for t in raw_tags})
 
         images = query.offset(offset).limit(limit).all()
 
+        # 预加载工作流名称映射
+        wf_ids = {img.model_name for img in images if img.model_name}
+        wf_map = {}
+        if wf_ids:
+            for wf in db.query(Workflow).filter(Workflow.id.in_(wf_ids)).all():
+                wf_map[wf.id] = wf.name
+
         return jsonify({
-            "images": [_image_dict(img) for img in images],
+            "images": [_image_dict(img, wf_map) for img in images],
             "total": total,
             "modelTags": model_tags,
         })
@@ -206,7 +222,7 @@ def _image_dict(img: UserGeneratedImage) -> dict:
     return {
         "id": img.id,
         "userId": img.user_id,
-        "modelName": img.model_name,
+        "modelName": wf_map.get(img.model_name, img.model_name),
         "prompt": img.prompt,
         "negativePrompt": img.negative_prompt or "",
         "imageUrl": img.image_url,
