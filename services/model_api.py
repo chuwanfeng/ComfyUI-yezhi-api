@@ -5,78 +5,28 @@
 from flask import Blueprint, jsonify
 from services.db import get_db_session
 from models.workflow import Workflow
+from services.workflow_api import _analyze_workflow_json
 import config
 
 model_bp = Blueprint("models", __name__, url_prefix="/api/models")
 
 
-def _analyze_workflow(wf: Workflow) -> dict:
-    """分析 workflow JSON，返回媒体类型、标签、所需参数"""
+def _workflow_to_model(wf: Workflow, db) -> dict:
+    """将 Workflow 记录转为前端 model 格式"""
     import json, os
     from flask import current_app
+    from services.workflow_api import _load_workflow_json
 
-    is_video = False
-    load_image_count = 0
-    has_audio = False
-    image_edit = False
-
+    # 加载并分析 JSON（复用 workflow_api 共享方法）
+    analysis = {"is_video": False, "requires_image": False, "requires_audio": False,
+                "min_images": 0, "is_image_edit": False, "tags": []}
     try:
-        json_path = os.path.join(
-            current_app.root_path, 'workflows', wf.json_path
-        ) if current_app else os.path.join('workflows', wf.json_path)
-        if os.path.exists(json_path):
-            with open(json_path, encoding='utf-8') as f:
-                data = json.load(f)
-
-            video_types = {
-                "CreateVideo", "SaveVideo", "EmptyLTXVLatentVideo",
-                "LTXVPreprocess", "LTXVConditioning"
-            }
-            audio_types = {"VHS_LoadAudioUpload"}
-            edit_types = {"TextEncodeQwenImageEditPlus", "QwenImageEditProcessor"}
-
-            for node in data.values():
-                ct = node.get("class_type", "")
-                if ct in video_types:
-                    is_video = True
-                if ct == "LoadImage":
-                    load_image_count += 1
-                if ct in audio_types:
-                    has_audio = True
-                if ct in edit_types:
-                    image_edit = True
+        wf_json = _load_workflow_json(wf.json_path)
+        analysis = _analyze_workflow_json(wf_json)
     except Exception:
         pass
 
-    # 确定标签
-    if is_video:
-        if has_audio:
-            tag = "音频驱动视频"
-        elif load_image_count >= 2:
-            tag = "图生视频"
-        elif load_image_count >= 1:
-            tag = "图生视频"
-        else:
-            tag = "文生视频"
-    else:
-        if image_edit or (load_image_count > 0 and not is_video):
-            tag = "图像编辑"
-        else:
-            tag = "文生图"
-
-    return {
-        "is_video": is_video,
-        "tag": tag,
-        "requires_image": load_image_count > 0,
-        "requires_audio": has_audio,
-        "min_images": 2 if load_image_count >= 2 else (1 if load_image_count >= 1 else 0),
-        "is_image_edit": image_edit,
-    }
-
-
-def _workflow_to_model(wf: Workflow, db) -> dict:
-    """将 Workflow 记录转为前端 model 格式"""
-    info = _analyze_workflow(wf)
+    tag = analysis["tags"][0] if analysis["tags"] else ""
 
     return {
         "id": wf.id,
@@ -85,17 +35,17 @@ def _workflow_to_model(wf: Workflow, db) -> dict:
         "description": wf.description or "",
         "isRecommended": False,
         "isAvailable": True,
-        "isText2Image": not info["is_video"] and not info["is_image_edit"],
-        "isImageEdit": info["is_image_edit"],
-        "isVideo": info["is_video"],
-        "tag": info["tag"],
-        "requiresImage": info["requires_image"],
-        "requiresAudio": info["requires_audio"],
-        "minImages": info["min_images"],
+        "isText2Image": not analysis["is_video"] and not analysis["is_image_edit"],
+        "isImageEdit": analysis["is_image_edit"],
+        "isVideo": analysis["is_video"],
+        "tag": tag,
+        "requiresImage": analysis["requires_image"],
+        "requiresAudio": analysis["requires_audio"],
+        "minImages": analysis["min_images"],
         "requiresLogin": False,
         "normalSteps": 20,
         "maxSteps": 40,
-        "tags": [info["tag"]],
+        "tags": [tag],
         "allowedRatios": [],
         "ratioSizes": {},
         "_type": "workflow",

@@ -94,9 +94,15 @@ def _get_workflow_path(json_path: str) -> str:
     return os.path.join(WORKFLOWS_DIR, json_path)
 
 
-def _save_workflow_json(workflow_id: str, workflow_json: dict) -> str:
-    """保存 workflow JSON 到文件，返回相对路径"""
-    filename = f"{workflow_id}.json"
+def _save_workflow_json(workflow_id: str, workflow_json: dict, name: str = "") -> str:
+    """保存 workflow JSON 到文件，返回相对路径。文件名 = 名称（sanitized）或 ID 兜底。"""
+    if name:
+        safe = "".join(c for c in name if c.isalnum() or c in " ()+-._")
+        safe = safe.strip()[:60] or name[:60]
+        filename = f"{safe}.json"
+    else:
+        filename = f"{workflow_id}.json"
+    # 同名文件覆盖
     filepath = os.path.join(WORKFLOWS_DIR, filename)
     with open(filepath, "w", encoding="utf-8") as f:
         json.dump(workflow_json, f, ensure_ascii=False, indent=2)
@@ -348,7 +354,7 @@ def create_workflow():
     try:
         import uuid
         wf_id = uuid.uuid4().hex[:16]
-        json_path = _save_workflow_json(wf_id, workflow_json)
+        json_path = _save_workflow_json(wf_id, workflow_json, name)
         auto_mapping = _auto_param_mapping(workflow_json)
 
         wf = Workflow(
@@ -394,7 +400,7 @@ def import_workflow():
     try:
         import uuid
         wf_id = uuid.uuid4().hex[:16]
-        json_path = _save_workflow_json(wf_id, workflow_json)
+        json_path = _save_workflow_json(wf_id, workflow_json, name)
         auto_mapping = _auto_param_mapping(workflow_json)
 
         wf = Workflow(
@@ -453,7 +459,7 @@ def update_workflow(workflow_id: str):
                     wf_json = json.loads(wf_json)
                 except json.JSONDecodeError:
                     return jsonify({"error": "workflow_json 格式错误"}), 400
-            _save_workflow_json(wf.id, wf_json)
+            _save_workflow_json(wf.id, wf_json, wf.name)
             # 自动重新生成参数映射（除非前端显式传入）
             if "param_mapping" not in data:
                 wf.param_mapping = _auto_param_mapping(wf_json)
