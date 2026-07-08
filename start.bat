@@ -3,23 +3,27 @@ chcp 65001 >nul
 title ComfyUI-Yezhi-API - AI Image Generation
 setlocal enabledelayedexpansion
 
-:: ---- Kill any existing python processes (avoid port conflict) ----
+:: ── Root directory (where this .bat lives) ──
+set "PROJECT_DIR=%~dp0"
+set "PYTHON_EXE=python"
+
+:: ── Kill any existing python processes (avoid port conflict) ──
 taskkill /f /im python.exe >nul 2>&1
 timeout /t 2 /nobreak >nul
 echo  [OK]  Port 5090 released
 
-:: ---- Check .env ----
+:: ── Check .env ──
 if not exist "%PROJECT_DIR%.env" (
     echo  [*]   Creating .env from .env.example...
     copy "%PROJECT_DIR%.env.example" "%PROJECT_DIR%.env" >nul
     echo  [OK]  Created .env (SELF_HOSTED_MODE=true by default)
 )
 
-:: ---- Check upload dir ----
+:: ── Check upload dir ──
 if not exist "%PROJECT_DIR%uploads" mkdir "%PROJECT_DIR%uploads"
 echo  [OK]  Upload directory ready
 
-:: ---- Start ----
+:: ── Start ──
 cd /d "%PROJECT_DIR%"
 echo.
 echo  ----------------------------------------------
@@ -28,6 +32,6 @@ echo    Health   : http://127.0.0.1:5090/api/health
 echo  ----------------------------------------------
 echo.
 
-echo  [RUN]  Starting server with %PYTHON_EXE%...
-python app.py
+echo  [RUN]  Starting server...
+%PYTHON_EXE% app.py
 pause

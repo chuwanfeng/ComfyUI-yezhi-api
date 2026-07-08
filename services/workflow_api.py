@@ -214,6 +214,7 @@ def _workflow_to_dict(wf: Workflow, include_json: bool = False) -> dict:
         "name": wf.name,
         "description": wf.description,
         "cover_url": wf.cover_url,
+        "cover": wf.cover_url,
         "json_path": wf.json_path,
         "comfyui_url": wf.comfyui_url,
         "param_mapping": json.loads(wf.param_mapping) if wf.param_mapping else {},

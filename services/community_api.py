@@ -26,6 +26,7 @@ def get_feed():
         limit = request.args.get("limit", 20, type=int)
         offset = request.args.get("offset", 0, type=int)
         tag = request.args.get("tag")
+        q = request.args.get("q")  # 搜索关键词（模糊匹配 prompt）
 
         query = (
             db.query(UserGeneratedImage)
@@ -35,6 +36,9 @@ def get_feed():
             )
             .order_by(UserGeneratedImage.created_at.desc())
         )
+
+        if q:
+            query = query.filter(UserGeneratedImage.prompt.ilike(f"%{q}%"))
 
         if tag:
             # 同名工作流可能有多个（公用+私有），需匹配所有

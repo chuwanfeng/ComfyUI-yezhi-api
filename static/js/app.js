@@ -182,7 +182,7 @@ const HomePage = {
  <p class="section-sub">支持 12+ 主流模型，覆盖动漫、写实、油画等 10+ 风格</p>
  <div class="model-grid">
  <div v-for="m in models" :key="m.id" class="model-card" @click="goGenerate(m)">
- <img :src="m.cover || '/static/models/' + m.id + '.jpg'" :alt="m.name" @error="e => e.target.src='/static/images/default-logo.svg'">
+ <img :src="m.cover_url || m.cover || '/static/models/' + m.id + '.jpg'" :alt="m.name" @error="e => e.target.src='/static/images/default-logo.svg'">
  <div class="name">{{ m.name }}</div>
  </div>
  </div>
@@ -281,7 +281,7 @@ const GeneratePage = {
  <img src="/static/form/models.svg" alt="">模型
  </div>
  <div class="model-selector" @click="modelDropdownOpen = !modelDropdownOpen">
- <img :src="selectedModel.cover || '/static/models/' + selectedModel.id + '.jpg'" class="thumb" @error="e => e.target.style.display='none'">
+ <img :src="selectedModel.cover_url || selectedModel.cover || '/static/models/' + selectedModel.id + '.jpg'" class="thumb" @error="e => e.target.style.display='none'">
  <div class="name">{{ selectedModel.name }}</div>
  <div class="tags">
  <span v-if="selectedModel.tag" class="tag" style="font-size:10px;padding:2px 6px" :style="{ background: tagColor(selectedModel.tag) }">{{ selectedModel.tag }}</span>
@@ -290,7 +290,7 @@ const GeneratePage = {
  </div>
  <div v-if="modelDropdownOpen" class="card mt-2" style="padding: 8px; max-height: 320px; overflow-y: auto">
  <div v-for="m in modelList" :key="m.id" class="model-selector mb-1" style="padding:6px" @click.stop="selectModel(m)">
- <img :src="m.cover || m.cover_url || '/static/common/workflow.svg'" class="thumb" @error="e => e.target.style.display='none'">
+ <img :src="m.cover_url || m.cover || '/static/common/workflow.svg'" class="thumb" @error="e => e.target.style.display='none'">
  <div style="flex:1;min-width:0">
  <div class="name">{{ m.name }}</div>
  <div style="display:flex;gap:4px;align-items:center">
@@ -861,6 +861,11 @@ const CommunityPage = {
  <h2 class="section-title">创意社区</h2>
  <p class="section-sub mb-4">发现 AI 创作灵感，分享你的作品</p>
 
+ <div class="flex-row" style="gap:8px;align-items:center;margin-bottom:8px">
+ <input v-model="searchQuery" @input="onSearch" class="input" placeholder="搜索提示词..." style="max-width:280px;height:36px;font-size:13px">
+ <button v-if="searchQuery" @click="clearSearch" class="btn btn-ghost btn-sm" style="color:var(--ink-fade);font-size:12px;white-space:nowrap">✕ 清除</button>
+ </div>
+
  <!-- 标签筛选 -->
  <div class="filter-bar">
  <span class="filter-tag" :class="{ active: activeFilter === '' }" @click="setFilter('')">全部</span>
@@ -913,12 +918,21 @@ const CommunityPage = {
  const modelTags = ref([]);
  const total = ref(0);
  const pageSize = 24;
+ const searchQuery = ref('');
+ let searchTimer = null;
+
+ const onSearch = () => {
+ clearTimeout(searchTimer);
+ searchTimer = setTimeout(() => load(), 350);
+ };
+ const clearSearch = () => { searchQuery.value = ''; load(); };
 
  const load = async () => {
  loading.value = true;
  try {
  const params = new URLSearchParams({ limit: pageSize, offset: 0 });
  if (activeFilter.value) params.set('tag', activeFilter.value);
+ if (searchQuery.value) params.set('q', searchQuery.value);
  const d = await api('/api/community/feed?' + params);
  images.value = d.images || [];
  total.value = d.total || 0;
@@ -946,6 +960,7 @@ const CommunityPage = {
  try {
  const params = new URLSearchParams({ limit: pageSize, offset: images.value.length });
  if (activeFilter.value) params.set('tag', activeFilter.value);
+ if (searchQuery.value) params.set('q', searchQuery.value);
  const d = await api('/api/community/feed?' + params);
  const newImages = d.images || [];
  images.value = [...images.value, ...newImages];
@@ -981,7 +996,7 @@ const CommunityPage = {
  window.addEventListener('lightbox-data-changed', handler);
  onUnmounted(() => window.removeEventListener('lightbox-data-changed', handler));
  });
- return { authStore, images: filteredImages, loading, loadingMore, activeFilter, modelTags, hasMore, setFilter, loadMore, toggleLike };
+ return { authStore, images: filteredImages, loading, loadingMore, activeFilter, modelTags, hasMore, setFilter, loadMore, toggleLike, searchQuery, onSearch, clearSearch };
  },
 };
 
@@ -999,6 +1014,10 @@ const MyWorksPage = {
  <button class="btn btn-primary" @click="$router.push('/login')">去登录</button>
  </div>
  <template v-else>
+ <div class="flex-row" style="gap:8px;align-items:center;margin-bottom:8px">
+ <input v-model="searchQuery" @input="onSearch" class="input" placeholder="搜索提示词..." style="max-width:280px;height:36px;font-size:13px">
+ <button v-if="searchQuery" @click="clearSearch" class="btn btn-ghost btn-sm" style="color:var(--ink-fade);font-size:12px;white-space:nowrap">✕ 清除</button>
+ </div>
  <!-- 标签筛选 -->
  <div v-if="modelTags.length > 0" class="filter-bar">
  <span class="filter-tag" :class="{ active: activeFilter === '' }" @click="setFilter('')">全部</span>
@@ -1046,6 +1065,14 @@ const MyWorksPage = {
  const loadingMore = ref(false);
  const total = ref(0);
  const pageSize = 50;
+ const searchQuery = ref('');
+ let searchTimer = null;
+
+ const onSearch = () => {
+ clearTimeout(searchTimer);
+ searchTimer = setTimeout(() => load(), 350);
+ };
+ const clearSearch = () => { searchQuery.value = ''; load(); };
 
  const images = computed(() => allImages.value);
 
@@ -1060,6 +1087,7 @@ const MyWorksPage = {
  try {
  let url = '/api/user/images?limit=' + pageSize;
  if (activeFilter.value) url += '&tag=' + encodeURIComponent(activeFilter.value);
+ if (searchQuery.value) url += '&q=' + encodeURIComponent(searchQuery.value);
  const d = await api(url);
  allImages.value = d.images || [];
  total.value = d.total || 0;
@@ -1134,7 +1162,7 @@ const MyWorksPage = {
  window.addEventListener('lightbox-data-changed', handler);
  onUnmounted(() => window.removeEventListener('lightbox-data-changed', handler));
  });
- return { authStore, images, filteredImages, modelTags, activeFilter, setFilter, hasMore, loadingMore, publish, remove, remake, loadMore };
+ return { authStore, images, filteredImages, modelTags, activeFilter, setFilter, hasMore, loadingMore, publish, remove, remake, loadMore, searchQuery, onSearch, clearSearch };
  },
 };
 
