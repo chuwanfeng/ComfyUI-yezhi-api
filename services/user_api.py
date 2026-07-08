@@ -66,9 +66,15 @@ def list_images():
         )
 
         if tag:
-            wf = db.query(Workflow).filter(Workflow.name == tag).first()
-            if wf:
-                query = query.filter(UserGeneratedImage.model_name == wf.id)
+            # 同名工作流可能有多个（公用+私有），需匹配所有
+            wfs = db.query(Workflow).filter(Workflow.name == tag).all()
+            wf_ids = [w.id for w in wfs]
+            if wf_ids:
+                from sqlalchemy import or_
+                query = query.filter(or_(
+                    UserGeneratedImage.model_name.in_(wf_ids),
+                    UserGeneratedImage.model_name == tag  # 兼容直接存名称的旧数据
+                ))
             else:
                 query = query.filter(UserGeneratedImage.model_name == tag)
 

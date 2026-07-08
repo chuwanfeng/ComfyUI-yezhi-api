@@ -52,10 +52,12 @@ def _auto_param_mapping(workflow_json: dict) -> str:
     """Auto-generate param_mapping from workflow JSON nodes"""
     if not isinstance(workflow_json, dict):
         return None
+    # 兼容两种 ComfyUI JSON 格式
+    nodes_dict = workflow_json.items()
     mapping = {}
-    for nid, node in workflow_json.items():
-        ct = node.get("class_type", "")
-        inputs = node.get("inputs", {})
+    for nid, node in nodes_dict:
+        ct = node if isinstance(node, str) else node.get("class_type", "") if isinstance(node, dict) else ""
+        inputs = node.get("inputs", {}) if isinstance(node, dict) else {}
         if ct == "CLIPTextEncode" and "text" in inputs:
             if "prompt" not in mapping:
                 mapping["prompt"] = {"node_id": nid, "field": "text"}
