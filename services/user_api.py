@@ -212,7 +212,8 @@ def update_thumbnail(image_id: str):
         db.close()
 
 
-def _image_dict(img: UserGeneratedImage) -> dict:
+def _image_dict(img: UserGeneratedImage, wf_map: dict = None) -> dict:
+    wf_map = wf_map or {}
     # 根据宽高推断比例
     w, h = img.width or 1024, img.height or 1024
     from math import gcd
