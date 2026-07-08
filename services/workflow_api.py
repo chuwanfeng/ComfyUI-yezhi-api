@@ -18,6 +18,77 @@ WORKFLOWS_DIR = os.path.join(os.path.dirname(__file__), "..", "workflows")
 os.makedirs(WORKFLOWS_DIR, exist_ok=True)
 
 
+# ── 节点类型常量（与 model_api._analyze_workflow 保持一致） ──
+VIDEO_NODE_TYPES = {
+    "CreateVideo", "SaveVideo", "EmptyLTXVLatentVideo",
+    "LTXVPreprocess", "LTXVConditioning", "LTXVEmptyLatentVideo",
+    "VideoLinearCFGGuidance", "VideoCombine", "VHS_VideoCombine",
+}
+AUDIO_NODE_TYPES = {"VHS_LoadAudioUpload"}
+EDIT_NODE_TYPES = {"TextEncodeQwenImageEditPlus", "QwenImageEditProcessor"}
+
+
+def _analyze_workflow_json(workflow_json: dict) -> dict:
+    """分析工作流 JSON，返回 is_video / requires_image / requires_audio / tags 等"""
+    is_video = False
+    load_image_count = 0
+    has_audio = False
+    image_edit = False
+    has_cfg = False
+    has_denoise = False
+    has_fps = False
+
+    if isinstance(workflow_json, dict):
+        for nid, node in workflow_json.items():
+            if not isinstance(node, dict):
+                continue
+            ct = node.get("class_type", "")
+            inputs = node.get("inputs", {})
+            if ct in VIDEO_NODE_TYPES:
+                is_video = True
+            if ct == "LoadImage":
+                load_image_count += 1
+            if ct in AUDIO_NODE_TYPES:
+                has_audio = True
+            if ct in EDIT_NODE_TYPES:
+                image_edit = True
+            if ct in ("KSampler", "KSamplerAdvanced"):
+                if "cfg" in inputs:
+                    has_cfg = True
+                if "denoise" in inputs:
+                    has_denoise = True
+            if "fps" in inputs or "frame_rate" in inputs:
+                has_fps = True
+
+    # 确定标签
+    tags = []
+    if is_video:
+        if has_audio:
+            tags.append("音频驱动视频")
+        elif load_image_count >= 2:
+            tags.append("图生视频")
+        elif load_image_count >= 1:
+            tags.append("图生视频")
+        else:
+            tags.append("文生视频")
+    elif image_edit or (load_image_count > 0 and not is_video):
+        tags.append("图像编辑")
+    else:
+        tags.append("文生图")
+
+    return {
+        "is_video": is_video,
+        "requires_image": load_image_count > 0,
+        "requires_audio": has_audio,
+        "min_images": 2 if load_image_count >= 2 else (1 if load_image_count >= 1 else 0),
+        "is_image_edit": image_edit,
+        "has_cfg": has_cfg,
+        "has_denoise": has_denoise,
+        "has_fps": has_fps,
+        "tags": tags,
+    }
+
+
 def _get_workflow_path(json_path: str) -> str:
     """获取 workflow JSON 文件的完整路径"""
     return os.path.join(WORKFLOWS_DIR, json_path)
@@ -49,39 +120,94 @@ def _delete_workflow_json(json_path: str):
 
 
 def _auto_param_mapping(workflow_json: dict) -> str:
-    """Auto-generate param_mapping from workflow JSON nodes"""
+    """Auto-generate param_mapping from workflow JSON nodes
+    
+    覆盖常见节点类型，生成参数映射表：
+    - prompt / negative_prompt : CLIPTextEncode
+    - referenceImage_* : LoadImage
+    - audio : VHS_LoadAudioUpload
+    - width / height / duration : EmptyLatentImage / LTXVEmptyLatentVideo / EmptySD3LatentImage
+    - steps / batch_size / cfg / denoise : KSampler / KSamplerAdvanced
+    - fps : CreateVideo / SaveVideo / VideoCombine 等
+    - seed : 由 generation_api._inject_user_params 自动注入，无需映射
+    """
     if not isinstance(workflow_json, dict):
         return None
-    # 兼容两种 ComfyUI JSON 格式
-    nodes_dict = workflow_json.items()
     mapping = {}
-    for nid, node in nodes_dict:
-        ct = node if isinstance(node, str) else node.get("class_type", "") if isinstance(node, dict) else ""
-        inputs = node.get("inputs", {}) if isinstance(node, dict) else {}
+    prompt_count = 0
+    for nid, node in workflow_json.items():
+        if not isinstance(node, dict):
+            continue
+        ct = node.get("class_type", "")
+        inputs = node.get("inputs", {})
+
+        # ── Prompt / Negative Prompt ──
         if ct == "CLIPTextEncode" and "text" in inputs:
-            if "prompt" not in mapping:
+            if prompt_count == 0 and "prompt" not in mapping:
                 mapping["prompt"] = {"node_id": nid, "field": "text"}
+            elif prompt_count >= 1 and "negative_prompt" not in mapping:
+                mapping["negative_prompt"] = {"node_id": nid, "field": "text"}
+            prompt_count += 1
+
+        # ── Reference Images ──
         elif ct == "LoadImage":
-            key = f"referenceImage_{nid}"
+            existing = [k for k in mapping if k.startswith("referenceImage_")]
+            key = f"referenceImage_{len(existing)}"
             mapping[key] = {"node_id": nid, "field": "image"}
-        elif ct == "VHS_LoadAudioUpload":
+
+        # ── Audio ──
+        elif ct in AUDIO_NODE_TYPES:
             mapping["audio"] = {"node_id": nid, "field": "audio"}
+
+        # ── Width / Height / Duration (Empty Latent nodes) ──
         elif ct in ("EmptyLatentImage", "LTXVEmptyLatentVideo", "EmptySD3LatentImage"):
             if "width" in inputs and "width" not in mapping:
                 mapping["width"] = {"node_id": nid, "field": "width"}
                 mapping["height"] = {"node_id": nid, "field": "height"}
             if "frames_number" in inputs and "duration" not in mapping:
                 mapping["duration"] = {"node_id": nid, "field": "frames_number"}
+            if "length" in inputs and "duration" not in mapping:
+                mapping["duration"] = {"node_id": nid, "field": "length"}
+
+        # ── KSampler: steps / batch_size / cfg / denoise ──
         elif ct in ("KSampler", "KSamplerAdvanced"):
             if "steps" in inputs and "steps" not in mapping:
                 mapping["steps"] = {"node_id": nid, "field": "steps"}
             if "batch_size" in inputs and "batch_size" not in mapping:
                 mapping["batch_size"] = {"node_id": nid, "field": "batch_size"}
+            if "cfg" in inputs and "cfg" not in mapping:
+                mapping["cfg_scale"] = {"node_id": nid, "field": "cfg"}
+            if "denoise" in inputs and "denoise" not in mapping:
+                mapping["denoise"] = {"node_id": nid, "field": "denoise"}
+
+        # ── FPS (CreateVideo / SaveVideo / VideoCombine) ──
+        elif ct in ("CreateVideo", "SaveVideo", "VideoCombine", "VHS_VideoCombine") and "fps" not in mapping:
+            if "fps" in inputs:
+                mapping["fps"] = {"node_id": nid, "field": "fps"}
+            elif "frame_rate" in inputs:
+                mapping["fps"] = {"node_id": nid, "field": "frame_rate"}
+
+        # ── LTXV 系列 FPS 字段 ──
+        elif "frame_rate" in inputs and "fps" not in mapping:
+            mapping["fps"] = {"node_id": nid, "field": "frame_rate"}
+
+        # ── Seed (KSampler noise_seed → 自动注入，但预设 entry 有助于引擎匹配) ──
+        # 不显式添加，留给 _inject_user_params 自动扫描
+
     return json.dumps(mapping, ensure_ascii=False) if mapping else None
 
 
 def _workflow_to_dict(wf: Workflow, include_json: bool = False) -> dict:
-    """Workflow 转为 API 响应字典"""
+    """Workflow 转为 API 响应字典（含自动分析字段）"""
+    # 加载并分析 JSON
+    analysis = {"is_video": False, "requires_image": False, "requires_audio": False,
+                "min_images": 0, "is_image_edit": False, "tags": []}
+    try:
+        wf_json = _load_workflow_json(wf.json_path)
+        analysis = _analyze_workflow_json(wf_json)
+    except Exception:
+        pass
+
     result = {
         "id": wf.id,
         "user_id": wf.user_id,
@@ -96,6 +222,14 @@ def _workflow_to_dict(wf: Workflow, include_json: bool = False) -> dict:
         "use_count": wf.use_count or 0,
         "created_at": wf.created_at.isoformat() if wf.created_at else None,
         "updated_at": wf.updated_at.isoformat() if wf.updated_at else None,
+        # ── 分析字段（用于前端参数显隐）──
+        "isVideo": analysis["is_video"],
+        "requiresImage": analysis["requires_image"],
+        "requiresAudio": analysis["requires_audio"],
+        "minImages": analysis["min_images"],
+        "isImageEdit": analysis["is_image_edit"],
+        "tags": analysis["tags"],
+        "tag": analysis["tags"][0] if analysis["tags"] else "",
     }
     if include_json:
         try:
@@ -309,6 +443,9 @@ def update_workflow(workflow_id: str):
                 except json.JSONDecodeError:
                     return jsonify({"error": "workflow_json 格式错误"}), 400
             _save_workflow_json(wf.id, wf_json)
+            # 自动重新生成参数映射（除非前端显式传入）
+            if "param_mapping" not in data:
+                wf.param_mapping = _auto_param_mapping(wf_json)
 
         db.commit()
         return jsonify({"workflow": _workflow_to_dict(wf, include_json=True), "message": "保存成功"})
