@@ -94,6 +94,63 @@ def _get_workflow_path(json_path: str) -> str:
     return os.path.join(WORKFLOWS_DIR, json_path)
 
 
+def seed_builtin_workflows():
+    """启动时自动注册内置工作流：扫描 config._BUILTIN_WORKFLOW_URL_MAP，
+    workflows/ 下存在对应 JSON 文件但数据库没有记录 → 自动创建。
+    已存在的跳过（按 json_path 去重）。"""
+    import uuid
+    from models.workflow import Workflow
+    db = get_db_session()
+    try:
+        registered = 0
+        for json_path_base in config._BUILTIN_WORKFLOW_URL_MAP:
+            json_path = f"{json_path_base}.json"
+            filepath = os.path.join(WORKFLOWS_DIR, json_path)
+            if not os.path.exists(filepath):
+                print(f"[SEED] SKIP: JSON file not found: {json_path}")
+                continue
+            # 检查 DB 是否已有（按 json_path 去重）
+            existing = db.query(Workflow).filter(
+                Workflow.json_path == json_path,
+                Workflow.is_builtin == True
+            ).first()
+            if existing:
+                # 确保 json_path 正确（历史数据可能不一致）
+                if existing.json_path != json_path:
+                    existing.json_path = json_path
+                    db.commit()
+                continue
+            # 读取 JSON 获取名称和分析信息
+            with open(filepath, "r", encoding="utf-8") as f:
+                wf_json = json.load(f)
+            name = json_path_base  # 默认用文件名
+            analysis = _analyze_workflow_json(wf_json)
+            auto_mapping = _auto_param_mapping(wf_json)
+            wf_id = uuid.uuid4().hex[:16]
+            wf = Workflow(
+                id=wf_id,
+                name=name,
+                description=f"内置工作流: {name}",
+                json_path=json_path,
+                param_mapping=auto_mapping,
+                is_builtin=True,
+                is_public=True,
+            )
+            db.add(wf)
+            registered += 1
+            print(f"[SEED] Registered builtin workflow: {name} ({wf_id})")
+        if registered > 0:
+            db.commit()
+            print(f"[SEED] Done: {registered} builtin workflows registered")
+        else:
+            print("[SEED] All builtin workflows already in DB, nothing to do")
+    except Exception as e:
+        db.rollback()
+        print(f"[SEED] ERROR: {e}")
+    finally:
+        db.close()
+
+
 def _save_workflow_json(workflow_id: str, workflow_json: dict, name: str = "") -> str:
     """保存 workflow JSON 到文件，返回相对路径。文件名 = 名称（sanitized）或 ID 兜底。"""
     if name:

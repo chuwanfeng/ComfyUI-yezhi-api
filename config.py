@@ -43,7 +43,7 @@ _BUILTIN_WORKFLOW_URL_MAP = {
     "Ltx2.3-ia2v-原clip":        "COMFYUI_LTX23_IA2V_CLIP_URL",
     "Ltx2.3图生视频":            "COMFYUI_LTX23_I2V_URL",
     "Qwen-Rapid-AIO":            "COMFYUI_QWEN_RAPID_URL",
-    "Z+Image双模型双采样手动提示词（极致人体文生图）": "COMFYUI_ZIMAGE_URL",
+    "Z+Image双模型双采样手动提示词极致人体文生图": "COMFYUI_ZIMAGE_URL",
     "ltx2_3_flf2v_首尾帧":       "COMFYUI_LTX23_FLF2V_URL",
     "ltx2_3_flf2v_首尾帧_VBVR":  "COMFYUI_LTX23_FLF2V_VBVR_URL",
     "my_image_z_image_turbo":    "COMFYUI_ZIMAGE_TURBO_URL",

@@ -23,6 +23,13 @@ def create_app() -> Flask:
     with app.app_context():
         init_db()
         
+        # 自动注册内置工作流（新部署 / 数据库为空时）
+        try:
+            from services.workflow_api import seed_builtin_workflows
+            seed_builtin_workflows()
+        except Exception as e:
+            print(f"[WARN] Failed to seed builtin workflows: {e}")
+        
         # 初始化默认前端设置
         try:
             from services.settings_api import init_default_settings
