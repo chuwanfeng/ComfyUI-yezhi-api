@@ -5,51 +5,29 @@
 from flask import Blueprint, jsonify
 from services.db import get_db_session
 from models.workflow import Workflow
-from services.workflow_api import _analyze_workflow_json
+from services.workflow_api import _workflow_to_dict
 import config
 
 model_bp = Blueprint("models", __name__, url_prefix="/api/models")
 
 
 def _workflow_to_model(wf: Workflow, db) -> dict:
-    """将 Workflow 记录转为前端 model 格式"""
-    import json, os
-    from flask import current_app
-    from services.workflow_api import _load_workflow_json
-
-    # 加载并分析 JSON（复用 workflow_api 共享方法）
-    analysis = {"is_video": False, "requires_image": False, "requires_audio": False,
-                "min_images": 0, "is_image_edit": False, "tags": []}
-    try:
-        wf_json = _load_workflow_json(wf.json_path)
-        analysis = _analyze_workflow_json(wf_json)
-    except Exception:
-        pass
-
-    tag = analysis["tags"][0] if analysis["tags"] else ""
-
-    return {
-        "id": wf.id,
-        "name": wf.name,
-        "cover": wf.cover_url or f"/static/models/{wf.id}.svg",
-        "description": wf.description or "",
-        "isRecommended": False,
-        "isAvailable": True,
-        "isText2Image": not analysis["is_video"] and not analysis["is_image_edit"],
-        "isImageEdit": analysis["is_image_edit"],
-        "isVideo": analysis["is_video"],
-        "tag": tag,
-        "requiresImage": analysis["requires_image"],
-        "requiresAudio": analysis["requires_audio"],
-        "minImages": analysis["min_images"],
-        "requiresLogin": False,
-        "normalSteps": 20,
-        "maxSteps": 40,
-        "tags": [tag],
-        "allowedRatios": [],
-        "ratioSizes": {},
-        "_type": "workflow",
-    }
+    """将 Workflow 记录转为前端 model 格式（复用 _workflow_to_dict）"""
+    base = _workflow_to_dict(wf, include_json=False)
+    # 前端 model 列表/详情需要的额外字段
+    base["isRecommended"] = False
+    base["isAvailable"] = True
+    base["isText2Image"] = not base["isVideo"] and not base.get("isImageEdit", False)
+    base["requiresLogin"] = False
+    base["normalSteps"] = 20
+    base["maxSteps"] = 40
+    base["allowedRatios"] = []
+    base["ratioSizes"] = {}
+    base["_type"] = "workflow"
+    # cover 字段兼容
+    if not base.get("cover"):
+        base["cover"] = f"/static/models/{wf.id}.svg"
+    return base
 
 
 @model_bp.route("", methods=["GET"])
