@@ -163,9 +163,8 @@ def _generate_quick(db, data: dict, user_id: str, ip_address: str) -> Response:
             return jsonify({"error": f"工作流不存在: {workflow_id}"}), 404
         
         workflow = _load_workflow_json_from_file(workflow_record.json_path)
-        # 内置工作流统一走 .env COMFYUI_BASE_URL，用户工作流用数据库字段
-        comfy_url = workflow_record.comfyui_url if not workflow_record.is_builtin else ""
-        comfy_url = comfy_url or config.COMFYUI_BASE_URL
+        # 优先数据库 comfyui_url，为空 fallback 到 .env COMFYUI_BASE_URL
+        comfy_url = workflow_record.comfyui_url or config.COMFYUI_BASE_URL
         
         # ── 参考图：上传到 ComfyUI input/ 目录（MD5 命名，自动去重）──
         input_image_names = []  # 所有图的上传后文件名
@@ -230,8 +229,7 @@ def _generate_quick(db, data: dict, user_id: str, ip_address: str) -> Response:
             workflow_record = db.query(Workflow).filter(Workflow.id == model_id).first()
             if workflow_record:
                 workflow = _load_workflow_json_from_file(workflow_record.json_path)
-                comfy_url = workflow_record.comfyui_url if not workflow_record.is_builtin else ""
-                comfy_url = comfy_url or config.COMFYUI_BASE_URL
+                comfy_url = workflow_record.comfyui_url or config.COMFYUI_BASE_URL
                 # 注入基础参数
                 workflow = _inject_user_params(workflow, {}, {
                     "prompt": prompt,
