@@ -217,7 +217,10 @@ def _auto_param_mapping(workflow_json: dict) -> str:
         # ── Prompt / Negative Prompt ──
         if ct == "CLIPTextEncode" and "text" in inputs:
             # 按内容判断正负，而不是遍历顺序
-            current_text = (inputs.get("text", "") or "").strip()
+            # text 可能是 str（已填写）或 list（连线，如 ["nodeId", outputIdx]）
+            raw_text = inputs.get("text", "")
+            current_text = raw_text if isinstance(raw_text, str) else ""
+            current_text = current_text.strip()
             node_title = (node.get("_meta", {}).get("title", "") or "").lower()
             is_neg = any(kw in current_text[:200].lower() for kw in [
                 "worst quality", "low quality", "blurry", "deformed", "bad anatomy", "ugly", "jittery",
