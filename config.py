@@ -32,9 +32,28 @@ PORT = int(os.getenv("PORT", "5090"))
 JWT_EXPIRE_HOURS = int(os.getenv("JWT_EXPIRE_HOURS", "72"))
 JWT_ALGORITHM = "HS256"
 
-# ── ComfyUI 基础端点 ─────────────────────────
-# 所有未单独配置 URL 的工作流默认使用此地址
+# ── ComfyUI 端点 ─────────────────────────────
+# 全局兜底：内置工作流未单独配置 + 用户工作流未配置时使用
 COMFYUI_BASE_URL = os.getenv("COMFYUI_BASE_URL", "")
+
+# 内置工作流各自 ComfyUI URL（按 json_path 映射 -> 环境变量名）
+# 为空则 fallback 到 COMFYUI_BASE_URL
+_BUILTIN_WORKFLOW_URL_MAP = {
+    "Ltx2.3-ia2v":               "COMFYUI_LTX23_IA2V_URL",
+    "Ltx2.3-ia2v-原clip":        "COMFYUI_LTX23_IA2V_CLIP_URL",
+    "Ltx2.3图生视频":            "COMFYUI_LTX23_I2V_URL",
+    "Qwen-Rapid-AIO":            "COMFYUI_QWEN_RAPID_URL",
+    "Z+Image双模型双采样手动提示词（极致人体文生图）": "COMFYUI_ZIMAGE_URL",
+    "ltx2_3_flf2v_首尾帧":       "COMFYUI_LTX23_FLF2V_URL",
+    "ltx2_3_flf2v_首尾帧_VBVR":  "COMFYUI_LTX23_FLF2V_VBVR_URL",
+    "my_image_z_image_turbo":    "COMFYUI_ZIMAGE_TURBO_URL",
+}
+
+def get_builtin_workflow_url(json_path: str) -> str:
+    """内置工作流：按 json_path 查对应 env var，为空 fallback 到 COMFYUI_BASE_URL"""
+    env_key = _BUILTIN_WORKFLOW_URL_MAP.get(json_path, "")
+    url = os.getenv(env_key, "") if env_key else ""
+    return url or COMFYUI_BASE_URL
 
 # ── LLM 提示词优化 ───────────────────────────
 LLM_BASE_URL = os.getenv("PROMPT_OPTIMIZATION_BASE_URL", "")

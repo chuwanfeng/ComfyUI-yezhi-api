@@ -163,8 +163,12 @@ def _generate_quick(db, data: dict, user_id: str, ip_address: str) -> Response:
             return jsonify({"error": f"工作流不存在: {workflow_id}"}), 404
         
         workflow = _load_workflow_json_from_file(workflow_record.json_path)
-        # 优先数据库 comfyui_url，为空 fallback 到 .env COMFYUI_BASE_URL
-        comfy_url = workflow_record.comfyui_url or config.COMFYUI_BASE_URL
+        # 内置工作流：按 config._BUILTIN_WORKFLOW_URL_MAP 查 env var
+        # 用户工作流：用数据库 comfyui_url，为空 fallback COMFYUI_BASE_URL
+        if workflow_record.is_builtin:
+            comfy_url = config.get_builtin_workflow_url(workflow_record.json_path)
+        else:
+            comfy_url = workflow_record.comfyui_url or config.COMFYUI_BASE_URL
         
         # ── 参考图：上传到 ComfyUI input/ 目录（MD5 命名，自动去重）──
         input_image_names = []  # 所有图的上传后文件名
@@ -229,9 +233,47 @@ def _generate_quick(db, data: dict, user_id: str, ip_address: str) -> Response:
             workflow_record = db.query(Workflow).filter(Workflow.id == model_id).first()
             if workflow_record:
                 workflow = _load_workflow_json_from_file(workflow_record.json_path)
-                comfy_url = workflow_record.comfyui_url or config.COMFYUI_BASE_URL
-                # 注入基础参数
-                workflow = _inject_user_params(workflow, {}, {
+                if workflow_record.is_builtin:
+                    comfy_url = config.get_builtin_workflow_url(workflow_record.json_path)
+                else:
+                    comfy_url = workflow_record.comfyui_url or config.COMFYUI_BASE_URL
+                # ── 参考图：上传到 ComfyUI input/ 目录 ──
+                input_image_names = []
+                if reference_images:
+                    for idx, ref_img in enumerate(reference_images):
+                        if not ref_img:
+                            continue
+                        try:
+                            import base64 as b64
+                            img_bytes = b64.b64decode(ref_img.split(",")[-1]) if "," in ref_img else b64.b64decode(ref_img)
+                            client_pre = ComfyUIClient(comfy_url)
+                            fname = client_pre.upload_file(img_bytes, f"ref_{idx}.png")
+                            input_image_names.append(fname)
+                        except Exception as e:
+                            logging.getLogger('generation').error(f'  [upload] Failed to upload reference image #{idx+1}: {e}')
+                # ── 音频：上传到 ComfyUI input/ 目录 ──
+                input_audio_names = []
+                if audio_files:
+                    for idx, audio in enumerate(audio_files):
+                        if not audio:
+                            continue
+                        try:
+                            import base64 as b64
+                            if "," in audio:
+                                header, data_b64 = audio.split(",", 1)
+                                ext = header.split("/")[-1].split(";")[0] if "/" in header else "mp3"
+                            else:
+                                data_b64 = audio
+                                ext = "mp3"
+                            audio_bytes = b64.b64decode(data_b64)
+                            client_pre = ComfyUIClient(comfy_url)
+                            fname = client_pre.upload_file(audio_bytes, f"audio_{idx}.{ext}")
+                            input_audio_names.append(fname)
+                        except Exception as e:
+                            logging.getLogger('generation').error(f'  [upload] Failed to upload audio #{idx+1}: {e}')
+                # 注入参数（从数据库读 param_mapping，不能空！）
+                param_mapping = json.loads(workflow_record.param_mapping) if workflow_record.param_mapping else {}
+                workflow = _inject_user_params(workflow, param_mapping, {
                     "prompt": prompt,
                     "negative_prompt": negative_prompt,
                     "width": width,
@@ -242,8 +284,8 @@ def _generate_quick(db, data: dict, user_id: str, ip_address: str) -> Response:
                     "duration": duration_seconds,
                     "fps": fps,
                     "reference_images": reference_images,
-                    "input_image_names": [],
-                    "input_audio_names": [],
+                    "input_image_names": input_image_names,
+                    "input_audio_names": input_audio_names,
                     "audio_start_time": audio_start_time,
                     "audio_duration": audio_duration,
                 })
