@@ -159,10 +159,21 @@ def _auto_param_mapping(workflow_json: dict) -> str:
 
         # ── Prompt / Negative Prompt ──
         if ct == "CLIPTextEncode" and "text" in inputs:
-            if prompt_count == 0 and "prompt" not in mapping:
-                mapping["prompt"] = {"node_id": nid, "field": "text"}
-            elif prompt_count >= 1 and "negative_prompt" not in mapping:
-                mapping["negative_prompt"] = {"node_id": nid, "field": "text"}
+            # 按内容判断正负，而不是遍历顺序
+            current_text = (inputs.get("text", "") or "").strip()
+            node_title = (node.get("_meta", {}).get("title", "") or "").lower()
+            is_neg = any(kw in current_text[:200].lower() for kw in [
+                "worst quality", "low quality", "blurry", "deformed", "bad anatomy", "ugly", "jittery",
+            ])
+            is_neg = is_neg or ("negative" in node_title or "neg" in node_title)
+            # 空内容+title含neg → 也是负向
+            is_neg = is_neg or (not current_text and ("negative" in node_title or "neg" in node_title))
+            if is_neg:
+                if "negative_prompt" not in mapping:
+                    mapping["negative_prompt"] = {"node_id": nid, "field": "text"}
+            else:
+                if "prompt" not in mapping:
+                    mapping["prompt"] = {"node_id": nid, "field": "text"}
             prompt_count += 1
 
         # ── Reference Images ──
