@@ -677,6 +677,10 @@ def _inject_user_params(workflow: dict, param_mapping: dict, values: dict) -> di
                     # PrimitiveInt → set .value (for PrimitiveInt used as constant, flf2v seconds)
                     elif "primitiveint" in src_ct:
                         src_field = "value"
+                        # 和 INTConstant 一样，length 字段需要 seconds→frames 转换
+                        if field_name == "length":
+                            fps_val = int(values.get("fps") or values.get("frame_rate") or 30)
+                            target_val = int(target_val) * fps_val + 1
                     elif "primitive" in src_ct:
                         # PrimitiveFloat etc — skip, don't inject into expression nodes
                         continue
