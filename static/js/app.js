@@ -312,8 +312,6 @@ const GeneratePage = {
  </label>
  </div>
  </div>
- </div>
-</div>
  <!-- 风格选择器 -->
  <div v-if="showStylePicker" class="mt-3">
  <div class="form-label">选择风格</div>
