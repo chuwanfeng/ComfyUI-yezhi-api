@@ -466,7 +466,7 @@ const GeneratePage = {
  <div v-if="worksPickerLoading && myWorks.length===0" class="text-center p-4"><div class="spin"></div></div>
  <div v-else-if="filteredWorks.length === 0" class="text-center p-4 text-muted">{{ pickerSearch ? '没有匹配的作品' : '还没有作品' }}</div>
  <div v-else class="works-picker-grid">
- <div v-for="img in filteredWorks" :key="img.id" class="works-picker-item" @click="pickerPreview=img">
+ <div v-for="img in filteredWorks" :key="img.id" class="works-picker-item" @click="openPickerLightbox(img)">
  <img :src="img.thumbnailUrl || img.imageUrl" :alt="img.prompt" loading="lazy" @error="e => e.target.style.display='none'">
  </div>
  </div>
@@ -474,33 +474,7 @@ const GeneratePage = {
  <div v-if="!pickerHasMore && filteredWorks.length > 0" class="text-center p-2 text-muted" style="font-size:12px">没有更多了</div>
  </div>
  </div>
-
- <!-- 预览层 -->
- <div v-if="pickerPreview" class="picker-preview-overlay" @click.self="pickerPreview=null">
- <div class="picker-preview-content">
- <button class="picker-preview-close" @click="pickerPreview=null">✕</button>
- <div class="picker-preview-body">
- <div class="picker-preview-image-wrap">
- <img :src="pickerPreview.imageUrl" :alt="pickerPreview.prompt" class="picker-preview-image">
- </div>
- <div class="picker-preview-sidebar">
- <div v-if="pickerPreview.prompt" class="lightbox-info-row">
- <span class="lightbox-info-label">提示词</span>
- <span class="lightbox-info-value">{{ pickerPreview.prompt }}</span>
- </div>
- <div v-if="pickerPreview.modelName" class="lightbox-info-row">
- <span class="lightbox-info-label">模型</span>
- <span class="lightbox-info-value">{{ pickerPreview.modelName }}</span>
- </div>
- <div class="picker-preview-actions">
- <button class="btn btn-primary" @click="pickReference(pickerPreview); pickerPreview=null">插入参考图</button>
- </div>
- </div>
- </div>
- </div>
- </div>
- </div>
- </div>`,
+      </div>`,
  setup() {
  const authStore = useAuthStore();
  const models = ref(FALLBACK_MODELS);
@@ -554,7 +528,6 @@ const GeneratePage = {
  const pickerOffset = ref(0);
  const pickerLimit = 40;
  const pickerScroll = ref(null);
- const pickerPreview = ref(null);
  const filteredWorks = computed(() => {
  let list = myWorks.value;
  if (!pickerSearch.value) return list;
@@ -858,6 +831,8 @@ const GeneratePage = {
  const openWorksPicker = async () => {
  showWorksPicker.value = true;
  pickerSearch.value = '';
+ // 设置全局插入回调，供灯箱“插入参考图”使用
+ window.__pickerInsertRef = (dataUrl) => { referenceImages.value.push(dataUrl); showWorksPicker.value = false; };
  if (myWorks.value.length === 0) {
  worksPickerLoading.value = true;
  try {
@@ -882,7 +857,18 @@ const GeneratePage = {
  pickerLoadingMore.value = false;
  };
 
- const pickReference = async (img) => {
+ const openPickerLightbox = (img) => {
+ openLightbox({
+ url: img.imageUrl,
+ prompt: img.prompt,
+ model: img.modelName,
+ width: img.width,
+ height: img.height,
+ pickerMode: true,
+ });
+};
+
+const pickReference = async (img) => {
  try {
  const resp = await fetch(img.thumbnailUrl || img.imageUrl);
  const blob = await resp.blob();
@@ -906,8 +892,8 @@ const GeneratePage = {
  triggerUpload, onFileSelected, onRefDrop, selectModel, modelList, selectStyle, cycleRatio,
  triggerAudio, onAudioSelected, onAudioDrop,
  randomPrompt, optimizePrompt, generate, downloadAll, zoomImage,
- showWorksPicker, worksPickerLoading, myWorks, openWorksPicker, pickReference,
- pickerSearch, pickerLoadingMore, pickerHasMore, pickerScroll, filteredWorks, onPickerScroll, pickerPreview,
+ showWorksPicker, worksPickerLoading, myWorks, openWorksPicker, pickReference, openPickerLightbox,
+ pickerSearch, pickerLoadingMore, pickerHasMore, pickerScroll, filteredWorks, onPickerScroll,
  };
  },
 };
@@ -1879,6 +1865,23 @@ const app = createApp({
  window.addEventListener('wheel', onLightboxWheel, { passive: false });
  });
 
+ const lightboxPickRef = async () => {
+ const d = lightboxData.value;
+ if (!d) return;
+ try {
+ const resp = await fetch(d.url);
+ const blob = await resp.blob();
+ const r = new FileReader();
+ r.onload = () => {
+ window.__pickerInsertRef(r.result);
+ };
+ r.readAsDataURL(blob);
+ } catch {
+ window.__pickerInsertRef(d.url);
+ }
+ closeLightbox();
+ };
+
  const lightboxRemake = () => {
  const d = lightboxData.value;
  if (!d) return;
@@ -1956,7 +1959,7 @@ const app = createApp({
  } catch (e) { window.toast.error(e.message); }
  };
  onMounted(() => authStore.init());
- return { authStore, isActive, logout, theme, toggleTheme, lightboxData, openLightbox, closeLightbox, lightboxRemake, lightboxPublish, lightboxDelete, lightboxSetThumb, lightboxVideoEl, lbScale, lbRotate, lbX, lbY, lbZoomIn, lbZoomOut, lbRotateLeft, lbRotateRight, lbReset, lbStartDrag, lbOnDrag, lbEndDrag };
+ return { authStore, isActive, logout, theme, toggleTheme, lightboxData, openLightbox, closeLightbox, lightboxRemake, lightboxPickRef, lightboxPublish, lightboxDelete, lightboxSetThumb, lightboxVideoEl, lbScale, lbRotate, lbX, lbY, lbZoomIn, lbZoomOut, lbRotateLeft, lbRotateRight, lbReset, lbStartDrag, lbOnDrag, lbEndDrag };
  },
 });
 

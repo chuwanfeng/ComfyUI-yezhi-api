@@ -118,8 +118,9 @@
           <button class="lightbox-action-btn" @click="lightboxSetThumb">设为封面</button>
         </div>
         <div class="lightbox-actions">
-          <button class="lightbox-action-btn primary" @click="lightboxRemake">生成同款</button>
-          <template v-if="lightboxData.userId && authStore.user && lightboxData.userId === authStore.user.id">
+          <button v-if="lightboxData.pickerMode" class="lightbox-action-btn primary" @click="lightboxPickRef">插入参考图</button>
+          <button v-if="!lightboxData.pickerMode" class="lightbox-action-btn primary" @click="lightboxRemake">生成同款</button>
+          <template v-if="!lightboxData.pickerMode && lightboxData.userId && authStore.user && lightboxData.userId === authStore.user.id">
             <button class="lightbox-action-btn" @click="lightboxPublish">{{ lightboxData.isPublic ? '取消发布' : '发布' }}</button>
             <button class="lightbox-action-btn danger" @click="lightboxDelete">删除</button>
           </template>
