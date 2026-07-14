@@ -302,16 +302,21 @@ const GeneratePage = {
  </div>
 
  <!-- LoRA -->
- <div v-if="availableLoras.length" style="margin:8px 0">
- <div class="text-xs text-muted mb-2">LoRA</div>
- <div v-for="lora in availableLoras" :key="lora.node_id" class="flex items-center justify-between" style="padding:4px 0">
- <span class="text-xs" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px;color:var(--ink-body)">{{ lora.lora_name.split('/').pop().replace('.safetensors','') }}</span>
- <label class="toggle">
- <input type="checkbox" v-model="loraSwitches[lora.node_id]">
- <span class="toggle-slider"></span>
- </label>
- </div>
- </div>
+  <div v-if="availableLoras.length" class="mt-3">
+  <div class="form-label">
+  <img src="/static/form/models.svg" alt="">LoRA 开关
+  <span class="text-xs text-muted">(默认开启)</span>
+  </div>
+  <div class="card mt-2" style="padding:8px 12px">
+  <div v-for="(lora, idx) in availableLoras" :key="lora.node_id" class="flex items-center justify-between" :style="{ padding:'5px 0', borderBottom: idx < availableLoras.length-1 ? '1px solid var(--ink-border-light)' : 'none' }">
+  <span class="text-xs" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px;color:var(--ink-body)">{{ lora.lora_name.split('/').pop().replace('.safetensors','') }}</span>
+  <label class="toggle">
+  <input type="checkbox" v-model="loraSwitches[lora.node_id]" checked>
+  <span class="toggle-slider"></span>
+  </label>
+  </div>
+  </div>
+  </div>
  <!-- 风格选择器 -->
  <div v-if="showStylePicker" class="mt-3">
  <div class="form-label">选择风格</div>
