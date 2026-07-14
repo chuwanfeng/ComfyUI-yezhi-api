@@ -141,14 +141,15 @@ class ComfyUIClient:
         """检查 prompt_id 是否还在队列中（正在执行或排队等待）"""
         try:
             q = self.get_queue()
-
+            # ComfyUI queue 格式: [number, prompt_id, workflow, extra_data, node_ids]
+            # prompt_id 在 index 1
             for item in q.get("queue_running", []):
-                if len(item) > 3 and item[3] == prompt_id:
+                if isinstance(item, list) and len(item) > 1 and item[1] == prompt_id:
                     return True
                 if isinstance(item, dict) and item.get("prompt_id") == prompt_id:
                     return True
             for item in q.get("queue_pending", []):
-                if len(item) > 3 and item[3] == prompt_id:
+                if isinstance(item, list) and len(item) > 1 and item[1] == prompt_id:
                     return True
                 if isinstance(item, dict) and item.get("prompt_id") == prompt_id:
                     return True
