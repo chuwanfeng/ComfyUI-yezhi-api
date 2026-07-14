@@ -317,7 +317,9 @@ def _generate_quick(db, data: dict, user_id: str, ip_address: str) -> Response:
 
         def _bg_generate():
             try:
-                media_list = client.wait_for_result(prompt_id, timeout=300)
+                def _on_progress(elapsed, status):
+                    result_queue.put({'type': 'progress', 'elapsed': round(elapsed, 1), 'status': status})
+                media_list = client.wait_for_result(prompt_id, timeout=600, on_progress=_on_progress)
                 elapsed = time.time() - start_time
                 s = _get_db_session()
                 try:
@@ -428,7 +430,7 @@ def _generate_direct(db, data: dict, user_id: str, ip_address: str) -> Response:
             prompt_id = client.queue_prompt(workflow)
             yield f"data: {json.dumps({'type': 'queued', 'prompt_id': prompt_id}, ensure_ascii=False)}\n\n"
 
-            images = client.wait_for_result(prompt_id, timeout=300)
+            images = client.wait_for_result(prompt_id, timeout=600)
 
             saved_urls = []
             for i, img_bytes in enumerate(images):

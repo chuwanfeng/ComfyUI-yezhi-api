@@ -133,18 +133,70 @@ class ComfyUIClient:
             return resp.content
         return None
 
-    def generate_media(self, workflow: dict, timeout: int = 300) -> list[dict]:
+    def get_queue(self) -> dict:
+        """返回 ComfyUI 队列状态: {queue_running: [...], queue_pending: [...]}"""
+        return self._call("GET", "/queue")
+
+    def is_prompt_running(self, prompt_id: str) -> bool:
+        """检查 prompt_id 是否还在队列中（正在执行或排队等待）"""
+        try:
+            q = self.get_queue()
+            for item in q.get("queue_running", []):
+                if len(item) > 3 and item[3] == prompt_id:
+                    return True
+                if isinstance(item, dict) and item.get("prompt_id") == prompt_id:
+                    return True
+            for item in q.get("queue_pending", []):
+                if len(item) > 3 and item[3] == prompt_id:
+                    return True
+                if isinstance(item, dict) and item.get("prompt_id") == prompt_id:
+                    return True
+        except Exception:
+            pass
+        return False
+
+    def generate_media(self, workflow: dict, timeout: int = 600, on_progress=None) -> list[dict]:
         prompt_id = self.queue_prompt(workflow)
-        return self.wait_for_result(prompt_id, timeout=timeout)
+        return self.wait_for_result(prompt_id, timeout=timeout, on_progress=on_progress)
 
     def wait_for_result(
-        self, prompt_id: str, timeout: int = 300, poll_interval: float = 1.0
+        self, prompt_id: str, timeout: int = 600, poll_interval: float = 2.0, on_progress=None
     ) -> list[dict]:
+        """
+        轮询 ComfyUI 结果。
+        - 先检查 /history 是否有输出 → 完成
+        - 再检查 /queue 是否还在执行 → 继续等
+        - 既不在 history 也不在 queue → 任务丢失，报错
+        - on_progress 回调: (elapsed_seconds, status_str) -> None
+        """
         start = time.time()
+        last_progress_time = start
         while time.time() - start < timeout:
+            elapsed = time.time() - start
+
+            # 1. 检查 history 是否已完成
             history = self.get_history(prompt_id)
             if prompt_id in history and "outputs" in history[prompt_id]:
                 outputs = history[prompt_id]["outputs"]
                 return self._extract_media(outputs)
+
+            # 2. 检查 queue 是否还在执行
+            running = self.is_prompt_running(prompt_id)
+            if running:
+                if on_progress and time.time() - last_progress_time > 5:
+                    on_progress(elapsed, "running")
+                    last_progress_time = time.time()
+                time.sleep(poll_interval)
+                continue
+
+            # 3. 不在 history 也不在 queue → 任务可能异常消失
+            # 再等一轮确认（可能恰好在完成瞬间切换）
             time.sleep(poll_interval)
-        raise TimeoutError(f"ComfyUI generation timeout after {timeout}s")
+            history = self.get_history(prompt_id)
+            if prompt_id in history and "outputs" in history[prompt_id]:
+                outputs = history[prompt_id]["outputs"]
+                return self._extract_media(outputs)
+
+            raise RuntimeError(f"ComfyUI 任务消失: prompt_id={prompt_id} (不在 history 也不在 queue)")
+
+        raise TimeoutError(f"ComfyUI generation timeout after {timeout}s (prompt_id={prompt_id})")
