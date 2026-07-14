@@ -836,7 +836,7 @@ const GeneratePage = {
  if (myWorks.value.length === 0) {
  worksPickerLoading.value = true;
  try {
- const d = await api(`/api/user/images?limit=${pickerLimit}&offset=0`);
+ const d = await api(`/api/user/images?limit=${pickerLimit}&offset=0&media_type=image`);
  myWorks.value = d.images || [];
  pickerOffset.value = myWorks.value.length;
  pickerHasMore.value = myWorks.value.length >= pickerLimit;
@@ -848,7 +848,7 @@ const GeneratePage = {
  if (pickerLoadingMore.value || !pickerHasMore.value) return;
  pickerLoadingMore.value = true;
  try {
- const d = await api(`/api/user/images?limit=${pickerLimit}&offset=${pickerOffset.value}`);
+ const d = await api(`/api/user/images?limit=${pickerLimit}&offset=${pickerOffset.value}&media_type=image`);
  const imgs = d.images || [];
  myWorks.value.push(...imgs);
  pickerOffset.value = myWorks.value.length;

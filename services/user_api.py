@@ -75,6 +75,11 @@ def list_images():
         if q:
             query = query.filter(UserGeneratedImage.prompt.ilike(f"%{q}%"))
 
+        # 过滤媒体类型（参考图选择器只取图片）
+        media_type = request.args.get("media_type")
+        if media_type:
+            query = query.filter(UserGeneratedImage.media_type == media_type)
+
         if tag:
             # 同名工作流可能有多个（公用+私有），需匹配所有
             wfs = db.query(Workflow).filter(Workflow.name == tag).all()
