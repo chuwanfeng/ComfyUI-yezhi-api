@@ -37,6 +37,7 @@ def _analyze_workflow_json(workflow_json: dict) -> dict:
     has_cfg = False
     has_denoise = False
     has_fps = False
+    loras = []  # [{node_id, lora_name, default_strength}]
 
     if isinstance(workflow_json, dict):
         for nid, node in workflow_json.items():
@@ -59,6 +60,17 @@ def _analyze_workflow_json(workflow_json: dict) -> dict:
                     has_denoise = True
             if "fps" in inputs or "frame_rate" in inputs:
                 has_fps = True
+            # LoRA 节点检测
+            if "lora" in ct.lower() and "loader" in ct.lower():
+                lora_name = inputs.get("lora_name", "")
+                strength = inputs.get("strength_model", inputs.get("strength", 1))
+                # 跳过连线值
+                if isinstance(lora_name, str) and isinstance(strength, (int, float)):
+                    loras.append({
+                        "node_id": nid,
+                        "lora_name": lora_name,
+                        "default_strength": strength,
+                    })
 
     # 确定标签
     tags = []
@@ -85,6 +97,7 @@ def _analyze_workflow_json(workflow_json: dict) -> dict:
         "has_cfg": has_cfg,
         "has_denoise": has_denoise,
         "has_fps": has_fps,
+        "loras": loras,
         "tags": tags,
     }
 
@@ -288,7 +301,7 @@ def _workflow_to_dict(wf: Workflow, include_json: bool = False) -> dict:
     """Workflow 转为 API 响应字典（含自动分析字段）"""
     # 加载并分析 JSON
     analysis = {"is_video": False, "requires_image": False, "requires_audio": False,
-                "min_images": 0, "is_image_edit": False, "tags": []}
+                "min_images": 0, "is_image_edit": False, "tags": [], "loras": []}
     try:
         wf_json = _load_workflow_json(wf.json_path)
         analysis = _analyze_workflow_json(wf_json)
@@ -317,6 +330,7 @@ def _workflow_to_dict(wf: Workflow, include_json: bool = False) -> dict:
         "minImages": analysis["min_images"],
         "isImageEdit": analysis["is_image_edit"],
         "tags": analysis["tags"],
+        "loras": analysis.get("loras", []),
         "tag": analysis["tags"][0] if analysis["tags"] else "",
     }
     if include_json:

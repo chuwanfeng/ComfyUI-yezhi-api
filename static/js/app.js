@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ComfyUI-Yezhi-API — Vue 3 SPA
  * 视觉风格复刻 Dreamifly
  */
@@ -353,6 +353,19 @@ const GeneratePage = {
  </div>
  </div>
  </div>
+ <!-- LoRA 开关 -->
+ <div v-if="availableLoras.length" style="margin-top:8px">
+ <div class="text-xs text-muted mb-2">LoRA 开关</div>
+ <div v-for="lora in availableLoras" :key="lora.node_id" class="flex items-center justify-between" style="padding:4px 0">
+ <span class="text-xs" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px;color:var(--ink-body)">{{ lora.lora_name.split('/').pop().replace('.safetensors','') }}</span>
+ <label class="toggle">
+ <input type="checkbox" v-model="loraSwitches[lora.node_id]">
+ <span class="toggle-slider"></span>
+ </label>
+ </div>
+ </div>
+ </div>
+</div>
 
  <!-- 右: 预览大图 -->
  <div class="preview-card flex-1">
@@ -484,6 +497,9 @@ const GeneratePage = {
  const dragAudio = ref(false);
  const audioFiles = ref([]);
  const audioInput = ref(null);
+
+ // LoRA 开关：{ [node_id]: enabled }
+ const loraSwitches = ref({});
 
  const generating = ref(false);
  const optimizing = ref(false);
@@ -618,7 +634,14 @@ const GeneratePage = {
  });
  };
 
- const selectModel = (m) => { selectedModel.value = m; modelDropdownOpen.value = false; };
+ const selectModel = (m) => {
+ selectedModel.value = m;
+ modelDropdownOpen.value = false;
+ // 初始化 LoRA 开关：默认全部启用
+ const next = {};
+ (m.loras || []).forEach(l => { next[l.node_id] = true; });
+ loraSwitches.value = next;
+ };
  const modelList = computed(() => {
  // workflow 和 model 可能重叠，按 id 去重
  const seen = new Set(models.value.map(m => m.id));
@@ -630,6 +653,7 @@ const GeneratePage = {
  const isVideoModel = computed(() => selectedModel.value?.isVideo || selectedModel.value?.tag?.includes('视频') || false);
  const needsImage = computed(() => selectedModel.value?.requiresImage || selectedModel.value?.isImageEdit || selectedModel.value?.tag === '图像编辑' || selectedModel.value?.tag === '图生视频' || selectedModel.value?.tag === '音频驱动视频' || false);
  const needsAudio = computed(() => selectedModel.value?.requiresAudio || selectedModel.value?.tag === '音频驱动视频' || false);
+ const availableLoras = computed(() => selectedModel.value?.loras || []);
 
  const TAG_COLORS = {
  '文生图': '#dbeafe', '图生图': '#fef3c7', '图像编辑': '#d1fae5',
@@ -706,6 +730,7 @@ const GeneratePage = {
  audio_duration: audioDuration.value,
  reference_images: referenceImages.value,
  audio: audioFiles.value.map(a => a.data),
+ disabled_loras: Object.entries(loraSwitches.value).filter(([id,on])=>!on).map(([id])=>id),
  }),
  });
 

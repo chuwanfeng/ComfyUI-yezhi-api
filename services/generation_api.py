@@ -137,6 +137,7 @@ def _generate_quick(db, data: dict, user_id: str, ip_address: str) -> Response:
     audio_duration = data.get("audio_duration")      # 音频长度（秒）
     reference_images = data.get("reference_images") or []  # base64 图生图（多图）
     audio_files = data.get("audio") or []  # base64 音频文件
+    disabled_loras = data.get("disabled_loras") or []  # 禁用的 LoRA node_id 列表
     # 向后兼容单图
     if not reference_images:
         single = data.get("reference_image")
@@ -226,6 +227,7 @@ def _generate_quick(db, data: dict, user_id: str, ip_address: str) -> Response:
             "input_audio_names": input_audio_names,
             "audio_start_time": audio_start_time,
             "audio_duration": audio_duration,
+            "disabled_loras": disabled_loras,
         })
     else:
         # 无 workflow_id 时，把 model_id 当成 workflow_id 再查一次
@@ -288,6 +290,7 @@ def _generate_quick(db, data: dict, user_id: str, ip_address: str) -> Response:
                     "input_audio_names": input_audio_names,
                     "audio_start_time": audio_start_time,
                     "audio_duration": audio_duration,
+                    "disabled_loras": disabled_loras,
                 })
         if not workflow:
             return jsonify({"error": f"未知模型或工作流: {model_id}"}), 400
@@ -537,6 +540,21 @@ def _inject_user_params(workflow: dict, param_mapping: dict, values: dict) -> di
         result[nid] = {"inputs": dict(node.get("inputs", {})), "class_type": node.get("class_type", "")}
         if "_meta" in node:
             result[nid]["_meta"] = node["_meta"]
+
+    # ── LoRA 禁用 ──
+    disabled_ids = set(values.get("disabled_loras") or [])
+    if disabled_ids:
+        for nid in disabled_ids:
+            if nid in result:
+                node = result[nid]
+                ct = (node.get("class_type") or "").lower()
+                inp = node.get("inputs", {})
+                # 设置 strength_model / strength 为 0 禁用
+                for field in ("strength_model", "strength"):
+                    if field in inp:
+                        inp[field] = 0
+                        log.info(f'  [lora] Node {nid} ({ct}) disabled: {field} = 0')
+                        break
 
     # ── 第1步：param_mapping 精确注入 ──
     for param_name, mapping in param_mapping.items():
