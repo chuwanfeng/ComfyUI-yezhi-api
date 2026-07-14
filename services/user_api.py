@@ -7,8 +7,35 @@ from models.user import User
 from models.generation import UserGeneratedImage
 from models.workflow import Workflow
 from utils.auth import get_user_id_from_request
+import config
 
 user_bp = Blueprint("user", __name__, url_prefix="/api/user")
+
+
+def _resolve_user_id() -> str | None:
+    """获取当前用户ID，自用模式下自动取最近活跃的用户"""
+    user_id = get_user_id_from_request(request)
+    if user_id:
+        return user_id
+    if config.SELF_HOSTED_MODE:
+        db = get_db_session()
+        try:
+            # 取最近有作品的用户
+            from sqlalchemy import func
+            latest = (
+                db.query(UserGeneratedImage.user_id, func.max(UserGeneratedImage.created_at))
+                .group_by(UserGeneratedImage.user_id)
+                .order_by(func.max(UserGeneratedImage.created_at).desc())
+                .first()
+            )
+            if latest:
+                return latest[0]
+            # 没有作品就取最后注册的用户
+            u = db.query(User).order_by(User.created_at.desc()).first()
+            return u.id if u else None
+        finally:
+            db.close()
+    return None
 
 
 @user_bp.route("/quota", methods=["GET"])
@@ -49,7 +76,7 @@ def get_quota():
 @user_bp.route("/images", methods=["GET"])
 def list_images():
     """获取用户自己的作品列表"""
-    user_id = get_user_id_from_request(request)
+    user_id = _resolve_user_id()
     if not user_id:
         return jsonify({"images": [], "total": 0})
 
@@ -123,7 +150,7 @@ def list_images():
 @user_bp.route("/images/<image_id>", methods=["DELETE"])
 def delete_image(image_id: str):
     """删除自己的作品（同时删除本地文件）"""
-    user_id = get_user_id_from_request(request)
+    user_id = _resolve_user_id()
     if not user_id:
         return jsonify({"error": "未登录"}), 401
 
@@ -155,7 +182,7 @@ def delete_image(image_id: str):
 @user_bp.route("/images/<image_id>/publish", methods=["POST"])
 def publish_image(image_id: str):
     """将作品发布到社区"""
-    user_id = get_user_id_from_request(request)
+    user_id = _resolve_user_id()
     if not user_id:
         return jsonify({"error": "未登录"}), 401
 
@@ -183,7 +210,7 @@ def publish_image(image_id: str):
 @user_bp.route("/images/<image_id>/thumbnail", methods=["POST"])
 def update_thumbnail(image_id: str):
     """更新视频缩略图（前端截取当前帧上传）"""
-    user_id = get_user_id_from_request(request)
+    user_id = _resolve_user_id()
     if not user_id:
         return jsonify({"error": "未登录"}), 401
 
