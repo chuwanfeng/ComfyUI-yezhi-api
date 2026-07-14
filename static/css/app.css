@@ -1083,6 +1083,7 @@ video.lightbox-image { cursor: default; }
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
 }
 .works-picker-dialog {
+  position: relative;
   background: var(--card-bg);
   border-radius: 8px;
   width: 98%;
@@ -1107,6 +1108,42 @@ video.lightbox-image { cursor: default; }
 }
 .works-picker-item:hover { border-color: var(--cinnabar); transform: scale(1.03); }
 .works-picker-item img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ── 作品选择预览层 ── */
+.picker-preview-overlay {
+  position: absolute; inset: 0; background: rgba(0,0,0,0.85);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10; border-radius: 8px;
+}
+.picker-preview-content {
+  position: relative; width: 90%; max-width: 800px; max-height: 88%;
+  display: flex; flex-direction: column;
+}
+.picker-preview-close {
+  position: absolute; top: -12px; right: -12px; z-index: 2;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--cinnabar); color: #fff; border: none;
+  font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.picker-preview-body {
+  display: flex; gap: 0; border-radius: 8px; overflow: hidden;
+  background: var(--card-bg); max-height: 88%;
+}
+.picker-preview-image-wrap {
+  flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center;
+  background: #0a0a0a; overflow: hidden;
+}
+.picker-preview-image {
+  max-width: 100%; max-height: 70vh; object-fit: contain;
+}
+.picker-preview-sidebar {
+  width: 240px; flex-shrink: 0; padding: 16px;
+  display: flex; flex-direction: column; gap: 12px; overflow-y: auto;
+}
+.picker-preview-actions {
+  margin-top: auto; padding-top: 12px;
+}
+.picker-preview-actions .btn { width: 100%; }
 
 /* ── 响应式 ───────────────────────────────────── */
 @media (max-width: 960px) {
