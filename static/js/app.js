@@ -524,8 +524,6 @@ const GeneratePage = {
  const pickerScroll = ref(null);
  const filteredWorks = computed(() => {
  let list = myWorks.value;
- // 过滤掉视频
- list = list.filter(i => (i.mediaType || i.media_type || 'image') === 'image');
  if (!pickerSearch.value) return list;
  const q = pickerSearch.value.toLowerCase();
  return list.filter(i => (i.prompt || '').toLowerCase().includes(q));
@@ -853,7 +851,7 @@ const GeneratePage = {
 
  const pickReference = async (img) => {
  try {
- const resp = await fetch(img.imageUrl);
+ const resp = await fetch(img.thumbnailUrl || img.imageUrl);
  const blob = await resp.blob();
  const r = new FileReader();
  r.onload = () => { referenceImages.value.push(r.result); };
