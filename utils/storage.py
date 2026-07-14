@@ -10,7 +10,8 @@ import config
 def save_upload(file_data: bytes, filename: str, subdir: str = "images") -> str:
     """保存上传文件，返回访问路径"""
     ext = os.path.splitext(filename)[1] or ".png"
-    new_name = f"{uuid.uuid4().hex}{ext}"
+    from datetime import datetime
+    new_name = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}{ext}"
 
     if config.STORAGE_TYPE == "oss":
         return _save_oss(file_data, new_name, subdir)
