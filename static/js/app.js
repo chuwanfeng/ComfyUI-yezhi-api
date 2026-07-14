@@ -868,6 +868,7 @@ const GeneratePage = {
  dragAudio, audioFiles, audioInput,
  generating, optimizing, results, error, progress, statusText, elapsed,
  isVideoModel, needsImage, needsAudio, tagColor,
+  loraSwitches, availableLoras,
  triggerUpload, onFileSelected, onRefDrop, selectModel, modelList, selectStyle, cycleRatio,
  triggerAudio, onAudioSelected, onAudioDrop,
  randomPrompt, optimizePrompt, generate, downloadAll, zoomImage,
