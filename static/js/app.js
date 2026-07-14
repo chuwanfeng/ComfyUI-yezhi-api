@@ -299,16 +299,6 @@ const GeneratePage = {
  </div>
  </div>
  </div>
- <!-- LoRA 开关 -->
- <div v-if="availableLoras.length" style="margin:8px 0">
- <div class="text-xs text-muted mb-2">LoRA</div>
- <div v-for="lora in availableLoras" :key="lora.node_id" class="flex items-center justify-between" style="padding:4px 0">
- <span class="text-xs" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px;color:var(--ink-body)">{{ lora.lora_name.split('/').pop().replace('.safetensors','') }}</span>
- <label class="toggle">
- <input type="checkbox" v-model="loraSwitches[lora.node_id]">
- <span class="toggle-slider"></span>
- </label>
- </div>
  </div>
 
  <!-- 风格选择器 -->
@@ -363,6 +353,19 @@ const GeneratePage = {
  </div>
  </div>
  </div>
+ <!-- LoRA 开关 -->
+ <div v-if="availableLoras.length" style="margin-top:8px">
+ <div class="text-xs text-muted mb-2">LoRA 开关</div>
+ <div v-for="lora in availableLoras" :key="lora.node_id" class="flex items-center justify-between" style="padding:4px 0">
+ <span class="text-xs" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px;color:var(--ink-body)">{{ lora.lora_name.split('/').pop().replace('.safetensors','') }}</span>
+ <label class="toggle">
+ <input type="checkbox" v-model="loraSwitches[lora.node_id]">
+ <span class="toggle-slider"></span>
+ </label>
+ </div>
+ </div>
+ </div>
+</div>
 
  <!-- 右: 预览大图 -->
  <div class="preview-card flex-1">
