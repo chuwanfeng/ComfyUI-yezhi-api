@@ -763,7 +763,7 @@ const GeneratePage = {
  statusText.value = '队列中...';
  progress.value = 20;
  } else if (evt.type === 'progress') {
- statusText.value = `生成中... ${evt.elapsed?s}s`;
+ statusText.value = `生成中... ${evt.elapsed || 0}s`;
  progress.value = Math.min(80, 20 + Math.min(evt.elapsed || 0, 60));
  } else if (evt.type === 'image' || evt.type === 'video') {
  results.value.push({ url: evt.url, id: evt.id, mediaType: evt.media_type || 'image' });
