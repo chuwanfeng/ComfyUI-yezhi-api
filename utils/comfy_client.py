@@ -141,6 +141,7 @@ class ComfyUIClient:
         """检查 prompt_id 是否还在队列中（正在执行或排队等待）"""
         try:
             q = self.get_queue()
+
             for item in q.get("queue_running", []):
                 if len(item) > 3 and item[3] == prompt_id:
                     return True
@@ -152,8 +153,8 @@ class ComfyUIClient:
                 if isinstance(item, dict) and item.get("prompt_id") == prompt_id:
                     return True
         except Exception:
-            pass
-        return False
+            # 网络错误时返回 True 避免误判任务消失
+            return True
 
     def generate_media(self, workflow: dict, timeout: int = 600, on_progress=None) -> list[dict]:
         prompt_id = self.queue_prompt(workflow)
@@ -171,32 +172,53 @@ class ComfyUIClient:
         """
         start = time.time()
         last_progress_time = start
+        consecutive_errors = 0
         while time.time() - start < timeout:
             elapsed = time.time() - start
 
-            # 1. 检查 history 是否已完成
-            history = self.get_history(prompt_id)
-            if prompt_id in history and "outputs" in history[prompt_id]:
-                outputs = history[prompt_id]["outputs"]
-                return self._extract_media(outputs)
+            try:
+                # 1. 检查 history 是否已完成
+                history = self.get_history(prompt_id)
+                consecutive_errors = 0
+                if prompt_id in history and "outputs" in history[prompt_id]:
+                    outputs = history[prompt_id]["outputs"]
+                    return self._extract_media(outputs)
 
-            # 2. 检查 queue 是否还在执行
-            running = self.is_prompt_running(prompt_id)
-            if running:
-                if on_progress and time.time() - last_progress_time > 5:
-                    on_progress(elapsed, "running")
-                    last_progress_time = time.time()
-                time.sleep(poll_interval)
+                # 2. 检查 queue 是否还在执行
+                running = self.is_prompt_running(prompt_id)
+                if running:
+                    if on_progress and time.time() - last_progress_time > 5:
+                        on_progress(elapsed, "running")
+                        last_progress_time = time.time()
+                    time.sleep(poll_interval)
+                    continue
+
+                # 3. 不在 history 也不在 queue → 可能恰好在完成瞬间切换，或网络抖动
+                # 重试 3 次，每次间隔拉长，避免误判
+                recovered = False
+                for retry in range(3):
+                    wait = poll_interval * (retry + 1)  # 2s, 4s, 6s
+                    time.sleep(wait)
+                    history = self.get_history(prompt_id)
+                    if prompt_id in history and "outputs" in history[prompt_id]:
+                        outputs = history[prompt_id]["outputs"]
+                        return self._extract_media(outputs)
+                    running = self.is_prompt_running(prompt_id)
+                    if running:
+                        recovered = True
+                        break
+                if recovered:
+                    continue
+
+                raise RuntimeError(f"ComfyUI 任务消失: prompt_id={prompt_id} (不在 history 也不在 queue)")
+
+            except (requests.ConnectionError, requests.Timeout) as e:
+                consecutive_errors += 1
+                if consecutive_errors > 5:
+                    raise RuntimeError(f"ComfyUI 连续网络错误 ({consecutive_errors}次): {e}")
+                if on_progress:
+                    on_progress(elapsed, f"网络重连中({consecutive_errors})")
+                time.sleep(poll_interval * 2)
                 continue
-
-            # 3. 不在 history 也不在 queue → 任务可能异常消失
-            # 再等一轮确认（可能恰好在完成瞬间切换）
-            time.sleep(poll_interval)
-            history = self.get_history(prompt_id)
-            if prompt_id in history and "outputs" in history[prompt_id]:
-                outputs = history[prompt_id]["outputs"]
-                return self._extract_media(outputs)
-
-            raise RuntimeError(f"ComfyUI 任务消失: prompt_id={prompt_id} (不在 history 也不在 queue)")
 
         raise TimeoutError(f"ComfyUI generation timeout after {timeout}s (prompt_id={prompt_id})")
