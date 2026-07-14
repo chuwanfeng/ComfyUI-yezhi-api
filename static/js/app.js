@@ -67,9 +67,17 @@ const useAuthStore = defineStore('auth', {
  },
  actions: {
  async init() {
- const tasks = [api('/api/health').then(d => { this.selfHosted = d.self_hosted; }).catch(() => {})];
- if (this.token) tasks.push(this.fetchMe());
- await Promise.all(tasks);
+ await api('/api/health').then(d => { this.selfHosted = d.self_hosted; }).catch(() => {});
+ if (this.token) {
+ try { await this.fetchMe(); } catch {}
+ }
+ // 自用模式未登录时自动登录
+ if (!this.token && this.selfHosted) {
+ try {
+ const d = await api('/api/auth/auto-login', { method: 'POST' });
+ this.login(d.token, d.user);
+ } catch {}
+ }
  this.ready = true;
  },
  async fetchMe() {

@@ -13,29 +13,8 @@ user_bp = Blueprint("user", __name__, url_prefix="/api/user")
 
 
 def _resolve_user_id() -> str | None:
-    """获取当前用户ID，自用模式下自动取最近活跃的用户"""
-    user_id = get_user_id_from_request(request)
-    if user_id:
-        return user_id
-    if config.SELF_HOSTED_MODE:
-        db = get_db_session()
-        try:
-            # 取最近有作品的用户
-            from sqlalchemy import func
-            latest = (
-                db.query(UserGeneratedImage.user_id, func.max(UserGeneratedImage.created_at))
-                .group_by(UserGeneratedImage.user_id)
-                .order_by(func.max(UserGeneratedImage.created_at).desc())
-                .first()
-            )
-            if latest:
-                return latest[0]
-            # 没有作品就取最后注册的用户
-            u = db.query(User).order_by(User.created_at.desc()).first()
-            return u.id if u else None
-        finally:
-            db.close()
-    return None
+    """获取当前用户ID，未登录返回None"""
+    return get_user_id_from_request(request)
 
 
 @user_bp.route("/quota", methods=["GET"])

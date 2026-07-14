@@ -126,6 +126,36 @@ def me():
         db.close()
 
 
+# ── 自用模式自动登录 ─────────────────────────
+@auth_bp.route("/auto-login", methods=["POST"])
+def auto_login():
+    """自用模式下自动登录最近活跃的用户"""
+    import config
+    if not config.SELF_HOSTED_MODE:
+        return jsonify({"error": "仅自用模式可用"}), 403
+
+    db = get_db_session()
+    try:
+        # 先验证请求中带的 token 是否还有效
+        user_id = get_user_id_from_request(request)
+        if user_id:
+            user = db.query(User).filter(User.id == user_id).first()
+            if user and not user.banned:
+                return jsonify({"token": create_token(user.id, {"email": user.email}), "user": _user_dict(user)})
+
+        # token 无效或不存在，取最近登录的用户
+        user = db.query(User).order_by(User.last_login_at.desc().nullslast()).first()
+        if not user:
+            return jsonify({"error": "没有用户"}), 404
+        if user.banned:
+            return jsonify({"error": "账号已被封禁"}), 403
+
+        token = create_token(user.id, {"email": user.email})
+        return jsonify({"token": token, "user": _user_dict(user)})
+    finally:
+        db.close()
+
+
 # ── 修改密码 ─────────────────────────────────
 @auth_bp.route("/change-password", methods=["POST"])
 def change_password():
