@@ -361,6 +361,8 @@ def _generate_quick(db, data: dict, user_id: str, ip_address: str) -> Response:
                             media_type="video" if is_video else "image",
                             duration_seconds=duration_seconds,
                             fps=fps,
+                            audio_start_time=audio_start_time,
+                            audio_duration=audio_duration,
                         )
                         s.add(generated)
                         s.flush()
