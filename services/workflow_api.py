@@ -37,6 +37,7 @@ def _analyze_workflow_json(workflow_json: dict) -> dict:
     has_cfg = False
     has_denoise = False
     has_fps = False
+    has_prompt_relay = False  # PromptRelayEncode 节点
     loras = []  # [{node_id, lora_name, default_strength}]
 
     if isinstance(workflow_json, dict):
@@ -60,6 +61,9 @@ def _analyze_workflow_json(workflow_json: dict) -> dict:
                     has_denoise = True
             if "fps" in inputs or "frame_rate" in inputs:
                 has_fps = True
+            # PromptRelayEncode 节点检测
+            if ct == "PromptRelayEncode":
+                has_prompt_relay = True
             # LoRA 节点检测
             if "lora" in ct.lower() and "loader" in ct.lower():
                 lora_name = inputs.get("lora_name", "")
@@ -97,6 +101,7 @@ def _analyze_workflow_json(workflow_json: dict) -> dict:
         "has_cfg": has_cfg,
         "has_denoise": has_denoise,
         "has_fps": has_fps,
+        "has_prompt_relay": has_prompt_relay,
         "loras": loras,
         "tags": tags,
     }
@@ -253,6 +258,13 @@ def _auto_param_mapping(workflow_json: dict) -> str:
                     mapping["prompt"] = {"node_id": nid, "field": text_field}
             prompt_count += 1
 
+        # ── PromptRelayEncode: global_prompt → prompt, local_prompts → local_prompts ──
+        elif ct == "PromptRelayEncode":
+            if "global_prompt" in inputs and "prompt" not in mapping:
+                mapping["prompt"] = {"node_id": nid, "field": "global_prompt"}
+            if "local_prompts" in inputs and "local_prompts" not in mapping:
+                mapping["local_prompts"] = {"node_id": nid, "field": "local_prompts"}
+        
         # ── Reference Images ──
         elif ct == "LoadImage":
             existing = [k for k in mapping if k.startswith("referenceImage_")]
@@ -335,6 +347,7 @@ def _workflow_to_dict(wf: Workflow, include_json: bool = False) -> dict:
         "isImageEdit": analysis["is_image_edit"],
         "tags": analysis["tags"],
         "loras": analysis.get("loras", []),
+        "hasPromptRelay": analysis.get("has_prompt_relay", False),
         "tag": analysis["tags"][0] if analysis["tags"] else "",
     }
     if include_json:

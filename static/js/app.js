@@ -422,6 +422,14 @@ const GeneratePage = {
  </div>
  <textarea v-model="prompt" class="textarea" placeholder="请输入英文提示词以获得最佳效果..." rows="6"></textarea>
 
+ <div v-if="showLocalPrompts" class="mt-3">
+ <div class="form-label">
+ 分镜提示词 (Prompt Relay)
+ <span class="text-xs text-muted">(时间线分镜描述)</span>
+ </div>
+ <textarea v-model="localPrompts" class="textarea" placeholder="0-5秒：描述...&#10;5-12秒：描述..." rows="6"></textarea>
+ </div>
+
  <div v-if="showNegative" class="mt-3">
  <div class="form-label">
  <img src="/static/form/negative.svg" alt="">负面提示词
@@ -489,6 +497,7 @@ const GeneratePage = {
 
  const prompt = ref('');
  const negativePrompt = ref('');
+ const localPrompts = ref('');  // PromptRelayEncode 分镜提示词
  const ratio = ref('1:1');
  const customW = ref(null);
  const customH = ref(null);
@@ -568,6 +577,7 @@ const GeneratePage = {
  const rm = JSON.parse(remakeData);
  prompt.value = rm.prompt || '';
  negativePrompt.value = rm.negativePrompt || '';
+ localPrompts.value = rm.localPrompts || '';
  steps.value = rm.steps || 28;
  ratio.value = rm.ratio || '1:1';
  // 恢复宽高
@@ -661,6 +671,7 @@ const GeneratePage = {
  const needsImage = computed(() => selectedModel.value?.requiresImage || selectedModel.value?.isImageEdit || selectedModel.value?.tag === '图像编辑' || selectedModel.value?.tag === '图生视频' || selectedModel.value?.tag === '音频驱动视频' || false);
  const needsAudio = computed(() => selectedModel.value?.requiresAudio || selectedModel.value?.tag === '音频驱动视频' || false);
  const availableLoras = computed(() => selectedModel.value?.loras || []);
+ const showLocalPrompts = computed(() => selectedModel.value?.hasPromptRelay === true);
 
  const TAG_COLORS = {
  '文生图': '#dbeafe', '图生图': '#fef3c7', '图像编辑': '#d1fae5',
@@ -725,6 +736,7 @@ const GeneratePage = {
  mode: 'quick',
  prompt: prompt.value,
  negative_prompt: negativePrompt.value,
+ local_prompts: localPrompts.value,
  model_id: selectedModel.value.type === 'workflow' ? '' : selectedModel.value.id,
  workflow_id: selectedModel.value.type === 'workflow' ? selectedModel.value.id : '',
  width, height,
@@ -882,13 +894,13 @@ const pickReference = async (img) => {
  return {
  authStore, models, workflows, styles, selectedModel, selectedStyle, modelDropdownOpen,
  showStylePicker, showAdvanced, showNegative,
- prompt, negativePrompt, ratio, customW, customH, steps, batchSize, duration, fps, lastMediaType,
+ prompt, negativePrompt, localPrompts, ratio, customW, customH, steps, batchSize, duration, fps, lastMediaType,
  dragRef, referenceImages, fileInput,
  audioStartTime, audioDuration,
  dragAudio, audioFiles, audioInput,
  generating, optimizing, results, error, progress, statusText, elapsed,
  isVideoModel, needsImage, needsAudio, tagColor,
-  loraSwitches, availableLoras,
+  loraSwitches, availableLoras, showLocalPrompts,
  triggerUpload, onFileSelected, onRefDrop, selectModel, modelList, selectStyle, cycleRatio,
  triggerAudio, onAudioSelected, onAudioDrop,
  randomPrompt, optimizePrompt, generate, downloadAll, zoomImage,

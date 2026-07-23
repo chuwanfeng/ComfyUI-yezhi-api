@@ -124,6 +124,7 @@ def _generate_quick(db, data: dict, user_id: str, ip_address: str) -> Response:
     """快捷模式：prompt + model/workflow → ComfyUI"""
     prompt = (data.get("prompt") or "").strip()
     negative_prompt = (data.get("negative_prompt") or "").strip()
+    local_prompts = (data.get("local_prompts") or "").strip()  # PromptRelayEncode 分镜提示词
     model_id = data.get("model_id", "")
     workflow_id = data.get("workflow_id")  # 新增: 使用自定义工作流
     width = data.get("width", 1024)
@@ -215,6 +216,7 @@ def _generate_quick(db, data: dict, user_id: str, ip_address: str) -> Response:
         workflow = _inject_user_params(workflow, param_mapping, {
             "prompt": prompt,
             "negative_prompt": negative_prompt,
+            "local_prompts": local_prompts,
             "width": width,
             "height": height,
             "steps": steps,
@@ -278,6 +280,7 @@ def _generate_quick(db, data: dict, user_id: str, ip_address: str) -> Response:
                 workflow = _inject_user_params(workflow, param_mapping, {
                     "prompt": prompt,
                     "negative_prompt": negative_prompt,
+                    "local_prompts": local_prompts,
                     "width": width,
                     "height": height,
                     "steps": steps,
