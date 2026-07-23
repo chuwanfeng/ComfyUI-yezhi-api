@@ -116,6 +116,7 @@ def get_feed():
                 "userName": user.nickname or user.name if user else "匿名",
                 "userAvatar": user.avatar if user else "/static/images/default-avatar.svg",
                 "prompt": img.prompt,
+                "localPrompts": img.local_prompts or "",
                 "imageUrl": img.image_url,
                 "thumbnailUrl": (img.thumbnail_url if img.thumbnail_url and img.thumbnail_url != img.image_url else (None if (img.media_type or 'image') == 'video' else img.image_url)),
                 "width": img.width,

@@ -247,6 +247,7 @@ def _image_dict(img: UserGeneratedImage, wf_map: dict = None) -> dict:
         "modelName": wf_map.get(img.model_name, img.model_name),
         "prompt": img.prompt,
         "negativePrompt": img.negative_prompt or "",
+        "localPrompts": img.local_prompts or "",
         "imageUrl": img.image_url,
         "thumbnailUrl": (img.thumbnail_url if img.thumbnail_url and img.thumbnail_url != img.image_url else (None if (img.media_type or 'image') == 'video' else img.image_url)),
         "width": img.width,

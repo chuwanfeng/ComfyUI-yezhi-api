@@ -351,6 +351,7 @@ def _generate_quick(db, data: dict, user_id: str, ip_address: str) -> Response:
                             workflow_id=workflow_id,
                             prompt=prompt,
                             negative_prompt=negative_prompt,
+                            local_prompts=local_prompts,
                             image_url=url,
                             thumbnail_url=thumb_url,
                             width=width,

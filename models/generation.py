@@ -48,6 +48,7 @@ class UserGeneratedImage(Base):
     model_name = Column(String(255))
     prompt = Column(Text)
     negative_prompt = Column(Text)
+    local_prompts = Column(Text)  # PromptRelayEncode 分镜提示词
     image_url = Column(Text, nullable=False)
     thumbnail_url = Column(Text)
     width = Column(Integer)
