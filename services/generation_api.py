@@ -578,7 +578,8 @@ def _inject_user_params(workflow: dict, param_mapping: dict, values: dict) -> di
         # 自动匹配所有文本编码节点（标准 CLIPTextEncode + Qwen TextEncodeQwenImageEditPlus 等）
         cls_name = node.get("class_type", "")
         if any(kw in cls_name for kw in ["CLIPTextEncode", "TextEncode"]):
-            has_explicit = bool(param_mapping)
+            # 仅当 prompt / negative_prompt 自身没有被 param_mapping 精确映射时才自动注入
+            has_explicit = (param_mapping and ("prompt" in param_mapping or "negative_prompt" in param_mapping))
             # 兼容不同字段名：CLIPTextEncode 用 text，TextEncodeQwenImageEditPlus 用 prompt
             text_field = "text" if "text" in inp else "prompt"
             current_text = (inp.get(text_field, "") or "").strip()

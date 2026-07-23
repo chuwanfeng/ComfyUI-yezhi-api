@@ -228,10 +228,14 @@ def _auto_param_mapping(workflow_json: dict) -> str:
         inputs = node.get("inputs", {})
 
         # ── Prompt / Negative Prompt ──
+        # 支持 CLIPTextEncode (field=text) + TextEncode* 系列 (field=prompt)
+        text_field = None
         if ct == "CLIPTextEncode" and "text" in inputs:
-            # 按内容判断正负，而不是遍历顺序
-            # text 可能是 str（已填写）或 list（连线，如 ["nodeId", outputIdx]）
-            raw_text = inputs.get("text", "")
+            text_field = "text"
+        elif "TextEncode" in ct and "prompt" in inputs:
+            text_field = "prompt"
+        if text_field:
+            raw_text = inputs.get(text_field, "")
             current_text = raw_text if isinstance(raw_text, str) else ""
             current_text = current_text.strip()
             node_title = (node.get("_meta", {}).get("title", "") or "").lower()
@@ -243,10 +247,10 @@ def _auto_param_mapping(workflow_json: dict) -> str:
             is_neg = is_neg or (not current_text and ("negative" in node_title or "neg" in node_title))
             if is_neg:
                 if "negative_prompt" not in mapping:
-                    mapping["negative_prompt"] = {"node_id": nid, "field": "text"}
+                    mapping["negative_prompt"] = {"node_id": nid, "field": text_field}
             else:
                 if "prompt" not in mapping:
-                    mapping["prompt"] = {"node_id": nid, "field": "text"}
+                    mapping["prompt"] = {"node_id": nid, "field": text_field}
             prompt_count += 1
 
         # ── Reference Images ──
