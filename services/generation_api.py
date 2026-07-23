@@ -745,9 +745,14 @@ def _inject_user_params(workflow: dict, param_mapping: dict, values: dict) -> di
                                 break
                         continue
 
-                    if src_field in src_node["inputs"] and not isinstance(src_node["inputs"].get(src_field), list):
-                        src_node["inputs"][src_field] = target_val
-                        log.info(f'  [auto] {src_ct} {src_nid}.{src_field} = {target_val} (for {field_name})')
+                    if src_field in src_node["inputs"]:
+                        # INTConstant/PrimitiveInt 的 value 即使当前是连线也应该覆盖（写入计算后的值）
+                        if isinstance(src_node["inputs"].get(src_field), list):
+                            src_node["inputs"][src_field] = target_val
+                            log.info(f'  [auto] {src_ct} {src_nid}.{src_field} = {target_val} (overwrote link for {field_name})')
+                        else:
+                            src_node["inputs"][src_field] = target_val
+                            log.info(f'  [auto] {src_ct} {src_nid}.{src_field} = {target_val} (for {field_name})')
 
             # LTXV 专用：EmptyLTXVLatentVideo.length → 上游 INTConstant（也用 duration）
             # LTXV 专用：frame_rate → 上游 INTConstant（用 fps）

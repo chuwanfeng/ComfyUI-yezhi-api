@@ -276,13 +276,14 @@ def _auto_param_mapping(workflow_json: dict) -> str:
             mapping["audio"] = {"node_id": nid, "field": "audio"}
 
         # ── Width / Height / Duration (Empty Latent nodes) ──
-        elif ct in ("EmptyLatentImage", "LTXVEmptyLatentVideo", "EmptySD3LatentImage"):
+        elif ct in ("EmptyLatentImage", "EmptyLTXVLatentVideo", "LTXVEmptyLatentVideo", "EmptySD3LatentImage"):
             if "width" in inputs and "width" not in mapping:
                 mapping["width"] = {"node_id": nid, "field": "width"}
                 mapping["height"] = {"node_id": nid, "field": "height"}
             if "frames_number" in inputs and "duration" not in mapping:
                 mapping["duration"] = {"node_id": nid, "field": "frames_number"}
-            if "length" in inputs and "duration" not in mapping:
+            # length 直接值是帧数时才映射；连线到 INTConstant 的由 _inject_user_params 上游追踪处理（秒→帧转换）
+            if "length" in inputs and "duration" not in mapping and not isinstance(inputs.get("length"), list):
                 mapping["duration"] = {"node_id": nid, "field": "length"}
 
         # ── KSampler: steps / batch_size / cfg / denoise ──
